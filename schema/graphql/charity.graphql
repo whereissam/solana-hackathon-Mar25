@@ -1,0 +1,27 @@
+type Charity{
+    id: Int!
+    name: String!
+    beneficiaries(offset: Int = 0, limit: Int = 10): [CharityUser!]! 
+}
+type Query{
+    charities: [Charity!]! @cacheControl(maxAge: 120)
+}
+type Query{
+    beneficiaries(charityId: Int!, offset: Int = 0, limit: Int = 10) : [CharityUser!]!
+}
+type CharityUser{
+    id: Int!
+    email: String!
+    first_name: String
+    last_name: String
+}
+input NewCharityUser{
+    email: String!
+    first_name: String!
+    last_name: String!
+    password: String!
+    story: String
+}
+type Mutation {
+    createBeneficiary(charityId: Int!, detail: NewCharityUser): CharityUser
+}

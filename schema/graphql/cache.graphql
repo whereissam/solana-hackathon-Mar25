@@ -1,0 +1,18 @@
+"""
+Cache behavior for ApolloServer
+https://www.apollographql.com/docs/apollo-server/performance/caching
+"""
+enum CacheControlScope {
+    PUBLIC
+    PRIVATE
+}
+
+"""
+Cache behavior for ApolloServer
+https://www.apollographql.com/docs/apollo-server/performance/caching
+"""
+directive @cacheControl(
+    maxAge: Int
+    scope: CacheControlScope
+    inheritMaxAge: Boolean
+) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
