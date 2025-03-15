@@ -9,10 +9,11 @@ const charityService = {
         })
     },
     getBeneficiaries: (charityId: number, args) => {
-        return prisma.users.findMany({
+        return prisma.charity.findUnique({
             where: {
-                charity_id_recipient: charityId,
+                id: charityId,
             },
+        }).user_recipient({
             ...args
         })
     }
