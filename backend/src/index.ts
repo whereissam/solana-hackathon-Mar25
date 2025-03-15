@@ -13,7 +13,7 @@ import jwt from 'jsonwebtoken'
 
 dotenv.config()
 
-async function startup() {
+async function startup() {  
   const typeDefs = loadFilesSync(path.join(__dirname, "../../schema/graphql/**/*.graphql"))
 
   const app = express();

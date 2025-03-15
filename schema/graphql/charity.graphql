@@ -1,13 +1,10 @@
 type Charity{
     id: Int!
     name: String!
-    beneficiaries(offset: Int = 0, limit: Int = 10): [CharityUser!]! 
+    beneficiaries(offset: Int! = 0, limit: Int! = 10): [CharityUser!]! 
 }
 type Query{
-    charities: [Charity!]! @cacheControl(maxAge: 120)
-}
-type Query{
-    beneficiaries(charityId: Int!, offset: Int = 0, limit: Int = 10) : [CharityUser!]!
+    charities(offset: Int! = 0, limit: Int! = 30): [Charity!]! 
 }
 type CharityUser{
     id: Int!

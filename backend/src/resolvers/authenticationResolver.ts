@@ -1,13 +1,11 @@
 import userService from '../service/userService'
 import { MutationLoginArgs, MutationResolvers, AuthPayload, RoleType } from '../generated/graphql'
 import { valueToEnum } from '../utils/valueToEnum'
-import { withAuth, falseFunc, trueFunc } from './authorization'
+import { withAuth, falseFunc, trueFunc, inRole, any, all } from './authorization'
 
 const resolver = {
     Mutation: {
-        login: withAuth([
-            trueFunc, 
-        ],
+        login: withAuth([trueFunc],
             async (_parent: any, args: MutationLoginArgs) => {
                 const result = await userService.login(args.email, args.password)
                 const authResult: AuthPayload = {
@@ -20,10 +18,9 @@ const resolver = {
                 }
                 return authResult
             }),
-        logout: withAuth([
-                falseFunc, trueFunc
-            ],
+        logout: withAuth([trueFunc],
             async (_parent, _args, contextValue) => {
+                console.log("LOGOUT");
                 return true
             }
         )

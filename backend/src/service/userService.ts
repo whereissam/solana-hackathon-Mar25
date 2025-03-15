@@ -4,8 +4,8 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import bcrypt from 'bcrypt'
 import { createJWT } from './auth'
 
-class UserService {
-    async login(email: string, password: string){
+const userService = {
+    login: async (email: string, password: string) => {
         const user = await prisma.users.findFirstOrThrow({
             where: {
                 email: email
@@ -22,5 +22,4 @@ class UserService {
     }
 }
 
-const userService = new UserService()
 export default userService

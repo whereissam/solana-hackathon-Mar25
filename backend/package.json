@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node dist/index.js",
     "dev": "nodemon src/index.ts",
-    "prisma": "npx prisma generate --schema ../../ug-admin/prisma/schema.prisma",
+    "prisma": "npx prisma generate --schema ../schema/.prisma/schema.prisma",
     "generate": "npx graphql-code-generator"
   },
   "author": "",
