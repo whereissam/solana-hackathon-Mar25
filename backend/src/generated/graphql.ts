@@ -66,9 +66,9 @@ export type CharityBeneficiariesArgs = {
 export type CharityUser = {
   __typename?: 'CharityUser';
   email: Scalars['String']['output'];
-  firstName?: Maybe<Scalars['String']['output']>;
+  first_name?: Maybe<Scalars['String']['output']>;
   id: Scalars['Int']['output'];
-  lastName?: Maybe<Scalars['String']['output']>;
+  last_name?: Maybe<Scalars['String']['output']>;
 };
 
 export type Donor = {
@@ -317,9 +317,9 @@ export type CharityResolvers<ContextType = any, ParentType extends ResolversPare
 
 export type CharityUserResolvers<ContextType = any, ParentType extends ResolversParentTypes['CharityUser'] = ResolversParentTypes['CharityUser']> = {
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  firstName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  first_name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  lastName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  last_name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

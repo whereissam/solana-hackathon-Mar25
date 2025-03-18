@@ -10,8 +10,8 @@ type Query{
 type CharityUser{
     id: Int!
     email: String!
-    firstName: String
-    lastName: String
+    first_name: String
+    last_name: String
 }
 input NewCharityBeneficiary{
     email: String!

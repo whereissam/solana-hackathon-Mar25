@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import geocoding from './geocoding'
 import { hashPassword } from './userService'
+import { connect } from 'http2'
 
 const charityService = {
     getCharities: (args: Prisma.charityFindManyArgs) => {
@@ -17,6 +18,24 @@ const charityService = {
             },
         }).user_recipient({
             ...args
+        })
+    },
+    createBeneficiary: async(
+        { charityId, detail: { first_name, last_name, email, password } }: { charityId: number, detail: { first_name: string, last_name: string, email: string, password: string } }) => {
+        return prisma.users.create({
+            data: {
+                email, 
+                password: await hashPassword(password), 
+                first_name, last_name,
+                agree_to_terms: true,
+                role: 'recipient',
+                status: 'active',
+                charity_recipient: {
+                    connect: {
+                        id: charityId
+                    }
+                }
+            }
         })
     },
     createCharity: async (
