@@ -1,6 +1,7 @@
 type Charity{
     id: Int!
     name: String!
+    address: Address!
     beneficiaries(offset: Int! = 0, limit: Int! = 10): [CharityUser!]! 
 }
 type Query{
@@ -9,16 +10,32 @@ type Query{
 type CharityUser{
     id: Int!
     email: String!
-    first_name: String
-    last_name: String
+    firstName: String
+    lastName: String
 }
-input NewCharityUser{
+input NewCharityBeneficiary{
     email: String!
     first_name: String!
     last_name: String!
     password: String!
     story: String
 }
+
+input NewCharity{
+    charityAdmin: NewCharityAdmin!
+    name: String!
+    description: String!
+    address: inputAddress!
+}
+
+input NewCharityAdmin {
+    firstName: String!
+    lastName: String!
+    email: String!
+    password: String!
+}
+
 type Mutation {
-    createBeneficiary(charityId: Int!, detail: NewCharityUser): CharityUser
+    createCharity(detail: NewCharity!): Charity
+    createBeneficiary(charityId: Int!, detail: NewCharityBeneficiary!): CharityUser
 }

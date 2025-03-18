@@ -1,6 +1,6 @@
 **/node_modules
 **/.env.local
 .DS_Store
-schema/.prisma
+schema.prisma
 backend/dist
 **/.env

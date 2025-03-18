@@ -6,7 +6,11 @@ const config: CodegenConfig = {
   schema: "../schema/graphql/*.graphql",
   generates: {
     "src/generated/graphql.ts": {
-      plugins: ["typescript", "typescript-resolvers"]
+      plugins: ["typescript", "typescript-resolvers"],
+      config: {
+        maybeValue: 'T | undefined | null',
+        inputMaybeValue: 'T | undefined'
+      }
     },
   }
 };

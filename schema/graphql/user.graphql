@@ -1,0 +1,30 @@
+type Donor{
+    id: ID!
+    first_name: String
+    last_name: String
+    email: String!
+    donations_given: Float!
+}
+
+type Beneficiary{
+    id: ID!
+    first_name: String
+    last_name: String
+    email: String!
+    donations_received: Float!
+}
+
+type User {
+  id: ID!
+  first_name: String
+  last_name: String
+  email: String!
+  role: RoleType!
+}
+
+enum RoleType {
+  donor
+  charity
+  recipient
+  admin
+}

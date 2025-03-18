@@ -6,7 +6,7 @@ import { UnauthroizedError, InvalidArgumentsError } from "./errorTypes/errorType
 
 export type StrategyFunctionType = (user: User | null, functionArgument: any) => void
 
-export function isAdmin(user: User | null) {
+export function isAdmin() {
     return inRole("admin")
 }
 

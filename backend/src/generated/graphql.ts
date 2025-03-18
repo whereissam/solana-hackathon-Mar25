@@ -1,6 +1,6 @@
 import { GraphQLResolveInfo } from 'graphql';
-export type Maybe<T> = T | null;
-export type InputMaybe<T> = Maybe<T>;
+export type Maybe<T> = T | undefined | null;
+export type InputMaybe<T> = T | undefined;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
@@ -16,10 +16,28 @@ export type Scalars = {
   Float: { input: number; output: number; }
 };
 
+export type Address = {
+  __typename?: 'Address';
+  city?: Maybe<Scalars['String']['output']>;
+  country?: Maybe<Scalars['String']['output']>;
+  lat?: Maybe<Scalars['Float']['output']>;
+  lng?: Maybe<Scalars['Float']['output']>;
+  postcode?: Maybe<Scalars['String']['output']>;
+};
+
 export type AuthPayload = {
   __typename?: 'AuthPayload';
-  token?: Maybe<Scalars['String']['output']>;
-  user?: Maybe<User>;
+  token: Scalars['String']['output'];
+  user: User;
+};
+
+export type Beneficiary = {
+  __typename?: 'Beneficiary';
+  donations_received: Scalars['Float']['output'];
+  email: Scalars['String']['output'];
+  first_name?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  last_name?: Maybe<Scalars['String']['output']>;
 };
 
 /**
@@ -33,6 +51,7 @@ export enum CacheControlScope {
 
 export type Charity = {
   __typename?: 'Charity';
+  address: Address;
   beneficiaries: Array<CharityUser>;
   id: Scalars['Int']['output'];
   name: Scalars['String']['output'];
@@ -47,14 +66,24 @@ export type CharityBeneficiariesArgs = {
 export type CharityUser = {
   __typename?: 'CharityUser';
   email: Scalars['String']['output'];
-  first_name?: Maybe<Scalars['String']['output']>;
+  firstName?: Maybe<Scalars['String']['output']>;
   id: Scalars['Int']['output'];
+  lastName?: Maybe<Scalars['String']['output']>;
+};
+
+export type Donor = {
+  __typename?: 'Donor';
+  donations_given: Scalars['Float']['output'];
+  email: Scalars['String']['output'];
+  first_name?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
   last_name?: Maybe<Scalars['String']['output']>;
 };
 
 export type Mutation = {
   __typename?: 'Mutation';
   createBeneficiary?: Maybe<CharityUser>;
+  createCharity?: Maybe<Charity>;
   login?: Maybe<AuthPayload>;
   logout: Scalars['Boolean']['output'];
 };
@@ -62,7 +91,12 @@ export type Mutation = {
 
 export type MutationCreateBeneficiaryArgs = {
   charityId: Scalars['Int']['input'];
-  detail?: InputMaybe<NewCharityUser>;
+  detail: NewCharityBeneficiary;
+};
+
+
+export type MutationCreateCharityArgs = {
+  detail: NewCharity;
 };
 
 
@@ -71,7 +105,21 @@ export type MutationLoginArgs = {
   password: Scalars['String']['input'];
 };
 
-export type NewCharityUser = {
+export type NewCharity = {
+  address: InputAddress;
+  charityAdmin: NewCharityAdmin;
+  description: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+};
+
+export type NewCharityAdmin = {
+  email: Scalars['String']['input'];
+  firstName: Scalars['String']['input'];
+  lastName: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+};
+
+export type NewCharityBeneficiary = {
   email: Scalars['String']['input'];
   first_name: Scalars['String']['input'];
   last_name: Scalars['String']['input'];
@@ -81,15 +129,7 @@ export type NewCharityUser = {
 
 export type Query = {
   __typename?: 'Query';
-  beneficiaries: Array<CharityUser>;
   charities: Array<Charity>;
-};
-
-
-export type QueryBeneficiariesArgs = {
-  charityId: Scalars['Int']['input'];
-  limit?: Scalars['Int']['input'];
-  offset?: Scalars['Int']['input'];
 };
 
 
@@ -112,6 +152,12 @@ export type User = {
   id: Scalars['ID']['output'];
   last_name?: Maybe<Scalars['String']['output']>;
   role: RoleType;
+};
+
+export type InputAddress = {
+  city?: InputMaybe<Scalars['String']['input']>;
+  country?: InputMaybe<Scalars['String']['input']>;
+  postcode?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -185,34 +231,48 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
+  Address: ResolverTypeWrapper<Address>;
   AuthPayload: ResolverTypeWrapper<AuthPayload>;
+  Beneficiary: ResolverTypeWrapper<Beneficiary>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   CacheControlScope: CacheControlScope;
   Charity: ResolverTypeWrapper<Charity>;
   CharityUser: ResolverTypeWrapper<CharityUser>;
+  Donor: ResolverTypeWrapper<Donor>;
+  Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Mutation: ResolverTypeWrapper<{}>;
-  NewCharityUser: NewCharityUser;
+  NewCharity: NewCharity;
+  NewCharityAdmin: NewCharityAdmin;
+  NewCharityBeneficiary: NewCharityBeneficiary;
   Query: ResolverTypeWrapper<{}>;
   RoleType: RoleType;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   User: ResolverTypeWrapper<User>;
+  inputAddress: InputAddress;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
+  Address: Address;
   AuthPayload: AuthPayload;
+  Beneficiary: Beneficiary;
   Boolean: Scalars['Boolean']['output'];
   Charity: Charity;
   CharityUser: CharityUser;
+  Donor: Donor;
+  Float: Scalars['Float']['output'];
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
   Mutation: {};
-  NewCharityUser: NewCharityUser;
+  NewCharity: NewCharity;
+  NewCharityAdmin: NewCharityAdmin;
+  NewCharityBeneficiary: NewCharityBeneficiary;
   Query: {};
   String: Scalars['String']['output'];
   User: User;
+  inputAddress: InputAddress;
 };
 
 export type CacheControlDirectiveArgs = {
@@ -223,13 +283,32 @@ export type CacheControlDirectiveArgs = {
 
 export type CacheControlDirectiveResolver<Result, Parent, ContextType = any, Args = CacheControlDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
+export type AddressResolvers<ContextType = any, ParentType extends ResolversParentTypes['Address'] = ResolversParentTypes['Address']> = {
+  city?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  country?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  lat?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  lng?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  postcode?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type AuthPayloadResolvers<ContextType = any, ParentType extends ResolversParentTypes['AuthPayload'] = ResolversParentTypes['AuthPayload']> = {
-  token?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  token?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type BeneficiaryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Beneficiary'] = ResolversParentTypes['Beneficiary']> = {
+  donations_received?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  first_name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  last_name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type CharityResolvers<ContextType = any, ParentType extends ResolversParentTypes['Charity'] = ResolversParentTypes['Charity']> = {
+  address?: Resolver<ResolversTypes['Address'], ParentType, ContextType>;
   beneficiaries?: Resolver<Array<ResolversTypes['CharityUser']>, ParentType, ContextType, RequireFields<CharityBeneficiariesArgs, 'limit' | 'offset'>>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -238,20 +317,29 @@ export type CharityResolvers<ContextType = any, ParentType extends ResolversPare
 
 export type CharityUserResolvers<ContextType = any, ParentType extends ResolversParentTypes['CharityUser'] = ResolversParentTypes['CharityUser']> = {
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  first_name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  firstName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type DonorResolvers<ContextType = any, ParentType extends ResolversParentTypes['Donor'] = ResolversParentTypes['Donor']> = {
+  donations_given?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  first_name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   last_name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
-  createBeneficiary?: Resolver<Maybe<ResolversTypes['CharityUser']>, ParentType, ContextType, RequireFields<MutationCreateBeneficiaryArgs, 'charityId'>>;
+  createBeneficiary?: Resolver<Maybe<ResolversTypes['CharityUser']>, ParentType, ContextType, RequireFields<MutationCreateBeneficiaryArgs, 'charityId' | 'detail'>>;
+  createCharity?: Resolver<Maybe<ResolversTypes['Charity']>, ParentType, ContextType, RequireFields<MutationCreateCharityArgs, 'detail'>>;
   login?: Resolver<Maybe<ResolversTypes['AuthPayload']>, ParentType, ContextType, RequireFields<MutationLoginArgs, 'email' | 'password'>>;
   logout?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
-  beneficiaries?: Resolver<Array<ResolversTypes['CharityUser']>, ParentType, ContextType, RequireFields<QueryBeneficiariesArgs, 'charityId' | 'limit' | 'offset'>>;
   charities?: Resolver<Array<ResolversTypes['Charity']>, ParentType, ContextType, RequireFields<QueryCharitiesArgs, 'limit' | 'offset'>>;
 };
 
@@ -265,9 +353,12 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
 };
 
 export type Resolvers<ContextType = any> = {
+  Address?: AddressResolvers<ContextType>;
   AuthPayload?: AuthPayloadResolvers<ContextType>;
+  Beneficiary?: BeneficiaryResolvers<ContextType>;
   Charity?: CharityResolvers<ContextType>;
   CharityUser?: CharityUserResolvers<ContextType>;
+  Donor?: DonorResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   User?: UserResolvers<ContextType>;

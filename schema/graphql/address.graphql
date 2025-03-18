@@ -1,0 +1,13 @@
+type Address {
+    postcode: String
+    city: String
+    country: String
+    lng: Float
+    lat: Float
+}
+
+input inputAddress {
+    postcode: String
+    city: String
+    country: String
+}

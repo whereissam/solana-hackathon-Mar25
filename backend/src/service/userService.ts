@@ -4,6 +4,10 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import bcrypt from 'bcrypt'
 import { createJWT } from './auth'
 
+export async function hashPassword(password){
+    return await bcrypt.hash(password, bcrypt.genSaltSync())
+}
+
 const userService = {
     login: async (email: string, password: string) => {
         const user = await prisma.users.findFirstOrThrow({
