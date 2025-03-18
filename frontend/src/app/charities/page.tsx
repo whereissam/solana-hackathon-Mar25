@@ -11,11 +11,11 @@ import {
   Typography,
   Box,
   CardMedia,
-  Button,
-  CardActions,
+  // Button,
+  // CardActions,
   Grid,
 } from "@mui/material";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import AppBar from "@/components/AppBar";
 import { ApolloProvider } from "@apollo/client";
 import apolloClient from "@/lib/apollo-client";
@@ -31,7 +31,7 @@ interface Charity {
 // Wrap the actual content in Apollo Provider
 function CharitiesContent() {
   const { data, loading, error } = useQuery(GET_ALL_CHARITIES);
-  const router = useRouter();
+  // const router = useRouter();
 
   if (loading) return <Typography>Loading charities...</Typography>;
   if (error)
@@ -70,7 +70,7 @@ function CharitiesContent() {
                       "Supporting communities and creating positive change."}
                   </Typography>
                 </CardContent>
-                <CardActions
+                {/* <CardActions
                   sx={{ display: "flex", flexDirection: "column", mb: 3 }}
                 >
                   <Button
@@ -80,7 +80,7 @@ function CharitiesContent() {
                   >
                     Visit Charity
                   </Button>
-                </CardActions>
+                </CardActions> */}
               </Card>
             </Grid>
           ))}

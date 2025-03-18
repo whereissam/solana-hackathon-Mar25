@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import axios from "axios";
 import styles from "./success.module.css";
 
-// Define the session interface based on Stripe's session object structure
 interface StripeSession {
   id: string;
   amount_total: number;
@@ -18,14 +17,13 @@ interface StripeSession {
   };
 }
 
-export default function Success(): JSX.Element {
+function SuccessContent(): JSX.Element {
   const [session, setSession] = useState<StripeSession | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
 
   useEffect(() => {
-    // Only fetch session when session_id is available
     if (sessionId) {
       const fetchSession = async (): Promise<void> => {
         try {
@@ -97,5 +95,19 @@ export default function Success(): JSX.Element {
         </Link>
       </div>
     </div>
+  );
+}
+
+export default function Success(): JSX.Element {
+  return (
+    <Suspense 
+      fallback={
+        <div className={styles.main}>
+          <div className={styles.loading}>Loading payment details...</div>
+        </div>
+      }
+    >
+      <SuccessContent />
+    </Suspense>
   );
 }

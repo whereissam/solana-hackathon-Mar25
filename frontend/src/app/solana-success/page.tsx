@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
@@ -18,7 +18,7 @@ interface TransactionDetails {
   status: string;
 }
 
-export default function SolanaSuccess(): JSX.Element {
+function SolanaSuccessContent(): JSX.Element {
   const [loading, setLoading] = useState<boolean>(true);
   const [transactionDetails, setTransactionDetails] =
     useState<TransactionDetails | null>(null);
@@ -144,5 +144,22 @@ export default function SolanaSuccess(): JSX.Element {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SolanaSuccess(): JSX.Element {
+  return (
+    <Suspense
+      fallback={
+        <div className={styles.main}>
+          <div className={styles.loadingContainer}>
+            <div className={styles.loadingSpinner}></div>
+            <p>Loading transaction details...</p>
+          </div>
+        </div>
+      }
+    >
+      <SolanaSuccessContent />
+    </Suspense>
   );
 }
