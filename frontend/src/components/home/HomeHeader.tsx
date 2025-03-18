@@ -1,9 +1,15 @@
-// src/components/home/HomeHeader.tsx
 import React from "react";
 import { Box, Button, Typography } from "@mui/material";
 import { color } from "@/styles/theme";
+import { useRouter } from "next/navigation";
 
 const HomeHeader: React.FC = () => {
+  const router = useRouter();
+
+  const handleDonateClick = () => {
+    router.push("/donate");
+  };
+
   return (
     <Box
       sx={() => ({
@@ -77,7 +83,9 @@ const HomeHeader: React.FC = () => {
           mt: 2,
         }}
       >
-        <Button disabled>Donate (coming soon)</Button>
+        <Button variant="contained" onClick={handleDonateClick} size="large">
+          Donate Now
+        </Button>
       </Box>
     </Box>
   );

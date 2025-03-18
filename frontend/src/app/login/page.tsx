@@ -4,7 +4,6 @@
 import * as React from "react";
 import {
   Paper,
-  Button,
   Box,
   Grid,
   TextField,
@@ -32,6 +31,11 @@ const schema = yup
   })
   .required();
 
+interface LoginFormData {
+  email: string;
+  password: string;
+}
+
 function LoginContent() {
   const router = useRouter();
   const setCredentials = useAuthStore((state) => state.setCredentials);
@@ -56,7 +60,7 @@ function LoginContent() {
     },
   });
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (data: LoginFormData): Promise<void> => {
     try {
       await login({
         variables: {

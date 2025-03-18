@@ -1,4 +1,3 @@
-// src/app/charity/[id]/page.jsx
 "use client";
 
 import React from "react";
@@ -16,11 +15,38 @@ import AppBar from "@/components/AppBar";
 import { ApolloProvider } from "@apollo/client";
 import apolloClient from "@/lib/apollo-client";
 
-function CharityContent({ params }) {
+// Define TypeScript interfaces
+interface Beneficiary {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+}
+
+interface Charity {
+  id: number;
+  name: string;
+  beneficiaries?: Beneficiary[];
+}
+
+interface CharityData {
+  charity: Charity;
+}
+
+// Define props explicitly for Client Component
+interface CharityPageProps {
+  params: { id: string };
+  searchParams?: Record<string, string | string[] | undefined>;
+}
+
+function CharityContent({ params }: CharityPageProps): JSX.Element {
   const { id } = params;
-  const { loading, error, data } = useQuery(GET_CHARITY_BENEFICIARIES, {
-    variables: { id: parseInt(id) },
-  });
+  const { loading, error, data } = useQuery<CharityData>(
+    GET_CHARITY_BENEFICIARIES,
+    {
+      variables: { id: parseInt(id) },
+    }
+  );
 
   if (loading) return <CircularProgress />;
   if (error)
@@ -33,7 +59,6 @@ function CharityContent({ params }) {
       <AppBar />
       <Box sx={{ maxWidth: 1200, mx: "auto", p: 2 }}>
         <Typography variant="h1">{charity?.name}</Typography>
-
         <Box sx={{ mt: 4 }}>
           <Typography variant="h2">Beneficiaries</Typography>
           <Grid container spacing={2}>
@@ -58,7 +83,8 @@ function CharityContent({ params }) {
   );
 }
 
-export default function CharityPage({ params }) {
+// Export as a Client Component (not async)
+export default function CharityPage({ params }: CharityPageProps): JSX.Element {
   return (
     <ApolloProvider client={apolloClient}>
       <CharityContent params={params} />

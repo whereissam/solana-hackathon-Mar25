@@ -20,6 +20,14 @@ import AppBar from "@/components/AppBar";
 import { ApolloProvider } from "@apollo/client";
 import apolloClient from "@/lib/apollo-client";
 
+// Define the charity interface
+interface Charity {
+  id: string;
+  name: string;
+  slogan?: string;
+  detail?: string;
+}
+
 // Wrap the actual content in Apollo Provider
 function CharitiesContent() {
   const { data, loading, error } = useQuery(GET_ALL_CHARITIES);
@@ -41,7 +49,7 @@ function CharitiesContent() {
           environmental sustainability.
         </Typography>
         <Grid container spacing={2} justifyContent="center" sx={{ mt: 5 }}>
-          {data?.charities?.map((charity, index) => (
+          {data?.charities?.map((charity: Charity) => (
             <Grid item xs={12} sm={6} md={4} key={charity.id}>
               <Card variant="outlined">
                 <CardMedia

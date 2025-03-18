@@ -1,4 +1,3 @@
-// src/components/AppBar.tsx
 "use client";
 
 import * as React from "react";
@@ -16,9 +15,16 @@ import { Drawer, Divider, List, ListItemButton } from "@mui/material";
 import { UserAppBarIcon, UserMobileMenuItems } from "./AppBarUserUI";
 import { useRouter, usePathname } from "next/navigation";
 import NextLink from "next/link";
+import Image from "next/image";
 
 interface AppBarProps {
   variant?: string;
+}
+
+// Define a proper interface for the NavLink props
+interface NavLinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
+  href: string;
+  children?: React.ReactNode;
 }
 
 export const Bar: React.FC<AppBarProps> = (props) => {
@@ -32,8 +38,8 @@ export const Bar: React.FC<AppBarProps> = (props) => {
 
   const theme = useTheme();
 
-  // Custom Link component that combines MUI Link with Next.js Link
-  const NavLink = React.forwardRef<HTMLAnchorElement, any>(
+  // Custom Link component that combines MUI Link with Next.js Link with proper typing
+  const NavLink = React.forwardRef<HTMLAnchorElement, NavLinkProps>(
     ({ href, ...props }, ref) => {
       return (
         <NextLink href={href} passHref legacyBehavior>
@@ -91,7 +97,7 @@ export const Bar: React.FC<AppBarProps> = (props) => {
   return (
     <>
       <MuiAppBar
-        // @ts-ignore - The variant prop is used differently in custom theme
+        // @ts-expect-error The variant prop is used differently in our custom theme
         variant={props.variant}
         elevation={0}
         position="static"
@@ -109,17 +115,10 @@ export const Bar: React.FC<AppBarProps> = (props) => {
         }}
       >
         <Toolbar>
-          <NavLink
-            href="/"
-            sx={{
-              display: "flex",
-              color: "inherit",
-              textDecoration: "none",
-              flexGrow: 1,
-            }}
-          >
-            <img
-              height="57"
+          <NavLink href="/">
+            <Image
+              height={57}
+              width={200}
               src={
                 props.variant === "home" ? "/img/Logo.png" : "/img/LogoDark.png"
               }
