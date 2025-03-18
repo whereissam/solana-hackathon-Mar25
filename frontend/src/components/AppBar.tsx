@@ -1,4 +1,4 @@
-// src/components/AppBar.jsx
+// src/components/AppBar.tsx
 "use client";
 
 import * as React from "react";
@@ -17,28 +17,40 @@ import { UserAppBarIcon, UserMobileMenuItems } from "./AppBarUserUI";
 import { useRouter, usePathname } from "next/navigation";
 import NextLink from "next/link";
 
-export const Bar = (props) => {
+interface AppBarProps {
+  variant?: string;
+}
+
+export const Bar: React.FC<AppBarProps> = (props) => {
   const router = useRouter();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
-  const handleDrawerToggle = () => {
+  const handleDrawerToggle = (): void => {
     setMobileOpen((prevState) => !prevState);
   };
 
   const theme = useTheme();
 
   // Custom Link component that combines MUI Link with Next.js Link
-  const NavLink = React.forwardRef(({ href, ...props }, ref) => {
-    return (
-      <NextLink href={href} passHref legacyBehavior>
-        <Link {...props} ref={ref} />
-      </NextLink>
-    );
-  });
+  const NavLink = React.forwardRef<HTMLAnchorElement, any>(
+    ({ href, ...props }, ref) => {
+      return (
+        <NextLink href={href} passHref legacyBehavior>
+          <Link {...props} ref={ref} />
+        </NextLink>
+      );
+    }
+  );
+
+  // Add display name to fix ESLint warning
+  NavLink.displayName = "NavLink";
 
   // Custom Button with Next.js navigation
-  const NavButton = ({ href, ...props }) => {
+  const NavButton: React.FC<{ href: string; children: React.ReactNode }> = ({
+    href,
+    ...props
+  }) => {
     const isActive = pathname === href;
     return (
       <Button
@@ -79,6 +91,7 @@ export const Bar = (props) => {
   return (
     <>
       <MuiAppBar
+        // @ts-ignore - The variant prop is used differently in custom theme
         variant={props.variant}
         elevation={0}
         position="static"
@@ -108,7 +121,7 @@ export const Bar = (props) => {
             <img
               height="57"
               src={
-                props.variant == "home" ? "/img/Logo.png" : "/img/LogoDark.png"
+                props.variant === "home" ? "/img/Logo.png" : "/img/LogoDark.png"
               }
               alt="UnifyGiving Logo"
             />
