@@ -2,6 +2,7 @@ import React from "react";
 import { Box, Button, Typography } from "@mui/material";
 import { color } from "@/styles/theme";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const HomeHeader: React.FC = () => {
   const router = useRouter();
@@ -30,15 +31,17 @@ const HomeHeader: React.FC = () => {
       })}
       maxWidth={880}
     >
-      <img
+      <Image
         src="/img/homeTopImage.png"
+        alt="Background header image"
+        fill
+        priority
         style={{
           position: "absolute",
           top: "-20px",
-          width: "100%",
+          objectFit: "cover",
           zIndex: "-1",
         }}
-        alt="Background header image"
       />
       <Typography
         variant="h1"

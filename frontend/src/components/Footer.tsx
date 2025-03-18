@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Box, Typography, Link, Divider } from "@mui/material";
-
+import Image from "next/image";
 
 export default function Footer() {
     return (
@@ -21,8 +21,21 @@ export default function Footer() {
                 }}
             >
                 <Box
-                    sx={{ display: "flex", flexDirection: "row", mb: 4}}>
-                    <img src="/img/Logo.png" />
+                    sx={{ 
+                        display: "flex", 
+                        flexDirection: "row", 
+                        mb: 4,
+                        position: "relative",
+                        width: "150px",
+                        height: "40px"
+                    }}>
+                    <Image
+                        src="/img/Logo.png"
+                        alt="Unify Logo"
+                        fill
+                        priority
+                        style={{ objectFit: "contain" }}
+                    />
                 </Box>
                 <Typography variant="body1" color="white">
                     Contact us:

@@ -11,6 +11,7 @@ import {
   Alert,
   Typography,
 } from "@mui/material";
+import Image from "next/image"; // Add this import
 import LoginIcon from "@mui/icons-material/Login";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { useForm } from "react-hook-form";
@@ -91,11 +92,13 @@ function LoginContent() {
           Login
         </Typography>
         <Grid container spacing={2} alignItems="center" justifyContent="center">
-          <Grid item xs={12} sm={8} md={6}>
-            <img
+          <Grid item xs={12} sm={8} md={6} style={{ position: 'relative', minHeight: '300px' }}>
+            <Image
               src="/img/monitoring.svg"
               alt="Login"
-              style={{ maxWidth: "100%", height: "auto" }}
+              fill
+              priority
+              style={{ objectFit: 'contain' }}
             />
           </Grid>
           <Grid item xs={12} sm={8} md={6}>

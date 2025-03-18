@@ -62,7 +62,7 @@ export const Bar: React.FC<AppBarProps> = (props) => {
       <Button
         component={NavLink}
         href={href}
-        variant="navbar"
+        // variant="navbar"
         className={isActive ? "active" : ""}
         {...props}
       />

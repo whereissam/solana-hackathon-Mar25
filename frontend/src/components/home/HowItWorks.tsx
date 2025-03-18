@@ -3,6 +3,7 @@ import React from "react";
 import { Box, Typography } from "@mui/material";
 import Carousel from "react-material-ui-carousel";
 import { sectionStyle } from "@/styles/common";
+import Image from "next/image";
 
 const HowItWorks: React.FC = () => {
   return (
@@ -25,22 +26,28 @@ const HowItWorks: React.FC = () => {
           flexDirection: "row",
           justifyContent: "center",
           alignItems: "flex-start",
+          gap: "40px",
+          position: "relative",
         }}
       >
-        <img
-          style={{ marginRight: 40 }}
+        <Image
           src="/img/howItWorks_1.png"
           alt="Step 1"
+          width={400}
+          height={600}
+          priority
         />
-        <img
-          style={{ marginTop: 0, marginRight: 5 }}
+        <Image
           src="/img/howItWorks_2.png"
           alt="Step 2"
+          width={400}
+          height={600}
         />
-        <img
-          style={{ marginTop: 0 }}
+        <Image
           src="/img/howItWorks_3.png"
           alt="Step 3"
+          width={400}
+          height={600}
         />
       </Box>
       <Carousel
@@ -55,9 +62,25 @@ const HowItWorks: React.FC = () => {
           minHeight: "702px",
         }}
       >
-        <img src="/img/howItWorks_1.png" alt="Step 1" />
-        <img src="/img/howItWorks_2.png" alt="Step 2" />
-        <img src="/img/howItWorks_3.png" alt="Step 3" />
+        <Image
+          src="/img/howItWorks_1.png"
+          alt="Step 1"
+          width={400}
+          height={600}
+          priority
+        />
+        <Image
+          src="/img/howItWorks_2.png"
+          alt="Step 2"
+          width={400}
+          height={600}
+        />
+        <Image
+          src="/img/howItWorks_3.png"
+          alt="Step 3"
+          width={400}
+          height={600}
+        />
       </Carousel>
     </Box>
   );

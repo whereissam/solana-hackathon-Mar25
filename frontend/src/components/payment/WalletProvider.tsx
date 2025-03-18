@@ -12,11 +12,12 @@ import {
   SolflareWalletAdapter,
 } from "@solana/wallet-adapter-wallets";
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
+import { ReactNode } from "react";
 
 // Default styles for wallet adapter
 import "@solana/wallet-adapter-react-ui/styles.css";
 
-export default function WalletProvider({ children }) {
+export default function WalletProvider({ children }: { children: ReactNode }) {
   // Set network to devnet or mainnet based on your needs
   const network = WalletAdapterNetwork.Devnet;
 
@@ -26,7 +27,7 @@ export default function WalletProvider({ children }) {
   // Initialize wallet adapters
   const wallets = useMemo(
     () => [new PhantomWalletAdapter(), new SolflareWalletAdapter()],
-    [network]
+    [] // Remove 'network' from dependency array since it's a constant
   );
 
   return (
