@@ -10,12 +10,13 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { ListItemText } from "@mui/material";
 import Button from "@mui/material/Button";
 import Link from "@mui/material/Link";
-import { useTheme } from "@mui/material";
+// import { useTheme } from "@mui/material";
 import { Drawer, Divider, List, ListItemButton } from "@mui/material";
-import { UserAppBarIcon, UserMobileMenuItems } from "./AppBarUserUI";
+import { UserMobileMenuItems } from "./AppBarUserUI";
 import { useRouter, usePathname } from "next/navigation";
 import NextLink from "next/link";
 import Image from "next/image";
+import LoginIcon from "@mui/icons-material/Login";
 
 interface AppBarProps {
   variant?: string;
@@ -27,28 +28,27 @@ interface NavLinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
   children?: React.ReactNode;
 }
 
-export const Bar: React.FC<AppBarProps> = (props) => {
+export const Bar: React.FC<AppBarProps> = () => {
   const router = useRouter();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  // Add this for SSR/CSR consistency
+  const [isMounted, setIsMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleDrawerToggle = (): void => {
     setMobileOpen((prevState) => !prevState);
   };
 
-  const theme = useTheme();
+  // const theme = useTheme();
 
   // Custom Link component that combines MUI Link with Next.js Link with proper typing
   const NavLink = React.forwardRef<HTMLAnchorElement, NavLinkProps>(
     ({ href, ...props }, ref) => {
-      return (
-        <Link
-          component={NextLink}
-          href={href}
-          ref={ref}
-          {...props}
-        />
-      );
+      return <Link component={NextLink} href={href} ref={ref} {...props} />;
     }
   );
 
@@ -56,17 +56,28 @@ export const Bar: React.FC<AppBarProps> = (props) => {
   NavLink.displayName = "NavLink";
 
   // Custom Button with Next.js navigation
-  const NavButton: React.FC<{ href: string; children: React.ReactNode }> = ({
-    href,
-    ...props
-  }) => {
-    const isActive = pathname === href;
+  const NavButton: React.FC<{
+    href: string;
+    children: React.ReactNode;
+    active?: boolean;
+  }> = ({ href, active, ...props }) => {
+    const isActive = active !== undefined ? active : pathname === href;
     return (
       <Button
         component={NavLink}
         href={href}
-        // variant="navbar"
-        className={isActive ? "active" : ""}
+        sx={{
+          borderRadius: "50px",
+          px: 3,
+          py: 1,
+          mx: 1,
+          fontWeight: 500,
+          backgroundColor: isActive ? "#d3f9bb" : "transparent",
+          color: "#333",
+          "&:hover": {
+            backgroundColor: isActive ? "#c1f5a2" : "rgba(0, 0, 0, 0.04)",
+          },
+        }}
         {...props}
       />
     );
@@ -97,72 +108,121 @@ export const Bar: React.FC<AppBarProps> = (props) => {
     </Box>
   );
 
+  // To avoid hydration mismatch, only render the full content after client-side mount
+  if (!isMounted) {
+    return (
+      <Box
+        sx={{
+          width: "100%",
+          display: "flex",
+          justifyContent: "center",
+          my: 3,
+          height: "64px", // Placeholder height to prevent layout shift
+        }}
+      />
+    );
+  }
+
   return (
     <>
       <MuiAppBar
-        // @ts-expect-error The variant prop is used differently in our custom theme
-        variant={props.variant}
         elevation={0}
         position="static"
         sx={{
-          width: 0.9,
-          borderRadius: theme.shape.borderRadius,
+          width: { xs: "95%", md: "90%" },
+          maxWidth: "1400px",
+          borderRadius: "50px",
           display: "flex",
-          flexGrow: 0,
-          mt: { xs: 5, md: 3 },
-          mb: 5,
-          borderColor: "#D5CDE0",
-          borderWidth: "1px",
-          borderStyle: "solid",
-          py: 1.5,
+          mt: { xs: 2, md: 3 },
+          mb: 3,
+          backgroundColor: "white",
+          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.05)",
+          py: 0.5,
         }}
       >
-        <Toolbar>
+        <Toolbar sx={{ justifyContent: "space-between" }}>
+          {/* Logo */}
           <NavLink href="/">
             <Image
-              height={57}
-              width={200}
-              src={
-                props.variant === "home" ? "/img/Logo.png" : "/img/LogoDark.png"
-              }
+              height={45}
+              width={150}
+              src="/img/LogoDark.png"
               alt="UnifyGiving Logo"
             />
           </NavLink>
-          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-            <NavButton href="/">Home</NavButton>
-            <NavButton href="/charities">Charities</NavButton>
+
+          {/* Navigation Links - Desktop */}
+          <Box
+            sx={{
+              display: { xs: "none", md: "flex" },
+              alignItems: "center",
+              justifyContent: "center",
+              flex: 1,
+            }}
+          >
+            <NavButton href="/" active={pathname === "/"}>
+              Home
+            </NavButton>
+            <NavButton href="/charities" active={pathname === "/charities"}>
+              Charities
+            </NavButton>
           </Box>
+
+          {/* Mobile Menu Button */}
           <IconButton
             sx={{
               display: {
-                sm: "flex",
+                xs: "flex",
                 md: "none",
               },
+              ml: "auto",
+              mr: 1,
             }}
             onClick={handleDrawerToggle}
           >
-            <MenuIcon style={{ fontSize: "48px" }} />
+            <MenuIcon style={{ fontSize: "32px" }} />
           </IconButton>
-          <UserAppBarIcon />
+
+          {/* Login Button */}
+          <Button
+            component={NavLink}
+            href="/login"
+            variant="contained"
+            color="primary"
+            startIcon={<LoginIcon />}
+            sx={{
+              borderRadius: "50px",
+              px: 3,
+              py: 1,
+              backgroundColor: "#6C5CE7",
+              color: "white",
+              "&:hover": {
+                backgroundColor: "#5849c2",
+              },
+              boxShadow: "0px 4px 10px rgba(108, 92, 231, 0.3)",
+            }}
+          >
+            Login
+          </Button>
         </Toolbar>
       </MuiAppBar>
-      <nav>
-        <Drawer
-          container={typeof window !== "undefined" ? document.body : undefined}
-          variant="temporary"
-          open={mobileOpen}
-          onClose={handleDrawerToggle}
-          ModalProps={{
-            keepMounted: true,
-          }}
-          sx={{
-            display: { sm: "block", md: "none" },
-            "& .MuiDrawer-paper": { boxSizing: "border-box", width: 0.5 },
-          }}
-        >
-          {drawer}
-        </Drawer>
-      </nav>
+
+      {/* Mobile Menu Drawer */}
+      <Drawer
+        container={typeof window !== "undefined" ? document.body : undefined}
+        variant="temporary"
+        open={mobileOpen}
+        onClose={handleDrawerToggle}
+        ModalProps={{
+          keepMounted: true,
+        }}
+        sx={{
+          display: { xs: "block", md: "none" },
+          "& .MuiDrawer-paper": { boxSizing: "border-box", width: "70%" },
+        }}
+      >
+        {drawer}
+      </Drawer>
     </>
   );
 };

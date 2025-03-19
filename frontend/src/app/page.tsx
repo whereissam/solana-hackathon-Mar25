@@ -9,7 +9,7 @@ import HomeHeader from "@/components/home/HomeHeader";
 import HowItWorks from "@/components/home/HowItWorks";
 import TeamSection from "@/components/home/TeamSection";
 
-export default function HomePage(): JSX.Element {
+export default function HomePage() {
   return (
     <>
       <Box

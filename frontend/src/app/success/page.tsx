@@ -17,7 +17,7 @@ interface StripeSession {
   };
 }
 
-function SuccessContent(): JSX.Element {
+function SuccessContent() {
   const [session, setSession] = useState<StripeSession | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const searchParams = useSearchParams();
@@ -98,9 +98,9 @@ function SuccessContent(): JSX.Element {
   );
 }
 
-export default function Success(): JSX.Element {
+export default function Success() {
   return (
-    <Suspense 
+    <Suspense
       fallback={
         <div className={styles.main}>
           <div className={styles.loading}>Loading payment details...</div>

@@ -18,7 +18,7 @@ interface TransactionDetails {
   status: string;
 }
 
-function SolanaSuccessContent(): JSX.Element {
+function SolanaSuccessContent() {
   const [loading, setLoading] = useState<boolean>(true);
   const [transactionDetails, setTransactionDetails] =
     useState<TransactionDetails | null>(null);
@@ -147,7 +147,7 @@ function SolanaSuccessContent(): JSX.Element {
   );
 }
 
-export default function SolanaSuccess(): JSX.Element {
+export default function SolanaSuccess() {
   return (
     <Suspense
       fallback={

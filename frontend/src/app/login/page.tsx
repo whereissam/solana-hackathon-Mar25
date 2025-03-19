@@ -2,16 +2,8 @@
 "use client";
 
 import * as React from "react";
-import {
-  Paper,
-  Box,
-  Grid,
-  TextField,
-  Stack,
-  Alert,
-  Typography,
-} from "@mui/material";
-import Image from "next/image"; // Add this import
+import { Paper, Box, TextField, Stack, Alert, Typography } from "@mui/material";
+import Image from "next/image";
 import LoginIcon from "@mui/icons-material/Login";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { useForm } from "react-hook-form";
@@ -76,75 +68,165 @@ function LoginContent() {
 
   return (
     <>
-      <AppBar />
+      {/* Wrapper with background like on homepage */}
       <Box
+        component="section"
         sx={{
-          flexGrow: 1,
+          background: "linear-gradient(180deg, #2B1C5D 0%, #1A103C 100%)",
+          width: 1,
           display: "flex",
-          padding: 2,
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          minHeight: "80vh",
+          minHeight: "100vh",
         }}
       >
-        <Typography variant="h1" sx={{ mb: 4 }}>
-          Login
-        </Typography>
-        <Grid container spacing={2} alignItems="center" justifyContent="center">
-          <Grid item xs={12} sm={8} md={6} style={{ position: 'relative', minHeight: '300px' }}>
-            <Image
-              src="/img/monitoring.svg"
-              alt="Login"
-              fill
-              priority
-              style={{ objectFit: 'contain' }}
-            />
-          </Grid>
-          <Grid item xs={12} sm={8} md={6}>
-            <Paper elevation={3} sx={{ p: 4 }}>
-              <form onSubmit={handleSubmit(onSubmit)}>
-                <Stack spacing={3}>
-                  <TextField
-                    label="Email"
-                    disabled={loading}
-                    {...register("email")}
-                    error={!!errors.email}
-                    helperText={errors.email?.message}
-                    required
-                    fullWidth
-                  />
-                  <TextField
-                    label="Password"
-                    disabled={loading}
-                    {...register("password")}
-                    type="password"
-                    error={!!errors.password}
-                    helperText={errors.password?.message}
-                    required
-                    fullWidth
-                  />
-                  {loginError && (
-                    <Alert severity="error">
-                      {loginError.message || "Login failed. Please try again."}
-                    </Alert>
-                  )}
-                  <LoadingButton
-                    type="submit"
-                    loading={loading}
-                    loadingPosition="end"
-                    variant="contained"
-                    endIcon={<LoginIcon />}
-                    fullWidth
-                    size="large"
-                  >
-                    Login
-                  </LoadingButton>
-                </Stack>
-              </form>
-            </Paper>
-          </Grid>
-        </Grid>
+        {/* AppBar centered like on homepage */}
+        <Box
+          sx={{
+            width: 1,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          <AppBar />
+        </Box>
+
+        {/* Login Content Container */}
+        <Box
+          sx={{
+            maxWidth: "1000px",
+            width: "100%",
+            padding: { xs: 2, sm: 4 },
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+          }}
+        >
+          <Typography
+            variant="h4"
+            sx={{
+              textAlign: "center",
+              mb: 4,
+              color: "white",
+            }}
+          >
+            Login
+          </Typography>
+
+          {/* Main content with image and form */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", md: "row" },
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 4,
+            }}
+          >
+            {/* Image column with circle background like in screenshot */}
+            <Box
+              sx={{
+                flex: "0 0 auto",
+                position: "relative",
+                height: "300px",
+                width: "300px",
+                display: { xs: "none", md: "block" },
+                borderRadius: "50%",
+                overflow: "hidden",
+                backgroundColor: "rgba(255, 255, 255, 0.1)",
+                backdropFilter: "blur(5px)",
+              }}
+            >
+              <Image
+                src="/img/monitoring.svg"
+                alt="Login"
+                fill
+                priority
+                style={{ objectFit: "contain", padding: "40px" }}
+              />
+            </Box>
+
+            {/* Form column with updated styling to match screenshot */}
+            <Box
+              sx={{
+                flex: "0 0 auto",
+                width: { xs: "100%", md: "400px" },
+              }}
+            >
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 4,
+                  backgroundColor: "rgba(255, 255, 255, 0.1)",
+                  backdropFilter: "blur(5px)",
+                  borderRadius: "16px",
+                }}
+              >
+                <form onSubmit={handleSubmit(onSubmit)}>
+                  <Stack spacing={3}>
+                    <TextField
+                      label="Email"
+                      disabled={loading}
+                      {...register("email")}
+                      error={!!errors.email}
+                      helperText={errors.email?.message}
+                      required
+                      fullWidth
+                      variant="outlined"
+                      InputProps={{
+                        sx: {
+                          borderRadius: "8px",
+                          backgroundColor: "rgba(255, 255, 255, 0.8)",
+                        },
+                      }}
+                    />
+                    <TextField
+                      label="Password"
+                      disabled={loading}
+                      {...register("password")}
+                      type="password"
+                      error={!!errors.password}
+                      helperText={errors.password?.message}
+                      required
+                      fullWidth
+                      variant="outlined"
+                      InputProps={{
+                        sx: {
+                          borderRadius: "8px",
+                          backgroundColor: "rgba(255, 255, 255, 0.8)",
+                        },
+                      }}
+                    />
+                    {loginError && (
+                      <Alert severity="error">
+                        {loginError.message ||
+                          "Login failed. Please try again."}
+                      </Alert>
+                    )}
+                    <LoadingButton
+                      type="submit"
+                      loading={loading}
+                      loadingPosition="end"
+                      variant="contained"
+                      endIcon={<LoginIcon />}
+                      fullWidth
+                      size="large"
+                      sx={{
+                        borderRadius: "20px",
+                        padding: "12px",
+                      }}
+                    >
+                      Login
+                    </LoadingButton>
+                  </Stack>
+                </form>
+              </Paper>
+            </Box>
+          </Box>
+        </Box>
       </Box>
     </>
   );
