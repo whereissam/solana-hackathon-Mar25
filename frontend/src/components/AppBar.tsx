@@ -42,9 +42,12 @@ export const Bar: React.FC<AppBarProps> = (props) => {
   const NavLink = React.forwardRef<HTMLAnchorElement, NavLinkProps>(
     ({ href, ...props }, ref) => {
       return (
-        <NextLink href={href} passHref legacyBehavior>
-          <Link {...props} ref={ref} />
-        </NextLink>
+        <Link
+          component={NextLink}
+          href={href}
+          ref={ref}
+          {...props}
+        />
       );
     }
   );

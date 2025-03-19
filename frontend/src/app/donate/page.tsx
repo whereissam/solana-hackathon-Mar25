@@ -7,7 +7,7 @@ import AppBar from "@/components/AppBar";
 import Footer from "@/components/Footer";
 import PaymentComponent from "@/components/payment/PaymentComponent";
 
-export default function DonatePage(): JSX.Element {
+export default function DonatePage() {
   return (
     <>
       <AppBar />
