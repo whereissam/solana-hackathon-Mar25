@@ -63,7 +63,21 @@ const TeamSection: React.FC = () => {
 
   return (
     <Box component="section" sx={sectionStyle}>
-      <Typography variant="h6">Who we are</Typography>
+      <Typography
+        variant="h6"
+        sx={{
+          backgroundColor: "#f4e6ff",
+          display: "inline-block",
+          borderRadius: 32,
+          paddingX: 3,
+          paddingY: 1,
+          color: "#333",
+          fontSize: "1.2rem",
+          fontWeight: 500,
+        }}
+      >
+        Who we are
+      </Typography>
       <Typography variant="h3">Meet Our Team</Typography>
       <Box
         sx={{

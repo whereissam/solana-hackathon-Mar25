@@ -10,13 +10,13 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { ListItemText } from "@mui/material";
 import Button from "@mui/material/Button";
 import Link from "@mui/material/Link";
-// import { useTheme } from "@mui/material";
 import { Drawer, Divider, List, ListItemButton } from "@mui/material";
-import { UserMobileMenuItems } from "./AppBarUserUI";
+import { UserAppBarIcon, UserMobileMenuItems } from "./AppBarUserUI";
 import { useRouter, usePathname } from "next/navigation";
 import NextLink from "next/link";
 import Image from "next/image";
 import LoginIcon from "@mui/icons-material/Login";
+import { useAuthStore } from "@/store/authStore";
 
 interface AppBarProps {
   variant?: string;
@@ -34,6 +34,8 @@ export const Bar: React.FC<AppBarProps> = () => {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   // Add this for SSR/CSR consistency
   const [isMounted, setIsMounted] = React.useState(false);
+  // Get user from auth store
+  const user = useAuthStore((state) => state.user);
 
   React.useEffect(() => {
     setIsMounted(true);
@@ -42,8 +44,6 @@ export const Bar: React.FC<AppBarProps> = () => {
   const handleDrawerToggle = (): void => {
     setMobileOpen((prevState) => !prevState);
   };
-
-  // const theme = useTheme();
 
   // Custom Link component that combines MUI Link with Next.js Link with proper typing
   const NavLink = React.forwardRef<HTMLAnchorElement, NavLinkProps>(
@@ -183,27 +183,31 @@ export const Bar: React.FC<AppBarProps> = () => {
             <MenuIcon style={{ fontSize: "32px" }} />
           </IconButton>
 
-          {/* Login Button */}
-          <Button
-            component={NavLink}
-            href="/login"
-            variant="contained"
-            color="primary"
-            startIcon={<LoginIcon />}
-            sx={{
-              borderRadius: "50px",
-              px: 3,
-              py: 1,
-              backgroundColor: "#6C5CE7",
-              color: "white",
-              "&:hover": {
-                backgroundColor: "#5849c2",
-              },
-              boxShadow: "0px 4px 10px rgba(108, 92, 231, 0.3)",
-            }}
-          >
-            Login
-          </Button>
+          {/* User Account / Login Button */}
+          {user ? (
+            <UserAppBarIcon />
+          ) : (
+            <Button
+              component={NavLink}
+              href="/login"
+              variant="contained"
+              color="primary"
+              startIcon={<LoginIcon />}
+              sx={{
+                borderRadius: "50px",
+                px: 3,
+                py: 1,
+                backgroundColor: "#6C5CE7",
+                color: "white",
+                "&:hover": {
+                  backgroundColor: "#5849c2",
+                },
+                boxShadow: "0px 4px 10px rgba(108, 92, 231, 0.3)",
+              }}
+            >
+              Login
+            </Button>
+          )}
         </Toolbar>
       </MuiAppBar>
 
