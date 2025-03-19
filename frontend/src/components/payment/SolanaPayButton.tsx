@@ -101,7 +101,7 @@ const SolanaPayButton: React.FC<SolanaPayButtonProps> = ({ amount }) => {
       const signature = await processTransaction(data.transaction);
 
       // Redirect to success page
-      router.push(`/donate/success?signature=${signature}&amount=${amount}`);
+      router.push(`/solana-success?signature=${signature}&amount=${amount}`);
     } catch (err) {
       console.error("Error in Solana Pay flow:", err);
       setWalletError(handleError(err));

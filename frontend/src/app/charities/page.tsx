@@ -170,7 +170,8 @@ function CharitiesContent() {
                     >
                       <CardMedia
                         sx={{ height: 220 }}
-                        image={`/img/charity/${charity.id}.png`}
+                        // image={`/img/charity/${charity.id}.png`}
+                        image={`https://therecordnewspaper.org/wp-content/uploads/2019/05/Catholic-Charities-Building-Southwest-5-16-19-p1-.gif`}
                         title={charity.name}
                       />
                       <CardHeader
