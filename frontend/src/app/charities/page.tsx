@@ -1,4 +1,3 @@
-// src/app/charities/page.jsx
 "use client";
 
 import * as React from "react";
@@ -14,17 +13,33 @@ import {
   Grid,
   Container,
   Skeleton,
+  Button,
+  CardActions,
 } from "@mui/material";
 import AppBar from "@/components/AppBar";
-import { ApolloProvider } from "@apollo/client";
-import apolloClient from "@/lib/apollo-client";
+import { useRouter } from "next/navigation";
 
 // Define the charity interface
+interface Address {
+  city: string | null;
+  country: string | null;
+  lat: number | null;
+  lng: number | null;
+  postcode: string | null;
+}
+
+interface Beneficiary {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+}
+
 interface Charity {
   id: string;
   name: string;
-  slogan?: string;
-  detail?: string;
+  address?: Address;
+  beneficiaries?: Beneficiary[];
 }
 
 // Skeleton card for loading state
@@ -45,17 +60,25 @@ const CharityCardSkeleton = () => (
       <Skeleton animation="wave" height={20} width="100%" />
       <Skeleton animation="wave" height={20} width="60%" />
     </CardContent>
+    <Box sx={{ px: 2, pb: 2 }}>
+      <Skeleton animation="wave" height={36} width="100%" />
+    </Box>
   </Card>
 );
 
-// Wrap the actual content in Apollo Provider
-function CharitiesContent() {
+export default function CharitiesPage() {
   const { data, loading, error } = useQuery(GET_ALL_CHARITIES);
+  const router = useRouter();
   const [isMounted, setIsMounted] = React.useState(false);
 
   React.useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  // Function to navigate to charity detail page
+  const handleViewCharity = (charityId: string) => {
+    router.push(`/charities/${charityId}`);
+  };
 
   // Only render a minimal placeholder during server-side rendering
   if (!isMounted) {
@@ -170,7 +193,6 @@ function CharitiesContent() {
                     >
                       <CardMedia
                         sx={{ height: 220 }}
-                        // image={`/img/charity/${charity.id}.png`}
                         image={`https://therecordnewspaper.org/wp-content/uploads/2019/05/Catholic-Charities-Building-Southwest-5-16-19-p1-.gif`}
                         title={charity.name}
                       />
@@ -192,13 +214,46 @@ function CharitiesContent() {
                             fontWeight: "bold",
                           }}
                         >
-                          {charity.slogan || "Making a difference"}
+                          Making a difference
                         </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {charity.detail ||
-                            "Supporting communities and creating positive change."}
+
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{ mb: 1 }}
+                        >
+                          Supporting communities and creating positive change.
+                        </Typography>
+
+                        {/* Display number of beneficiaries */}
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            mt: 1,
+                            display: "inline-block",
+                            bgcolor: "primary.main",
+                            color: "white",
+                            px: 1,
+                            py: 0.5,
+                            borderRadius: 1,
+                            fontSize: "0.75rem",
+                          }}
+                        >
+                          {charity.beneficiaries &&
+                          charity.beneficiaries.length > 0
+                            ? `${charity.beneficiaries.length} ${charity.beneficiaries.length === 1 ? "Beneficiary" : "Beneficiaries"}`
+                            : "No Beneficiaries Yet"}
                         </Typography>
                       </CardContent>
+                      <CardActions sx={{ p: 2, pt: 0 }}>
+                        <Button
+                          variant="contained"
+                          fullWidth
+                          onClick={() => handleViewCharity(charity.id)}
+                        >
+                          View Details & Create Beneficiary
+                        </Button>
+                      </CardActions>
                     </Card>
                   </Grid>
                 ))}
@@ -206,14 +261,5 @@ function CharitiesContent() {
         )}
       </Container>
     </Box>
-  );
-}
-
-// Main export with Apollo Provider
-export default function CharitiesPage() {
-  return (
-    <ApolloProvider client={apolloClient}>
-      <CharitiesContent />
-    </ApolloProvider>
   );
 }

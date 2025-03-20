@@ -31,12 +31,13 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
 const authLink = setContext((_, { headers }) => {
   // Get the authentication token from the store
   const token = useAuthStore.getState().token;
+  console.log("token", token);
   
   // Return the headers to the context so httpLink can read them
   return {
     headers: {
       ...headers,
-      authorization: token ? `Bearer ${token}` : "",
+      token: token,
     }
   };
 });
