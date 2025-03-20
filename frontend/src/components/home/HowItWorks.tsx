@@ -12,9 +12,13 @@ const HowItWorks: React.FC = () => {
         variant="h6"
         sx={{
           backgroundColor: "#f4e6ff",
-          display: "inline",
+          display: "inline-block",
           borderRadius: 32,
-          paddingX: 2,
+          paddingX: 3,
+          paddingY: 1,
+          color: "#333",
+          fontSize: "1.2rem",
+          fontWeight: 500,
         }}
       >
         How It Works

@@ -8,7 +8,15 @@ import {
   clusterApiUrl,
   TransactionResponse,
 } from "@solana/web3.js";
-import styles from "./solana-success.module.css";
+import {
+  Box,
+  Container,
+  Typography,
+  CircularProgress,
+  Button,
+  Paper,
+} from "@mui/material";
+import AppBar from "@/components/AppBar";
 
 // Define interface for transaction details
 interface TransactionDetails {
@@ -25,7 +33,21 @@ function SolanaSuccessContent() {
   const [error, setError] = useState<string | null>(null);
   const searchParams = useSearchParams();
 
-  const signature = searchParams.get("signature");
+  // More robust signature extraction
+  let signature: string | null = null;
+
+  // Get the raw signature from URL params
+  const rawSignature = searchParams.get("signature");
+
+  if (rawSignature) {
+    // First check if it contains "success?" and handle it
+    if (rawSignature.includes("success?")) {
+      signature = rawSignature.split("success?")[1];
+    } else {
+      signature = rawSignature;
+    }
+  }
+
   const amount = searchParams.get("amount");
 
   useEffect(() => {
@@ -76,90 +98,371 @@ function SolanaSuccessContent() {
 
   if (loading) {
     return (
-      <div className={styles.main}>
-        <div className={styles.loadingContainer}>
-          <div className={styles.loadingSpinner}></div>
-          <p>Verifying transaction...</p>
-        </div>
-      </div>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "300px",
+          textAlign: "center",
+          py: 8,
+        }}
+      >
+        <CircularProgress
+          size={60}
+          sx={{ color: "rgb(103, 58, 183)", mb: 3 }}
+        />
+        <Typography variant="h6" color="white">
+          Verifying transaction...
+        </Typography>
+      </Box>
     );
   }
 
   if (error || !signature) {
     return (
-      <div className={styles.main}>
-        <div className={styles.errorContainer}>
-          <div className={styles.errorIcon}>!</div>
-          <h1 className={styles.title}>Transaction Error</h1>
-          <p>{error || "No transaction information found"}</p>
-          <Link href="/" className={styles.button}>
-            Return to Home
-          </Link>
-        </div>
-      </div>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          textAlign: "center",
+          py: 8,
+        }}
+      >
+        <Box
+          sx={{
+            width: 60,
+            height: 60,
+            borderRadius: "50%",
+            bgcolor: "error.main",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "2rem",
+            fontWeight: "bold",
+            mb: 3,
+          }}
+        >
+          !
+        </Box>
+        <Typography
+          variant="h4"
+          component="h1"
+          sx={{ mb: 2, fontWeight: "bold" }}
+        >
+          Transaction Error
+        </Typography>
+        <Typography variant="body1" sx={{ mb: 4, maxWidth: 500, mx: "auto" }}>
+          {error || "No transaction information found"}
+        </Typography>
+        <Button
+          component={Link}
+          href="/"
+          variant="contained"
+          sx={{
+            bgcolor: "rgb(103, 58, 183)",
+            borderRadius: "30px",
+            px: 4,
+            "&:hover": {
+              bgcolor: "rgb(83, 38, 163)",
+            },
+          }}
+        >
+          Return to Home
+        </Button>
+      </Box>
     );
   }
 
   return (
-    <div className={styles.main}>
-      <div className={styles.successContainer}>
-        <div className={styles.successIcon}>✓</div>
-        <h1 className={styles.title}>Solana Payment Successful!</h1>
-
-        <div className={styles.transactionDetails}>
-          <p>
-            <strong>Amount:</strong> {amount} USD
-          </p>
-          <p>
-            <strong>Transaction ID:</strong> {signature.slice(0, 8)}...
-            {signature.slice(-8)}
-          </p>
-          <p>
-            <strong>Status:</strong> {transactionDetails?.status || "Confirmed"}
-          </p>
-          <p>
-            <strong>Timestamp:</strong>{" "}
-            {transactionDetails?.blockTime || "Processing"}
-          </p>
-        </div>
-
-        <p>
-          Thank you for your payment using Solana. Your transaction has been
-          confirmed on the blockchain.
-        </p>
-
-        <div className={styles.buttonContainer}>
-          <Link href="/" className={styles.button}>
-            Return to Home
-          </Link>
-
-          <a
-            href={`https://explorer.solana.com/tx/${signature}?cluster=devnet`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondaryButton}
+    <Container maxWidth="sm" sx={{ py: 6 }}>
+      <Paper
+        elevation={3}
+        sx={{
+          width: "100%",
+          borderRadius: 4,
+          overflow: "hidden",
+          bgcolor: "white",
+          boxShadow: "0 10px 40px rgba(0, 0, 0, 0.15)",
+          position: "relative",
+        }}
+      >
+        {/* Success Header with Large Checkmark */}
+        <Box
+          sx={{
+            pt: 8,
+            pb: 6,
+            textAlign: "center",
+            position: "relative",
+          }}
+        >
+          <Box
+            sx={{
+              width: 100,
+              height: 100,
+              borderRadius: "50%",
+              bgcolor: "#4CAF50",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "3.5rem",
+              fontWeight: "bold",
+              color: "white",
+              mx: "auto",
+              mb: 3,
+              boxShadow: "0 4px 12px rgba(76, 175, 80, 0.3)",
+            }}
           >
-            View on Solana Explorer
-          </a>
-        </div>
-      </div>
-    </div>
+            ✓
+          </Box>
+          <Typography
+            variant="h4"
+            component="h1"
+            sx={{ fontWeight: "bold", color: "#333" }}
+          >
+            Transaction Successful!
+          </Typography>
+        </Box>
+
+        {/* Transaction Details */}
+        <Box sx={{ px: 5, pb: 3 }}>
+          <Typography
+            variant="h6"
+            sx={{
+              textAlign: "center",
+              fontSize: 18,
+              color: "#555",
+              fontWeight: "medium",
+              mb: 2,
+            }}
+          >
+            Solana Donation Payment
+          </Typography>
+
+          <Box sx={{ mb: 5 }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "baseline",
+                mb: 3,
+              }}
+            >
+              <Typography
+                variant="h3"
+                sx={{ fontWeight: "bold", color: "#333" }}
+              >
+                {amount}
+              </Typography>
+              <Typography
+                variant="h5"
+                sx={{ ml: 1, color: "#555", fontWeight: "medium" }}
+              >
+                USD
+              </Typography>
+            </Box>
+
+            <Box
+              sx={{
+                height: 1,
+                bgcolor: "#f0f0f0",
+                mb: 3,
+              }}
+            />
+
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                mb: 1.5,
+              }}
+            >
+              <Typography sx={{ color: "#666" }}>Transaction ID:</Typography>
+              <Typography sx={{ fontWeight: "medium", color: "#333" }}>
+                {signature.slice(0, 8)}...{signature.slice(-8)}
+              </Typography>
+            </Box>
+
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                mb: 1.5,
+              }}
+            >
+              <Typography sx={{ color: "#666" }}>Status:</Typography>
+              <Typography
+                sx={{
+                  fontWeight: "medium",
+                  color: "#4CAF50",
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                {transactionDetails?.status || "Confirmed"}
+              </Typography>
+            </Box>
+
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+              }}
+            >
+              <Typography sx={{ color: "#666" }}>Date & Time:</Typography>
+              <Typography sx={{ fontWeight: "medium", color: "#333" }}>
+                {transactionDetails?.blockTime || "Processing"}
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
+
+        {/* Visual element for the receipt "tear" effect */}
+        <Box
+          sx={{
+            position: "relative",
+            height: 20,
+            overflow: "hidden",
+            "&::before": {
+              content: '""',
+              position: "absolute",
+              left: 0,
+              right: 0,
+              top: 0,
+              height: 20,
+              background:
+                "linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%, #fff), linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%, #fff)",
+              backgroundSize: "20px 20px",
+              backgroundPosition: "0 0, 10px 10px",
+              transform: "rotate(180deg)",
+            },
+          }}
+        />
+
+        {/* Message */}
+        <Box sx={{ px: 5, py: 3, textAlign: "center", bgcolor: "#f9f9f9" }}>
+          <Typography sx={{ color: "#555", mb: 3 }}>
+            Thank you for your donation. Your transaction has been confirmed on
+            the Solana blockchain.
+          </Typography>
+
+          <Box sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
+            <Button
+              component={Link}
+              href="/"
+              variant="contained"
+              sx={{
+                bgcolor: "rgb(103, 58, 183)",
+                borderRadius: "30px",
+                px: 3,
+                "&:hover": {
+                  bgcolor: "rgb(83, 38, 163)",
+                },
+              }}
+            >
+              Return to Home
+            </Button>
+
+            <Button
+              component="a"
+              href={`https://explorer.solana.com/tx/${signature}?cluster=devnet`}
+              target="_blank"
+              rel="noopener noreferrer"
+              variant="outlined"
+              sx={{
+                borderRadius: "30px",
+                borderColor: "rgb(103, 58, 183)",
+                color: "rgb(103, 58, 183)",
+                px: 3,
+                "&:hover": {
+                  borderColor: "rgb(83, 38, 163)",
+                  bgcolor: "rgba(103, 58, 183, 0.04)",
+                },
+              }}
+            >
+              View on Explorer
+            </Button>
+          </Box>
+        </Box>
+      </Paper>
+    </Container>
   );
 }
 
 export default function SolanaSuccess() {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Only render a minimal placeholder during server-side rendering
+  if (!isMounted) {
+    return (
+      <Box
+        sx={{
+          width: "100%",
+          minHeight: "100vh",
+          backgroundColor: "#000",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      />
+    );
+  }
+
   return (
-    <Suspense
-      fallback={
-        <div className={styles.main}>
-          <div className={styles.loadingContainer}>
-            <div className={styles.loadingSpinner}></div>
-            <p>Loading transaction details...</p>
-          </div>
-        </div>
-      }
+    <Box
+      sx={{
+        width: "100%",
+        minHeight: "100vh",
+        backgroundColor: "#000",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+      }}
     >
-      <SolanaSuccessContent />
-    </Suspense>
+      {/* Wrapper to center the AppBar */}
+      <Box
+        sx={{
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <AppBar />
+      </Box>
+
+      {/* Main content container */}
+      <Container
+        maxWidth="lg"
+        sx={{
+          color: "white",
+          px: { xs: 2, sm: 3 },
+          pb: 8,
+        }}
+      >
+        <Suspense
+          fallback={
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                minHeight: "50vh",
+              }}
+            >
+              <CircularProgress size={60} sx={{ color: "rgb(103, 58, 183)" }} />
+            </Box>
+          }
+        >
+          <SolanaSuccessContent />
+        </Suspense>
+      </Container>
+    </Box>
   );
 }
