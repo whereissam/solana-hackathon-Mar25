@@ -14,12 +14,7 @@ const resolver = {
             }
             if (args.id) 
                 query.where = {id: args.id}
-            return (await charityService.getCharities(query)).map((charity) => ({
-                ...charity,
-                address: {
-                    ...charity
-                }
-            }))
+            return await charityService.getCharities(query)
         }
     },
     Charity: {
@@ -28,7 +23,12 @@ const resolver = {
                 skip: args.offset,
                 take: args.limit
             })
-        }
+        },
+        address: (parent) => {
+            return {
+                ...parent
+            }
+        },
     },
     Mutation: {
         createCharity: withAuth([isAdmin()],

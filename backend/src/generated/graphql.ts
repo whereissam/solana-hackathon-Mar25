@@ -1,4 +1,4 @@
-import { GraphQLResolveInfo } from 'graphql';
+import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 export type Maybe<T> = T | undefined | null;
 export type InputMaybe<T> = T | undefined;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -14,6 +14,7 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
+  BigInt: { input: any; output: any; }
 };
 
 export type Address = {
@@ -71,6 +72,21 @@ export type CharityUser = {
   last_name?: Maybe<Scalars['String']['output']>;
 };
 
+export type Donation = {
+  __typename?: 'Donation';
+  amount: Scalars['BigInt']['output'];
+  currency: Scalars['String']['output'];
+  id: Scalars['String']['output'];
+  status: DonationStatus;
+};
+
+export enum DonationStatus {
+  Cancelled = 'cancelled',
+  Completed = 'completed',
+  Paid = 'paid',
+  Pending = 'pending'
+}
+
 export type Donor = {
   __typename?: 'Donor';
   donations_given: Scalars['Float']['output'];
@@ -84,6 +100,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   createBeneficiary?: Maybe<CharityUser>;
   createCharity?: Maybe<Charity>;
+  createCryptoDonation: Donation;
   login?: Maybe<AuthPayload>;
   logout: Scalars['Boolean']['output'];
 };
@@ -97,6 +114,13 @@ export type MutationCreateBeneficiaryArgs = {
 
 export type MutationCreateCharityArgs = {
   detail: NewCharity;
+};
+
+
+export type MutationCreateCryptoDonationArgs = {
+  amountInLamports: Scalars['Int']['input'];
+  beneficiaryId: Scalars['Int']['input'];
+  tokenCode: Scalars['String']['input'];
 };
 
 
@@ -130,6 +154,7 @@ export type NewCharityBeneficiary = {
 export type Query = {
   __typename?: 'Query';
   charities: Array<Charity>;
+  donations: Array<Maybe<Donation>>;
 };
 
 
@@ -137,6 +162,11 @@ export type QueryCharitiesArgs = {
   id?: InputMaybe<Scalars['Int']['input']>;
   limit?: Scalars['Int']['input'];
   offset?: Scalars['Int']['input'];
+};
+
+
+export type QueryDonationsArgs = {
+  donorId?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export enum RoleType {
@@ -235,10 +265,13 @@ export type ResolversTypes = {
   Address: ResolverTypeWrapper<Address>;
   AuthPayload: ResolverTypeWrapper<AuthPayload>;
   Beneficiary: ResolverTypeWrapper<Beneficiary>;
+  BigInt: ResolverTypeWrapper<Scalars['BigInt']['output']>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   CacheControlScope: CacheControlScope;
   Charity: ResolverTypeWrapper<Charity>;
   CharityUser: ResolverTypeWrapper<CharityUser>;
+  Donation: ResolverTypeWrapper<Donation>;
+  DonationStatus: DonationStatus;
   Donor: ResolverTypeWrapper<Donor>;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
@@ -259,9 +292,11 @@ export type ResolversParentTypes = {
   Address: Address;
   AuthPayload: AuthPayload;
   Beneficiary: Beneficiary;
+  BigInt: Scalars['BigInt']['output'];
   Boolean: Scalars['Boolean']['output'];
   Charity: Charity;
   CharityUser: CharityUser;
+  Donation: Donation;
   Donor: Donor;
   Float: Scalars['Float']['output'];
   ID: Scalars['ID']['output'];
@@ -308,6 +343,10 @@ export type BeneficiaryResolvers<ContextType = any, ParentType extends Resolvers
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export interface BigIntScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['BigInt'], any> {
+  name: 'BigInt';
+}
+
 export type CharityResolvers<ContextType = any, ParentType extends ResolversParentTypes['Charity'] = ResolversParentTypes['Charity']> = {
   address?: Resolver<ResolversTypes['Address'], ParentType, ContextType>;
   beneficiaries?: Resolver<Array<ResolversTypes['CharityUser']>, ParentType, ContextType, RequireFields<CharityBeneficiariesArgs, 'limit' | 'offset'>>;
@@ -324,6 +363,14 @@ export type CharityUserResolvers<ContextType = any, ParentType extends Resolvers
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type DonationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Donation'] = ResolversParentTypes['Donation']> = {
+  amount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['DonationStatus'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type DonorResolvers<ContextType = any, ParentType extends ResolversParentTypes['Donor'] = ResolversParentTypes['Donor']> = {
   donations_given?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -336,12 +383,14 @@ export type DonorResolvers<ContextType = any, ParentType extends ResolversParent
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   createBeneficiary?: Resolver<Maybe<ResolversTypes['CharityUser']>, ParentType, ContextType, RequireFields<MutationCreateBeneficiaryArgs, 'charityId' | 'detail'>>;
   createCharity?: Resolver<Maybe<ResolversTypes['Charity']>, ParentType, ContextType, RequireFields<MutationCreateCharityArgs, 'detail'>>;
+  createCryptoDonation?: Resolver<ResolversTypes['Donation'], ParentType, ContextType, RequireFields<MutationCreateCryptoDonationArgs, 'amountInLamports' | 'beneficiaryId' | 'tokenCode'>>;
   login?: Resolver<Maybe<ResolversTypes['AuthPayload']>, ParentType, ContextType, RequireFields<MutationLoginArgs, 'email' | 'password'>>;
   logout?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   charities?: Resolver<Array<ResolversTypes['Charity']>, ParentType, ContextType, RequireFields<QueryCharitiesArgs, 'limit' | 'offset'>>;
+  donations?: Resolver<Array<Maybe<ResolversTypes['Donation']>>, ParentType, ContextType, Partial<QueryDonationsArgs>>;
 };
 
 export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
@@ -357,8 +406,10 @@ export type Resolvers<ContextType = any> = {
   Address?: AddressResolvers<ContextType>;
   AuthPayload?: AuthPayloadResolvers<ContextType>;
   Beneficiary?: BeneficiaryResolvers<ContextType>;
+  BigInt?: GraphQLScalarType;
   Charity?: CharityResolvers<ContextType>;
   CharityUser?: CharityUserResolvers<ContextType>;
+  Donation?: DonationResolvers<ContextType>;
   Donor?: DonorResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;

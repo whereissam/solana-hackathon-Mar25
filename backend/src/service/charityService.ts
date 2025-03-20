@@ -11,6 +11,22 @@ const charityService = {
             ...args,
         })
     },
+    getCharityById: (charityId: number, args) => {
+        return prisma.charity.findUnique({
+            where: {
+                id: charityId,
+            },
+            ...args
+        })
+    },
+    getBeneficiaryById: (beneficiaryId: number) => {
+        return prisma.users.findUniqueOrThrow({
+            where: {
+                id: beneficiaryId,
+                role: 'recipient'
+            }
+        })
+    },
     getBeneficiaries: (charityId: number, args) => {
         return prisma.charity.findUnique({
             where: {

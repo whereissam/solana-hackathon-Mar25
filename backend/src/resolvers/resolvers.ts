@@ -1,13 +1,17 @@
 import { mergeResolvers } from '@graphql-tools/merge'
 import authentication from './authenticationResolver'
 import charityResolver from './charityResolver'
+import donationResolver from './donationResolver'
 import { resolverWrapper, ResolverFunctionType } from './resolverWrapper'
 import { GraphQLError } from 'graphql'
 import { PrismaClientKnownRequestError, PrismaClientValidationError } from '@prisma/client/runtime/library'
+import {BigIntResolver} from 'graphql-scalars'
 
 const resolvers = mergeResolvers([
+    { BigInt: BigIntResolver },
     authentication,
-    resolverWrapper(charityResolver, errorHandler)
+    resolverWrapper(charityResolver, errorHandler),
+    resolverWrapper(donationResolver, errorHandler)
 ])
 
 function errorHandler(this: any, f: ResolverFunctionType) {

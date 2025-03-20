@@ -1,0 +1,21 @@
+enum DonationStatus {
+    pending
+    paid
+    completed
+    cancelled
+}
+
+type Donation {
+    id: String!
+    amount: BigInt!
+    currency: String!
+    status: DonationStatus!
+}
+
+type Query {
+    donations(donorId: Int): [Donation]!
+}
+
+type Mutation {
+    createCryptoDonation(beneficiaryId: Int!, amountInLamports: Int!, tokenCode: String!): Donation!
+}

@@ -66,7 +66,7 @@ export function isEqUserId(argName: string) {
 export function withAuth(strategies: StrategyFunctionType[], resolver: (parent, args, contextValue) => any) {
     return async (parent, args, contextValue) => {
         const user = contextValue.user
-        any(...strategies)(user, null)
+        any(...strategies)(user, args)
         return resolver(parent, args, contextValue)
     }
 }
