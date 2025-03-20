@@ -7,10 +7,14 @@ import { QueryCharitiesArgs, CharityBeneficiariesArgs, Charity, MutationCreateCh
 const resolver = {
     Query: {
         charities: async (_parent, args: QueryCharitiesArgs) => {
-            return (await charityService.getCharities({
+            let query = {
                 skip: args.offset,
-                take: args.limit
-            })).map((charity) => ({
+                take: args.limit,
+                where: {}
+            }
+            if (args.id) 
+                query.where = {id: args.id}
+            return (await charityService.getCharities(query)).map((charity) => ({
                 ...charity,
                 address: {
                     ...charity

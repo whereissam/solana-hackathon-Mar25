@@ -134,6 +134,7 @@ export type Query = {
 
 
 export type QueryCharitiesArgs = {
+  id?: InputMaybe<Scalars['Int']['input']>;
   limit?: Scalars['Int']['input'];
   offset?: Scalars['Int']['input'];
 };

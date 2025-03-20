@@ -5,7 +5,7 @@ type Charity{
     beneficiaries(offset: Int! = 0, limit: Int! = 10): [CharityUser!]! 
 }
 type Query{
-    charities(offset: Int! = 0, limit: Int! = 30): [Charity!]! 
+    charities(id: Int, offset: Int! = 0, limit: Int! = 30): [Charity!]! 
 }
 type CharityUser{
     id: Int!
