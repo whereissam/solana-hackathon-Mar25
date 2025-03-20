@@ -18,6 +18,7 @@ import {
 } from "@mui/material";
 import AppBar from "@/components/AppBar";
 import { useRouter } from "next/navigation";
+import AddIcon from "@mui/icons-material/Add";
 
 // Define the charity interface
 interface Address {
@@ -80,6 +81,11 @@ export default function CharitiesPage() {
     router.push(`/charities/${charityId}`);
   };
 
+  // Function to navigate to charity creation page
+  const handleCreateCharity = () => {
+    router.push("/charities/create");
+  };
+
   // Only render a minimal placeholder during server-side rendering
   if (!isMounted) {
     return (
@@ -128,7 +134,15 @@ export default function CharitiesPage() {
           pb: 8,
         }}
       >
-        <Box sx={{ my: 4, textAlign: "center" }}>
+        <Box
+          sx={{
+            my: 4,
+            textAlign: "center",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
           <Typography
             variant="h2"
             component="h1"
@@ -154,6 +168,18 @@ export default function CharitiesPage() {
             address critical issues like homelessness, hunger, animal rescue,
             and environmental sustainability.
           </Typography>
+
+          {/* Create Charity Button */}
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            onClick={handleCreateCharity}
+            startIcon={<AddIcon />}
+            sx={{ mb: 4 }}
+          >
+            Create New Charity
+          </Button>
         </Box>
 
         {error ? (
@@ -167,16 +193,20 @@ export default function CharitiesPage() {
             </Typography>
           </Box>
         ) : (
-          <Grid container spacing={3} justifyContent="center">
-            {loading
-              ? // Show skeleton cards while loading
-                Array.from(new Array(6)).map((_, index) => (
+          <>
+            {loading ? (
+              // Show skeleton cards while loading
+              <Grid container spacing={3} justifyContent="center">
+                {Array.from(new Array(6)).map((_, index) => (
                   <Grid item xs={12} sm={6} md={4} key={`skeleton-${index}`}>
                     <CharityCardSkeleton />
                   </Grid>
-                ))
-              : // Show actual charity cards when data is loaded
-                data?.charities?.map((charity: Charity) => (
+                ))}
+              </Grid>
+            ) : data?.charities?.length > 0 ? (
+              // Show charity cards when there are charities
+              <Grid container spacing={3} justifyContent="center">
+                {data.charities.map((charity: Charity) => (
                   <Grid item xs={12} sm={6} md={4} key={charity.id}>
                     <Card
                       sx={{
@@ -257,7 +287,37 @@ export default function CharitiesPage() {
                     </Card>
                   </Grid>
                 ))}
-          </Grid>
+              </Grid>
+            ) : (
+              // Show message when no charities exist
+              <Box
+                sx={{
+                  textAlign: "center",
+                  my: 4,
+                  p: 5,
+                  borderRadius: 2,
+                  border: "1px dashed rgba(255, 255, 255, 0.3)",
+                  backgroundColor: "rgba(255, 255, 255, 0.05)",
+                }}
+              >
+                <Typography variant="h5" sx={{ mb: 2 }}>
+                  No charities have been created yet
+                </Typography>
+                <Typography sx={{ mb: 3 }}>
+                  Get started by creating your first charity organization
+                </Typography>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  size="large"
+                  onClick={handleCreateCharity}
+                  startIcon={<AddIcon />}
+                >
+                  Create Your First Charity
+                </Button>
+              </Box>
+            )}
+          </>
         )}
       </Container>
     </Box>
