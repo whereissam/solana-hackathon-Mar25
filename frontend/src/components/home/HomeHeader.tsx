@@ -3,6 +3,7 @@ import { Box, Button, Typography } from "@mui/material";
 import { color } from "@/styles/theme";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import RotatingText from "../RotatingText";
 
 const HomeHeader: React.FC = () => {
   const router = useRouter();
@@ -10,6 +11,8 @@ const HomeHeader: React.FC = () => {
   const handleDonateClick = () => {
     router.push("/donate");
   };
+
+  const rotatingWords = ["Generosity", "Impact", "Kindness"];
 
   return (
     <Box
@@ -60,7 +63,14 @@ const HomeHeader: React.FC = () => {
           }}
         >
           {" "}
-          Generosity{" "}
+          <RotatingText
+            texts={rotatingWords}
+            rotationInterval={3000}
+            splitBy="characters"
+            staggerDuration={0.03}
+            mainClassName="inline-flex"
+            elementLevelClassName="inline-block"
+          />
         </Box>
         <br />
         Donate Seamlessly
