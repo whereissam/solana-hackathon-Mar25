@@ -25,6 +25,7 @@
     "graphql": "^16.10.0",
     "next": "15.2.2",
     "pino-pretty": "^13.0.0",
+    "posthog-js": "^1.232.3",
     "qrcode": "^1.5.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

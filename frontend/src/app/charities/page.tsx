@@ -15,10 +15,21 @@ import {
   Skeleton,
   Button,
   CardActions,
+  TextField,
+  InputAdornment,
+  Pagination,
+  Stack,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  SelectChangeEvent,
 } from "@mui/material";
 import AppBar from "@/components/AppBar";
 import { useRouter } from "next/navigation";
 import AddIcon from "@mui/icons-material/Add";
+import SearchIcon from "@mui/icons-material/Search";
+import { useAuthStore } from "@/store/authStore";
 
 // Define the charity interface
 interface Address {
@@ -71,10 +82,36 @@ export default function CharitiesPage() {
   const { data, loading, error } = useQuery(GET_ALL_CHARITIES);
   const router = useRouter();
   const [isMounted, setIsMounted] = React.useState(false);
+  const { user, isAuthenticated } = useAuthStore();
+
+  // Pagination state
+  const [page, setPage] = React.useState(1);
+  const [itemsPerPage, setItemsPerPage] = React.useState(9);
+
+  // Search state
+  const [searchTerm, setSearchTerm] = React.useState("");
+  const [searchResults, setSearchResults] = React.useState<Charity[]>([]);
+
+  // Check if current user is an admin
+  const isAdmin = React.useMemo(() => {
+    return isAuthenticated && user && user.role === "admin";
+  }, [isAuthenticated, user]);
 
   React.useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  // Filter and paginate charities based on search term
+  React.useEffect(() => {
+    if (data?.charities) {
+      const filteredCharities = data.charities.filter((charity: Charity) =>
+        charity.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setSearchResults(filteredCharities);
+      // Reset to first page when search changes
+      setPage(1);
+    }
+  }, [data, searchTerm]);
 
   // Function to navigate to charity detail page
   const handleViewCharity = (charityId: string) => {
@@ -83,7 +120,40 @@ export default function CharitiesPage() {
 
   // Function to navigate to charity creation page
   const handleCreateCharity = () => {
-    router.push("/charities/create");
+    if (isAdmin) {
+      router.push("/charities/create");
+    } else {
+      // Optional: Show alert or notification that only admins can create charities
+      alert("Only administrators can create new charities");
+    }
+  };
+
+  // Handle pagination changes
+  const handlePageChange = (
+    event: React.ChangeEvent<unknown>,
+    value: number
+  ) => {
+    setPage(value);
+    // Scroll to top when page changes
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // Handle items per page change
+  const handleItemsPerPageChange = (event: SelectChangeEvent<number>) => {
+    setItemsPerPage(Number(event.target.value));
+    setPage(1); // Reset to first page
+  };
+
+  // Handle search input changes
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+  };
+
+  // Get current charities for pagination
+  const getCurrentCharities = () => {
+    const startIndex = (page - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return searchResults.slice(startIndex, endIndex);
   };
 
   // Only render a minimal placeholder during server-side rendering
@@ -169,17 +239,56 @@ export default function CharitiesPage() {
             and environmental sustainability.
           </Typography>
 
-          {/* Create Charity Button */}
-          <Button
-            variant="contained"
-            color="primary"
-            size="large"
-            onClick={handleCreateCharity}
-            startIcon={<AddIcon />}
-            sx={{ mb: 4 }}
+          {/* Search bar and Create Charity Button */}
+          <Box
+            sx={{
+              width: "100%",
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 4,
+              gap: 2,
+            }}
           >
-            Create New Charity
-          </Button>
+            <TextField
+              placeholder="Search charities..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon sx={{ color: "white" }} />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                width: { xs: "100%", sm: "50%" },
+                "& .MuiOutlinedInput-root": {
+                  color: "white",
+                  "& fieldset": { borderColor: "rgba(255, 255, 255, 0.23)" },
+                  "&:hover fieldset": {
+                    borderColor: "rgba(255, 255, 255, 0.5)",
+                  },
+                  "&.Mui-focused fieldset": { borderColor: "primary.main" },
+                },
+                "& .MuiInputLabel-root": { color: "rgba(255, 255, 255, 0.7)" },
+              }}
+            />
+
+            {/* Create Charity Button - Only visible to admins */}
+            {isAdmin && (
+              <Button
+                variant="contained"
+                color="primary"
+                size="large"
+                onClick={handleCreateCharity}
+                startIcon={<AddIcon />}
+              >
+                Create New Charity
+              </Button>
+            )}
+          </Box>
         </Box>
 
         {error ? (
@@ -197,99 +306,208 @@ export default function CharitiesPage() {
             {loading ? (
               // Show skeleton cards while loading
               <Grid container spacing={3} justifyContent="center">
-                {Array.from(new Array(6)).map((_, index) => (
+                {Array.from(new Array(itemsPerPage)).map((_, index) => (
                   <Grid item xs={12} sm={6} md={4} key={`skeleton-${index}`}>
                     <CharityCardSkeleton />
                   </Grid>
                 ))}
               </Grid>
-            ) : data?.charities?.length > 0 ? (
-              // Show charity cards when there are charities
-              <Grid container spacing={3} justifyContent="center">
-                {data.charities.map((charity: Charity) => (
-                  <Grid item xs={12} sm={6} md={4} key={charity.id}>
-                    <Card
+            ) : searchResults.length > 0 ? (
+              <>
+                {/* Items per page selector */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    alignItems: "center",
+                    mb: 2,
+                  }}
+                >
+                  <Typography
+                    variant="body2"
+                    sx={{ mr: 2, color: "rgba(255, 255, 255, 0.7)" }}
+                  >
+                    Showing{" "}
+                    {Math.min(
+                      (page - 1) * itemsPerPage + 1,
+                      searchResults.length
+                    )}{" "}
+                    - {Math.min(page * itemsPerPage, searchResults.length)} of{" "}
+                    {searchResults.length} charities
+                  </Typography>
+                  <FormControl
+                    size="small"
+                    sx={{
+                      minWidth: 100,
+                      "& .MuiOutlinedInput-root": {
+                        color: "white",
+                        "& fieldset": {
+                          borderColor: "rgba(255, 255, 255, 0.23)",
+                        },
+                      },
+                      "& .MuiInputLabel-root": {
+                        color: "rgba(255, 255, 255, 0.7)",
+                      },
+                      "& .MuiSelect-icon": { color: "white" },
+                    }}
+                  >
+                    <InputLabel id="items-per-page-label">Per Page</InputLabel>
+                    <Select
+                      labelId="items-per-page-label"
+                      value={itemsPerPage}
+                      label="Per Page"
+                      onChange={handleItemsPerPageChange}
+                    >
+                      <MenuItem value={6}>6</MenuItem>
+                      <MenuItem value={9}>9</MenuItem>
+                      <MenuItem value={12}>12</MenuItem>
+                      <MenuItem value={24}>24</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Box>
+
+                {/* Show charity cards for current page */}
+                <Grid container spacing={3} justifyContent="center">
+                  {getCurrentCharities().map((charity: Charity) => (
+                    <Grid item xs={12} sm={6} md={4} key={charity.id}>
+                      <Card
+                        sx={{
+                          height: "100%",
+                          display: "flex",
+                          flexDirection: "column",
+                          borderRadius: "16px",
+                          overflow: "hidden",
+                          transition: "transform 0.3s ease",
+                          "&:hover": {
+                            transform: "translateY(-5px)",
+                          },
+                        }}
+                      >
+                        <CardMedia
+                          sx={{ height: 220 }}
+                          image={`https://therecordnewspaper.org/wp-content/uploads/2019/05/Catholic-Charities-Building-Southwest-5-16-19-p1-.gif`}
+                          title={charity.name}
+                        />
+                        <CardHeader
+                          sx={{ pb: 0 }}
+                          titleTypographyProps={{
+                            fontSize: 16,
+                            fontWeight: "bold",
+                            color: "#666",
+                          }}
+                          title={charity.name}
+                        />
+                        <CardContent sx={{ flexGrow: 1 }}>
+                          <Typography
+                            variant="h5"
+                            component="h3"
+                            sx={{
+                              mb: 1,
+                              fontWeight: "bold",
+                            }}
+                          >
+                            Making a difference
+                          </Typography>
+
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ mb: 1 }}
+                          >
+                            Supporting communities and creating positive change.
+                          </Typography>
+
+                          {/* Display number of beneficiaries */}
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              mt: 1,
+                              display: "inline-block",
+                              bgcolor: "primary.main",
+                              color: "white",
+                              px: 1,
+                              py: 0.5,
+                              borderRadius: 1,
+                              fontSize: "0.75rem",
+                            }}
+                          >
+                            {charity.beneficiaries &&
+                            charity.beneficiaries.length > 0
+                              ? `${charity.beneficiaries.length} ${
+                                  charity.beneficiaries.length === 1
+                                    ? "Beneficiary"
+                                    : "Beneficiaries"
+                                }`
+                              : "No Beneficiaries Yet"}
+                          </Typography>
+                        </CardContent>
+                        <CardActions sx={{ p: 2, pt: 0 }}>
+                          <Button
+                            variant="contained"
+                            fullWidth
+                            onClick={() => handleViewCharity(charity.id)}
+                          >
+                            View Details & Create Beneficiary
+                          </Button>
+                        </CardActions>
+                      </Card>
+                    </Grid>
+                  ))}
+                </Grid>
+
+                {/* Pagination controls */}
+                {searchResults.length > itemsPerPage && (
+                  <Stack spacing={2} sx={{ mt: 4, alignItems: "center" }}>
+                    <Pagination
+                      count={Math.ceil(searchResults.length / itemsPerPage)}
+                      page={page}
+                      onChange={handlePageChange}
+                      variant="outlined"
+                      shape="rounded"
                       sx={{
-                        height: "100%",
-                        display: "flex",
-                        flexDirection: "column",
-                        borderRadius: "16px",
-                        overflow: "hidden",
-                        transition: "transform 0.3s ease",
-                        "&:hover": {
-                          transform: "translateY(-5px)",
+                        "& .MuiPaginationItem-root": {
+                          color: "white",
+                          borderColor: "rgba(255, 255, 255, 0.23)",
+                          "&.Mui-selected": {
+                            backgroundColor: "primary.main",
+                            borderColor: "primary.main",
+                            "&:hover": {
+                              backgroundColor: "primary.dark",
+                            },
+                          },
+                          "&:hover": {
+                            backgroundColor: "rgba(255, 255, 255, 0.05)",
+                          },
                         },
                       }}
-                    >
-                      <CardMedia
-                        sx={{ height: 220 }}
-                        image={`https://therecordnewspaper.org/wp-content/uploads/2019/05/Catholic-Charities-Building-Southwest-5-16-19-p1-.gif`}
-                        title={charity.name}
-                      />
-                      <CardHeader
-                        sx={{ pb: 0 }}
-                        titleTypographyProps={{
-                          fontSize: 16,
-                          fontWeight: "bold",
-                          color: "#666",
-                        }}
-                        title={charity.name}
-                      />
-                      <CardContent sx={{ flexGrow: 1 }}>
-                        <Typography
-                          variant="h5"
-                          component="h3"
-                          sx={{
-                            mb: 1,
-                            fontWeight: "bold",
-                          }}
-                        >
-                          Making a difference
-                        </Typography>
-
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          sx={{ mb: 1 }}
-                        >
-                          Supporting communities and creating positive change.
-                        </Typography>
-
-                        {/* Display number of beneficiaries */}
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            mt: 1,
-                            display: "inline-block",
-                            bgcolor: "primary.main",
-                            color: "white",
-                            px: 1,
-                            py: 0.5,
-                            borderRadius: 1,
-                            fontSize: "0.75rem",
-                          }}
-                        >
-                          {charity.beneficiaries &&
-                          charity.beneficiaries.length > 0
-                            ? `${charity.beneficiaries.length} ${charity.beneficiaries.length === 1 ? "Beneficiary" : "Beneficiaries"}`
-                            : "No Beneficiaries Yet"}
-                        </Typography>
-                      </CardContent>
-                      <CardActions sx={{ p: 2, pt: 0 }}>
-                        <Button
-                          variant="contained"
-                          fullWidth
-                          onClick={() => handleViewCharity(charity.id)}
-                        >
-                          View Details & Create Beneficiary
-                        </Button>
-                      </CardActions>
-                    </Card>
-                  </Grid>
-                ))}
-              </Grid>
+                    />
+                  </Stack>
+                )}
+              </>
+            ) : searchTerm ? (
+              // Show message when no search results
+              <Box
+                sx={{
+                  textAlign: "center",
+                  my: 4,
+                  p: 5,
+                  borderRadius: 2,
+                  border: "1px dashed rgba(255, 255, 255, 0.3)",
+                  backgroundColor: "rgba(255, 255, 255, 0.05)",
+                }}
+              >
+                <Typography variant="h5" sx={{ mb: 2 }}>
+                  {"No charities found matching ${searchTerm}"}
+                </Typography>
+                <Typography sx={{ mb: 3 }}>
+                  Try a different search term or clear your search
+                </Typography>
+                <Button variant="outlined" onClick={() => setSearchTerm("")}>
+                  Clear Search
+                </Button>
+              </Box>
             ) : (
-              // Show message when no charities exist
+              // Show message when no charities exist - with conditional button for admins
               <Box
                 sx={{
                   textAlign: "center",
@@ -304,17 +522,21 @@ export default function CharitiesPage() {
                   No charities have been created yet
                 </Typography>
                 <Typography sx={{ mb: 3 }}>
-                  Get started by creating your first charity organization
+                  {isAdmin
+                    ? "Get started by creating your first charity organization"
+                    : "Please contact an administrator to add a new charity"}
                 </Typography>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  size="large"
-                  onClick={handleCreateCharity}
-                  startIcon={<AddIcon />}
-                >
-                  Create Your First Charity
-                </Button>
+                {isAdmin && (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    size="large"
+                    onClick={handleCreateCharity}
+                    startIcon={<AddIcon />}
+                  >
+                    Create Your First Charity
+                  </Button>
+                )}
               </Box>
             )}
           </>

@@ -16,10 +16,12 @@ import {
   Alert,
   Skeleton,
   Paper,
+  CircularProgress,
 } from "@mui/material";
 import AppBar from "@/components/AppBar";
 import { use } from "react";
 
+// Interfaces remain the same...
 interface Address {
   city: string | null;
   country: string | null;
@@ -58,8 +60,16 @@ export default function CharityDetailsPage({
   const router = useRouter();
   const charityId = id ? parseInt(id) : null;
 
-  const { data, loading, error } = useQuery(GET_ALL_CHARITIES);
+  // Add retry logic state
+  const [retryCount, setRetryCount] = React.useState(0);
+  const [isRetrying, setIsRetrying] = React.useState(false);
 
+  const { data, loading, error, refetch } = useQuery(GET_ALL_CHARITIES, {
+    fetchPolicy: "network-only", // Bypass cache and fetch from network
+    notifyOnNetworkStatusChange: true,
+  });
+
+  // Beneficiary form state
   const [formData, setFormData] = React.useState<BeneficiaryFormData>({
     first_name: "",
     last_name: "",
@@ -78,6 +88,38 @@ export default function CharityDetailsPage({
 
   const [successMessage, setSuccessMessage] = React.useState("");
 
+  // Add effect for automatic retry
+  React.useEffect(() => {
+    // Filter for the specific charity from all charities
+    const charity = data?.charities?.find(
+      (c: Charity) => parseInt(c.id) === charityId
+    );
+
+    // Automatically retry if charity not found and we haven't tried too many times
+    if (!loading && !error && data && !charity && retryCount < 3) {
+      setIsRetrying(true);
+      const timer = setTimeout(() => {
+        console.log(`Retrying charity fetch (${retryCount + 1}/3)...`);
+        refetch();
+        setRetryCount((prevCount) => prevCount + 1);
+        setIsRetrying(false);
+      }, 1500); // 1.5 second delay between retries
+
+      return () => clearTimeout(timer);
+    }
+  }, [data, loading, error, charityId, retryCount, refetch]);
+
+  // Manual retry function
+  const handleRetry = () => {
+    setIsRetrying(true);
+    setTimeout(() => {
+      refetch();
+      setRetryCount((prevCount) => prevCount + 1);
+      setIsRetrying(false);
+    }, 1000);
+  };
+
+  // Rest of your form handling logic
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({
@@ -85,7 +127,6 @@ export default function CharityDetailsPage({
       [name]: value,
     });
 
-    // For the FormErrors typing error, you need to use type assertion or index signature
     if (formErrors[name as keyof typeof formErrors]) {
       setFormErrors({
         ...formErrors,
@@ -95,6 +136,7 @@ export default function CharityDetailsPage({
   };
 
   const validateForm = () => {
+    // Existing validation logic
     let isValid = true;
     const errors = {
       first_name: "",
@@ -125,6 +167,7 @@ export default function CharityDetailsPage({
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    // Existing submit logic
     e.preventDefault();
 
     if (!validateForm()) {
@@ -159,7 +202,7 @@ export default function CharityDetailsPage({
   };
 
   // Return loading state
-  if (loading) {
+  if (loading || isRetrying) {
     return (
       <Box
         sx={{
@@ -191,24 +234,38 @@ export default function CharityDetailsPage({
           }}
         >
           <Box sx={{ my: 4, textAlign: "center" }}>
-            <Skeleton
-              variant="rectangular"
-              height={60}
-              width="50%"
-              sx={{ mx: "auto", mb: 2 }}
-            />
-            <Skeleton
-              variant="rectangular"
-              height={24}
-              width="70%"
-              sx={{ mx: "auto", mb: 1 }}
-            />
-            <Skeleton
-              variant="rectangular"
-              height={24}
-              width="60%"
-              sx={{ mx: "auto" }}
-            />
+            {isRetrying ? (
+              <>
+                <CircularProgress size={40} sx={{ mb: 2 }} />
+                <Typography variant="h5" sx={{ mb: 1 }}>
+                  Finding charity data...
+                </Typography>
+                <Typography variant="body1">
+                  Attempt {retryCount + 1}/4
+                </Typography>
+              </>
+            ) : (
+              <>
+                <Skeleton
+                  variant="rectangular"
+                  height={60}
+                  width="50%"
+                  sx={{ mx: "auto", mb: 2 }}
+                />
+                <Skeleton
+                  variant="rectangular"
+                  height={24}
+                  width="70%"
+                  sx={{ mx: "auto", mb: 1 }}
+                />
+                <Skeleton
+                  variant="rectangular"
+                  height={24}
+                  width="60%"
+                  sx={{ mx: "auto" }}
+                />
+              </>
+            )}
           </Box>
 
           <Grid container spacing={4}>
@@ -327,19 +384,35 @@ export default function CharityDetailsPage({
         >
           <Box sx={{ my: 4, textAlign: "center" }}>
             <Typography variant="h4">Charity Not Found</Typography>
-            <Button
-              variant="contained"
-              sx={{ mt: 3 }}
-              onClick={() => router.push("/charities")}
-            >
-              Back to Charities
-            </Button>
+            <Typography variant="body1" sx={{ mt: 2, mb: 3 }}>
+              {retryCount >= 3
+                ? "We've tried several times but couldn't find this charity. It might not exist or was recently created and is still processing."
+                : "This charity may have been recently created and is still processing."}
+            </Typography>
+            <Box sx={{ mt: 3 }}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleRetry}
+                sx={{ mr: 2 }}
+                disabled={retryCount >= 4 || isRetrying}
+              >
+                {isRetrying ? "Trying..." : "Try Again"}
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={() => router.push("/charities")}
+              >
+                Back to Charities
+              </Button>
+            </Box>
           </Box>
         </Container>
       </Box>
     );
   }
 
+  // The rest of your component remains the same
   return (
     <Box
       sx={{
