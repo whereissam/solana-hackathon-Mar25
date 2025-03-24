@@ -101,6 +101,7 @@ export type Mutation = {
   createBeneficiary?: Maybe<CharityUser>;
   createCharity?: Maybe<Charity>;
   createCryptoDonation: Donation;
+  cryptoPaymentCompleted?: Maybe<Scalars['String']['output']>;
   login?: Maybe<AuthPayload>;
   logout: Scalars['Boolean']['output'];
 };
@@ -121,6 +122,12 @@ export type MutationCreateCryptoDonationArgs = {
   amountInLamports: Scalars['Int']['input'];
   beneficiaryId: Scalars['Int']['input'];
   tokenCode: Scalars['String']['input'];
+};
+
+
+export type MutationCryptoPaymentCompletedArgs = {
+  donationId: Scalars['String']['input'];
+  txHash: Scalars['String']['input'];
 };
 
 
@@ -153,8 +160,14 @@ export type NewCharityBeneficiary = {
 
 export type Query = {
   __typename?: 'Query';
+  beneficiary: CharityUser;
   charities: Array<Charity>;
   donations: Array<Maybe<Donation>>;
+};
+
+
+export type QueryBeneficiaryArgs = {
+  id: Scalars['Int']['input'];
 };
 
 
@@ -384,11 +397,13 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   createBeneficiary?: Resolver<Maybe<ResolversTypes['CharityUser']>, ParentType, ContextType, RequireFields<MutationCreateBeneficiaryArgs, 'charityId' | 'detail'>>;
   createCharity?: Resolver<Maybe<ResolversTypes['Charity']>, ParentType, ContextType, RequireFields<MutationCreateCharityArgs, 'detail'>>;
   createCryptoDonation?: Resolver<ResolversTypes['Donation'], ParentType, ContextType, RequireFields<MutationCreateCryptoDonationArgs, 'amountInLamports' | 'beneficiaryId' | 'tokenCode'>>;
+  cryptoPaymentCompleted?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationCryptoPaymentCompletedArgs, 'donationId' | 'txHash'>>;
   login?: Resolver<Maybe<ResolversTypes['AuthPayload']>, ParentType, ContextType, RequireFields<MutationLoginArgs, 'email' | 'password'>>;
   logout?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  beneficiary?: Resolver<ResolversTypes['CharityUser'], ParentType, ContextType, RequireFields<QueryBeneficiaryArgs, 'id'>>;
   charities?: Resolver<Array<ResolversTypes['Charity']>, ParentType, ContextType, RequireFields<QueryCharitiesArgs, 'limit' | 'offset'>>;
   donations?: Resolver<Array<Maybe<ResolversTypes['Donation']>>, ParentType, ContextType, Partial<QueryDonationsArgs>>;
 };

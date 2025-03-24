@@ -3,6 +3,7 @@ import { DonationStatus, DonationType, Prisma } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import charityService from './charityService'
 import { connect } from 'http2'
+import { getSolanaMemo } from './solanaService'
 
 const donationService = {
     createCryptoDonation: async (
@@ -32,6 +33,9 @@ const donationService = {
             },
             ...args
         })
+    },
+    cryptoPaymentCompleted: async (donationId: string, txHash: string) => {
+        return getSolanaMemo(txHash)
     }
 }
 

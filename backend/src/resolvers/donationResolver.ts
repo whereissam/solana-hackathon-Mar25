@@ -21,6 +21,9 @@ const resolver = {
                 args.tokenCode
             )
         },
+        cryptoPaymentCompleted: async (_parent, args, context)=>{
+            return donationService.cryptoPaymentCompleted(args.donationId, args.txHash)
+        }
     },
 }
 

@@ -2,7 +2,10 @@ import charityService from '../service/charityService'
 import { MutationLoginArgs, MutationResolvers, AuthPayload, RoleType } from '../generated/graphql'
 import { valueToEnum } from '../utils/valueToEnum'
 import { withAuth, isAdmin, inRole, any, isEqUserId } from './authorization'
-import { QueryCharitiesArgs, CharityBeneficiariesArgs, Charity, MutationCreateCharityArgs, MutationCreateBeneficiaryArgs } from '../generated/graphql'
+import { QueryCharitiesArgs, CharityBeneficiariesArgs, 
+    Charity, MutationCreateCharityArgs, MutationCreateBeneficiaryArgs,
+    QueryBeneficiaryArgs,
+ } from '../generated/graphql'
 
 const resolver = {
     Query: {
@@ -15,7 +18,11 @@ const resolver = {
             if (args.id) 
                 query.where = {id: args.id}
             return await charityService.getCharities(query)
-        }
+        },
+        beneficiary: async (_parent, {id}: QueryBeneficiaryArgs) => {
+
+            return await charityService.getBeneficiaryById(id)
+        },
     },
     Charity: {
         beneficiaries: async (parent: Charity, args: CharityBeneficiariesArgs) => {
