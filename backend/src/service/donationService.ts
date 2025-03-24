@@ -3,7 +3,14 @@ import { DonationStatus, DonationType, Prisma } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import charityService from './charityService'
 import { connect } from 'http2'
-import { getSolanaMemo } from './solanaService'
+import { getSolanaMemo, mintReceipt} from './solanaService'
+
+interface IDonationMemo {
+    DonationId: string,
+    Ver: string,
+    Amount: number,
+    Currency: string
+}
 
 const donationService = {
     createCryptoDonation: async (
@@ -19,8 +26,8 @@ const donationService = {
                 amount: amountInLamports,
                 currency: tokenCode,
                 donor: { connect: { id: donorId } },
-                recipient: { connect: {id: beneficiaryId}},
-                charity: {connect: {id: beneficiary.charity_id_recipient ?? -1 }},
+                recipient: { connect: { id: beneficiaryId } },
+                charity: { connect: { id: beneficiary.charity_id_recipient ?? -1 } },
                 status: DonationStatus.pending,
             }
         })
@@ -35,7 +42,31 @@ const donationService = {
         })
     },
     cryptoPaymentCompleted: async (donationId: string, txHash: string) => {
-        return getSolanaMemo(txHash)
+        try {
+            const memo = JSON.parse(await getSolanaMemo(txHash)) as IDonationMemo
+            // Check db for donation
+            // TODO: check user id as well
+            console.log(donationId)
+
+            // TODO: Use memo id instead
+            const donation = await prisma.donation.findUniqueOrThrow({
+                where: { id: donationId }
+            })
+            prisma.donation.update({
+                where: { id: donationId },
+                data: {
+                    status: DonationStatus.completed,
+                    updated_at: new Date(),
+                    payment_id: txHash,
+                }
+            })
+            return await mintReceipt(donationId)
+        } catch (error) {
+            if (error instanceof PrismaClientKnownRequestError && error.code === 'P2023') {
+                throw "invalid donation id"
+            }
+            else throw error
+        }
     }
 }
 
