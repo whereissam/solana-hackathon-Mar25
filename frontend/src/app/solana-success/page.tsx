@@ -182,7 +182,7 @@ function SolanaSuccessContent() {
         elevation={3}
         sx={{
           width: "100%",
-          borderRadius: 4,
+          borderRadius: 2,
           overflow: "hidden",
           bgcolor: "white",
           boxShadow: "0 10px 40px rgba(0, 0, 0, 0.15)",
