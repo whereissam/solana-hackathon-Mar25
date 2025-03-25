@@ -31,6 +31,24 @@ async function startup() {
 
   app.use(cors())
   app.use(bodyParser.json())
+  app.use('/donation', (req, res) => {
+    res.header('Content-Type', 'application/json')
+    res.send({
+      name: "UG Receipts",
+      description: "XXX",
+      image: "https://unifygiving.com/wp-content/uploads/2024/04/logo.svg",
+      external_url: "https://unifygiving.com",
+      properties: {
+        files: [
+          {
+            uri: "https://unifygiving.com/wp-content/uploads/2024/04/logo.svg",
+            type: "image/svg"
+          }
+        ],
+        category: "image"
+      }
+    })
+  })
   app.use('/', expressMiddleware(server,{
     context: async ({req}) => { 
       if (!req.headers.token) return {token: null, user: null}

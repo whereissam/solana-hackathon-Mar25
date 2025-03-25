@@ -101,7 +101,7 @@ export type Mutation = {
   createBeneficiary?: Maybe<CharityUser>;
   createCharity?: Maybe<Charity>;
   createCryptoDonation: Donation;
-  cryptoPaymentCompleted?: Maybe<Scalars['String']['output']>;
+  cryptoPaymentCompleted: PaymentCompletedResult;
   login?: Maybe<AuthPayload>;
   logout: Scalars['Boolean']['output'];
 };
@@ -156,6 +156,13 @@ export type NewCharityBeneficiary = {
   last_name: Scalars['String']['input'];
   password: Scalars['String']['input'];
   story?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PaymentCompletedResult = {
+  __typename?: 'PaymentCompletedResult';
+  assetKey: Scalars['String']['output'];
+  collectionKey: Scalars['String']['output'];
+  signature: Scalars['String']['output'];
 };
 
 export type Query = {
@@ -293,6 +300,7 @@ export type ResolversTypes = {
   NewCharity: NewCharity;
   NewCharityAdmin: NewCharityAdmin;
   NewCharityBeneficiary: NewCharityBeneficiary;
+  PaymentCompletedResult: ResolverTypeWrapper<PaymentCompletedResult>;
   Query: ResolverTypeWrapper<{}>;
   RoleType: RoleType;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
@@ -318,6 +326,7 @@ export type ResolversParentTypes = {
   NewCharity: NewCharity;
   NewCharityAdmin: NewCharityAdmin;
   NewCharityBeneficiary: NewCharityBeneficiary;
+  PaymentCompletedResult: PaymentCompletedResult;
   Query: {};
   String: Scalars['String']['output'];
   User: User;
@@ -397,9 +406,16 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   createBeneficiary?: Resolver<Maybe<ResolversTypes['CharityUser']>, ParentType, ContextType, RequireFields<MutationCreateBeneficiaryArgs, 'charityId' | 'detail'>>;
   createCharity?: Resolver<Maybe<ResolversTypes['Charity']>, ParentType, ContextType, RequireFields<MutationCreateCharityArgs, 'detail'>>;
   createCryptoDonation?: Resolver<ResolversTypes['Donation'], ParentType, ContextType, RequireFields<MutationCreateCryptoDonationArgs, 'amountInLamports' | 'beneficiaryId' | 'tokenCode'>>;
-  cryptoPaymentCompleted?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationCryptoPaymentCompletedArgs, 'donationId' | 'txHash'>>;
+  cryptoPaymentCompleted?: Resolver<ResolversTypes['PaymentCompletedResult'], ParentType, ContextType, RequireFields<MutationCryptoPaymentCompletedArgs, 'donationId' | 'txHash'>>;
   login?: Resolver<Maybe<ResolversTypes['AuthPayload']>, ParentType, ContextType, RequireFields<MutationLoginArgs, 'email' | 'password'>>;
   logout?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+};
+
+export type PaymentCompletedResultResolvers<ContextType = any, ParentType extends ResolversParentTypes['PaymentCompletedResult'] = ResolversParentTypes['PaymentCompletedResult']> = {
+  assetKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  collectionKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  signature?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
@@ -427,6 +443,7 @@ export type Resolvers<ContextType = any> = {
   Donation?: DonationResolvers<ContextType>;
   Donor?: DonorResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
+  PaymentCompletedResult?: PaymentCompletedResultResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
 };

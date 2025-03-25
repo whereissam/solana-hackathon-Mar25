@@ -16,7 +16,13 @@ type Query {
     donations(donorId: Int): [Donation]!
 }
 
+type PaymentCompletedResult {
+    collectionKey: String!
+    assetKey: String!
+    signature: String!
+}
+
 type Mutation {
     createCryptoDonation(beneficiaryId: Int!, amountInLamports: Int!, tokenCode: String!): Donation!
-    cryptoPaymentCompleted(donationId: String!, txHash: String!) : String
+    cryptoPaymentCompleted(donationId: String!, txHash: String!) : PaymentCompletedResult!
 }

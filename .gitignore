@@ -4,4 +4,4 @@
 schema.prisma
 backend/dist
 **/.env
-keypair.json
+*-secret.json

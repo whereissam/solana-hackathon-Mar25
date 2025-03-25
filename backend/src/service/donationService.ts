@@ -52,7 +52,7 @@ const donationService = {
             const donation = await prisma.donation.findUniqueOrThrow({
                 where: { id: donationId }
             })
-            prisma.donation.update({
+            await prisma.donation.update({
                 where: { id: donationId },
                 data: {
                     status: DonationStatus.completed,
