@@ -1,27 +1,29 @@
 "use client";
 
 import * as React from "react";
-import { useQuery, useMutation } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import { GET_ALL_CHARITIES } from "@/lib/queries/charity-queries";
-import { CREATE_BENEFICIARY } from "@/lib/mutations/beneficiary-mutations";
 import { useRouter } from "next/navigation";
 import {
-  Typography,
   Box,
-  CardMedia,
-  Grid,
   Container,
-  TextField,
+  Grid,
+  Typography,
   Button,
-  Alert,
   Skeleton,
-  Paper,
   CircularProgress,
 } from "@mui/material";
 import AppBar from "@/components/AppBar";
 import { use } from "react";
+import { useAuthStore } from "@/store/authStore";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
 
-// Interfaces remain the same...
+// Import components
+import CharityInfoSection from "@/components/charities/CharityInfoSection";
+import BeneficiaryList from "@/components/charities/BeneficiaryList";
+import CreateBeneficiaryModal from "@/components/charities/CreateBeneficiaryModal";
+
+// Interfaces for the component - these could be moved to a types file
 interface Address {
   city: string | null;
   country: string | null;
@@ -37,18 +39,21 @@ interface Beneficiary {
   email: string;
 }
 
-interface Charity {
+interface Admin {
   id: string;
-  name: string;
-  address?: Address;
-  beneficiaries?: Beneficiary[];
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
 }
 
-interface BeneficiaryFormData {
-  email: string;
-  first_name: string;
-  last_name: string;
-  password: string;
+export interface Charity {
+  id: string;
+  name: string;
+  description?: string;
+  address?: Address;
+  beneficiaries?: Beneficiary[];
+  admin?: Admin;
 }
 
 export default function CharityDetailsPage({
@@ -60,33 +65,20 @@ export default function CharityDetailsPage({
   const router = useRouter();
   const charityId = id ? parseInt(id) : null;
 
+  // Use the auth store to get the current user
+  const { user, isAuthenticated } = useAuthStore();
+
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+
   // Add retry logic state
   const [retryCount, setRetryCount] = React.useState(0);
   const [isRetrying, setIsRetrying] = React.useState(false);
 
   const { data, loading, error, refetch } = useQuery(GET_ALL_CHARITIES, {
-    fetchPolicy: "network-only", // Bypass cache and fetch from network
+    fetchPolicy: "network-only",
     notifyOnNetworkStatusChange: true,
   });
-
-  // Beneficiary form state
-  const [formData, setFormData] = React.useState<BeneficiaryFormData>({
-    first_name: "",
-    last_name: "",
-    email: "",
-    password: "",
-  });
-
-  const [formErrors, setFormErrors] = React.useState({
-    first_name: "",
-    last_name: "",
-    email: "",
-  });
-
-  const [createBeneficiary, { loading: submitting, error: submitError }] =
-    useMutation(CREATE_BENEFICIARY);
-
-  const [successMessage, setSuccessMessage] = React.useState("");
 
   // Add effect for automatic retry
   React.useEffect(() => {
@@ -109,6 +101,19 @@ export default function CharityDetailsPage({
     }
   }, [data, loading, error, charityId, retryCount, refetch]);
 
+  // Check if current user is the admin of this charity or has admin role
+  const isCharityAdmin = (charity: Charity) => {
+    if (!isAuthenticated || !user) return false;
+
+    // Check if user has admin role
+    if (user.role === "admin") return true;
+
+    // Check if user is the charity admin
+    if (charity.admin && user.email === charity.admin.email) return true;
+
+    return false;
+  };
+
   // Manual retry function
   const handleRetry = () => {
     setIsRetrying(true);
@@ -119,86 +124,16 @@ export default function CharityDetailsPage({
     }, 1000);
   };
 
-  // Rest of your form handling logic
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-
-    if (formErrors[name as keyof typeof formErrors]) {
-      setFormErrors({
-        ...formErrors,
-        [name]: "",
-      });
-    }
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
   };
 
-  const validateForm = () => {
-    // Existing validation logic
-    let isValid = true;
-    const errors = {
-      first_name: "",
-      last_name: "",
-      email: "",
-    };
-
-    if (!formData.first_name.trim()) {
-      errors.first_name = "First name is required";
-      isValid = false;
-    }
-
-    if (!formData.last_name.trim()) {
-      errors.last_name = "Last name is required";
-      isValid = false;
-    }
-
-    if (!formData.email.trim()) {
-      errors.email = "Email is required";
-      isValid = false;
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      errors.email = "Email is invalid";
-      isValid = false;
-    }
-
-    setFormErrors(errors);
-    return isValid;
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    // Existing submit logic
-    e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
-    try {
-      await createBeneficiary({
-        variables: {
-          charityId,
-          detail: formData,
-        },
-      });
-
-      // Reset form after successful submission
-      setFormData({
-        first_name: "",
-        last_name: "",
-        email: "",
-        password: "",
-      });
-
-      setSuccessMessage("Beneficiary successfully created!");
-
-      // Clear success message after 5 seconds
-      setTimeout(() => {
-        setSuccessMessage("");
-      }, 5000);
-    } catch (error) {
-      console.error("Error creating beneficiary:", error);
-    }
+  const navigateToBeneficiary = (beneficiaryId: string) => {
+    router.push(`/beneficiaries/${beneficiaryId}`);
   };
 
   // Return loading state
@@ -412,7 +347,9 @@ export default function CharityDetailsPage({
     );
   }
 
-  // The rest of your component remains the same
+  // Check if user is admin for this charity
+  const userIsAdmin = isCharityAdmin(charity);
+
   return (
     <Box
       sx={{
@@ -443,7 +380,7 @@ export default function CharityDetailsPage({
           pb: 8,
         }}
       >
-        <Box sx={{ my: 4, textAlign: "center" }}>
+        <Box sx={{ my: 4, textAlign: "center", position: "relative" }}>
           <Typography
             variant="h2"
             component="h1"
@@ -465,236 +402,45 @@ export default function CharityDetailsPage({
           >
             Making a difference
           </Typography>
+
+          {/* Admin action button */}
+          {userIsAdmin && (
+            <Box sx={{ mt: 3 }}>
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<PersonAddIcon />}
+                onClick={handleOpenModal}
+              >
+                Add Beneficiary
+              </Button>
+            </Box>
+          )}
         </Box>
 
         <Grid container spacing={4}>
+          {/* Charity Info */}
           <Grid item xs={12} md={6}>
-            <CardMedia
-              component="img"
-              height="300"
-              image={`https://therecordnewspaper.org/wp-content/uploads/2019/05/Catholic-Charities-Building-Southwest-5-16-19-p1-.gif`}
-              alt={charity.name}
-              sx={{ borderRadius: 2, mb: 2 }}
-            />
-            <Typography variant="body1" sx={{ mb: 3 }}>
-              This charitable organization is dedicated to making a positive
-              impact in our community. Through various programs and initiatives,
-              we strive to address pressing social issues and create lasting
-              change.
-            </Typography>
-
-            {/* Address information */}
-            {charity.address && (
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="h5" sx={{ mb: 2, fontWeight: "medium" }}>
-                  Location
-                </Typography>
-                <Typography variant="body1">
-                  {charity.address.postcode &&
-                    `Postcode: ${charity.address.postcode}`}
-                  {charity.address.city && `, ${charity.address.city}`}
-                  {charity.address.country && `, ${charity.address.country}`}
-                </Typography>
-              </Box>
-            )}
-
-            {/* Existing beneficiaries */}
-            <Box>
-              <Typography variant="h5" sx={{ mb: 2, fontWeight: "medium" }}>
-                Current Beneficiaries
-              </Typography>
-
-              {charity.beneficiaries && charity.beneficiaries.length > 0 ? (
-                <Box sx={{ mb: 3 }}>
-                  {charity.beneficiaries.map((beneficiary: Beneficiary) => (
-                    <Paper
-                      key={beneficiary.id}
-                      sx={{
-                        p: 2,
-                        mb: 2,
-                        backgroundColor: "#222",
-                        borderRadius: 2,
-                        color: "white",
-                      }}
-                    >
-                      <Typography
-                        variant="subtitle1"
-                        sx={{ fontWeight: "bold" }}
-                      >
-                        {beneficiary.first_name} {beneficiary.last_name}
-                      </Typography>
-                      <Typography variant="body2">
-                        {beneficiary.email}
-                      </Typography>
-                    </Paper>
-                  ))}
-                </Box>
-              ) : (
-                <Typography variant="body1" sx={{ mb: 3, fontStyle: "italic" }}>
-                  No beneficiaries have been added yet.
-                </Typography>
-              )}
-            </Box>
+            <CharityInfoSection charity={charity} />
           </Grid>
 
+          {/* Beneficiaries List */}
           <Grid item xs={12} md={6}>
-            <Paper
-              elevation={3}
-              sx={{
-                p: 3,
-                borderRadius: 2,
-                backgroundColor: "#111",
-                color: "white",
-              }}
-            >
-              <Typography variant="h4" sx={{ mb: 3 }}>
-                Create a Beneficiary
-              </Typography>
-
-              {successMessage && (
-                <Alert severity="success" sx={{ mb: 3 }}>
-                  {successMessage}
-                </Alert>
-              )}
-
-              {submitError && (
-                <Alert severity="error" sx={{ mb: 3 }}>
-                  {submitError.message ||
-                    "An error occurred while creating the beneficiary. Please try again."}
-                </Alert>
-              )}
-
-              <form onSubmit={handleSubmit}>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="First Name"
-                      name="first_name"
-                      value={formData.first_name}
-                      onChange={handleInputChange}
-                      error={!!formErrors.first_name}
-                      helperText={formErrors.first_name}
-                      required
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          "& fieldset": {
-                            borderColor: "rgba(255, 255, 255, 0.23)",
-                          },
-                          "&:hover fieldset": {
-                            borderColor: "rgba(255, 255, 255, 0.5)",
-                          },
-                        },
-                        "& .MuiInputLabel-root": {
-                          color: "rgba(255, 255, 255, 0.7)",
-                        },
-                        "& .MuiInputBase-input": {
-                          color: "white",
-                        },
-                      }}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="Last Name"
-                      name="last_name"
-                      value={formData.last_name}
-                      onChange={handleInputChange}
-                      error={!!formErrors.last_name}
-                      helperText={formErrors.last_name}
-                      required
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          "& fieldset": {
-                            borderColor: "rgba(255, 255, 255, 0.23)",
-                          },
-                          "&:hover fieldset": {
-                            borderColor: "rgba(255, 255, 255, 0.5)",
-                          },
-                        },
-                        "& .MuiInputLabel-root": {
-                          color: "rgba(255, 255, 255, 0.7)",
-                        },
-                        "& .MuiInputBase-input": {
-                          color: "white",
-                        },
-                      }}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      fullWidth
-                      label="Email"
-                      name="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      error={!!formErrors.email}
-                      helperText={formErrors.email}
-                      required
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          "& fieldset": {
-                            borderColor: "rgba(255, 255, 255, 0.23)",
-                          },
-                          "&:hover fieldset": {
-                            borderColor: "rgba(255, 255, 255, 0.5)",
-                          },
-                        },
-                        "& .MuiInputLabel-root": {
-                          color: "rgba(255, 255, 255, 0.7)",
-                        },
-                        "& .MuiInputBase-input": {
-                          color: "white",
-                        },
-                      }}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      fullWidth
-                      label="Password"
-                      name="password"
-                      type="password"
-                      value={formData.password}
-                      onChange={handleInputChange}
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          "& fieldset": {
-                            borderColor: "rgba(255, 255, 255, 0.23)",
-                          },
-                          "&:hover fieldset": {
-                            borderColor: "rgba(255, 255, 255, 0.5)",
-                          },
-                        },
-                        "& .MuiInputLabel-root": {
-                          color: "rgba(255, 255, 255, 0.7)",
-                        },
-                        "& .MuiInputBase-input": {
-                          color: "white",
-                        },
-                      }}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      color="primary"
-                      size="large"
-                      fullWidth
-                      disabled={submitting}
-                      sx={{ mt: 2 }}
-                    >
-                      {submitting ? "Creating..." : "Create Beneficiary"}
-                    </Button>
-                  </Grid>
-                </Grid>
-              </form>
-            </Paper>
+            <BeneficiaryList
+              beneficiaries={charity.beneficiaries || []}
+              userIsAdmin={userIsAdmin}
+              onAddClick={handleOpenModal}
+              onBeneficiaryClick={navigateToBeneficiary}
+            />
           </Grid>
         </Grid>
+
+        {/* Create Beneficiary Modal */}
+        <CreateBeneficiaryModal
+          open={isModalOpen}
+          onClose={handleCloseModal}
+          charityId={charityId || 0}
+        />
       </Container>
     </Box>
   );

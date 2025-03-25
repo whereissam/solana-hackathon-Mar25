@@ -21,11 +21,11 @@ interface PriceData {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { amount, wallet } = body;
+    const { amount, wallet ,donationId } = body;
 
-    if (!amount || !wallet) {
+    if (!amount || !wallet || !donationId) {
       return NextResponse.json(
-        { error: 'Amount and wallet are required' },
+        { error: 'Amount, wallet, and donationId are required' },
         { status: 400 }
       );
     }
@@ -68,7 +68,7 @@ export async function POST(request: Request) {
 
     // Create structured JSON memo
     const memoData = {
-      DonationId: `don-${Date.now()}`, // Generate a unique ID
+      DonationId: donationId, // Generate a unique ID
       Ver: "1.0",
       Amount: amount,
       Currency: "usd",

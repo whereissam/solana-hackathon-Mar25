@@ -1,9 +1,8 @@
-// src/components/payment/SolanaPayButton.tsx
 "use client";
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { encodeURL } from "@solana/pay";
+import { encodeURL, findReference } from "@solana/pay";
 import {
   Connection,
   clusterApiUrl,
@@ -12,8 +11,10 @@ import {
   TransactionSignature,
   SendOptions,
   Commitment,
+  LAMPORTS_PER_SOL,
+  Keypair,
 } from "@solana/web3.js";
-import { useWallet } from "@solana/wallet-adapter-react";
+import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 import {
   Box,
   Button,
@@ -22,10 +23,17 @@ import {
   Typography,
 } from "@mui/material";
 import { RiCoinsFill, RiQrCodeLine } from "react-icons/ri";
-import { BigNumber } from "bignumber.js"; // Add BigNumber import
+import { BigNumber } from "bignumber.js";
+import { useDonationStore } from "@/store/donationStore";
 
 interface SolanaPayButtonProps {
   amount: number;
+  donationId: string;
+  onDonationComplete?: (
+    signature: string,
+    lamports: number
+  ) => Promise<void | unknown>;
+  onInitiateDonation?: () => void | Promise<string | null>;
 }
 
 interface TransactionResponse {
@@ -35,23 +43,38 @@ interface TransactionResponse {
   adjustedPrice?: number;
 }
 
-const SolanaPayButton: React.FC<SolanaPayButtonProps> = ({ amount }) => {
+const SolanaPayButton: React.FC<SolanaPayButtonProps> = ({
+  amount,
+  donationId, // Add donationId to destructured props
+  onDonationComplete,
+  onInitiateDonation,
+}) => {
   const [loadingWallet, setLoadingWallet] = useState<boolean>(false);
   const [walletError, setWalletError] = useState<string | null>(null);
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [showQR, setShowQR] = useState<boolean>(false);
+  // const recipient = new PublicKey("YOUR_ADDRESS");
+
   const router = useRouter();
   const wallet = useWallet();
+  const { connection } = useConnection();
+
+  // Get the donation state from Zustand
+  const { isProcessing, failDonation } = useDonationStore();
 
   // Create a more structured error handler
   const handleError = (error: unknown): string => {
-    if (error instanceof Error) {
-      return error.message;
-    } else if (typeof error === "string") {
-      return error;
-    } else {
-      return "An unknown error occurred";
-    }
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : typeof error === "string"
+          ? error
+          : "An unknown error occurred";
+
+    // Update the Zustand store with the error
+    failDonation(errorMessage);
+
+    return errorMessage;
   };
 
   // Handle Solana Pay button click for wallet users
@@ -61,10 +84,20 @@ const SolanaPayButton: React.FC<SolanaPayButtonProps> = ({ amount }) => {
       return;
     }
 
+    // Call the onInitiateDonation callback to update the store
+    if (onInitiateDonation) {
+      onInitiateDonation();
+    }
+
     setLoadingWallet(true);
     setWalletError(null);
 
-    console.log("handleSolanaPayClick", amount, wallet.publicKey.toString());
+    console.log(
+      "handleSolanaPayClick",
+      amount,
+      wallet.publicKey.toString(),
+      donationId
+    );
 
     try {
       // Call API route to create a Solana Pay transaction
@@ -76,6 +109,7 @@ const SolanaPayButton: React.FC<SolanaPayButtonProps> = ({ amount }) => {
         body: JSON.stringify({
           amount,
           wallet: wallet.publicKey.toString(),
+          donationId, // Include donationId in the request
         }),
       });
 
@@ -100,8 +134,19 @@ const SolanaPayButton: React.FC<SolanaPayButtonProps> = ({ amount }) => {
       // Process the transaction
       const signature = await processTransaction(data.transaction);
 
-      // Redirect to success page
-      router.push(`/solana-success?signature=${signature}&amount=${amount}`);
+      // Calculate the lamports (based on amount and price from response)
+      // This calculation should match what's done on the server
+      const lamports = Math.round(
+        (amount / (data.adjustedPrice || 1)) * LAMPORTS_PER_SOL
+      );
+
+      // If there's a donation complete callback, call it
+      if (onDonationComplete) {
+        await onDonationComplete(signature, lamports);
+      } else {
+        // If no callback, redirect to success page as before
+        router.push(`/solana-success?signature=${signature}&amount=${amount}`);
+      }
     } catch (err) {
       console.error("Error in Solana Pay flow:", err);
       setWalletError(handleError(err));
@@ -145,10 +190,6 @@ const SolanaPayButton: React.FC<SolanaPayButtonProps> = ({ amount }) => {
       console.log("Transaction sent with signature:", signature);
 
       // Wait for confirmation
-      // The confirmTransaction API has changed in newer versions of @solana/web3.js
-      // Using the appropriate signature based on your library version
-
-      // Version 1: For older versions of @solana/web3.js
       const confirmation = await connection.confirmTransaction(
         signature,
         "confirmed" as Commitment
@@ -170,7 +211,6 @@ const SolanaPayButton: React.FC<SolanaPayButtonProps> = ({ amount }) => {
   // Generate and show QR code for mobile users
   const handleShowQR = async (): Promise<void> => {
     try {
-      // Get merchant address from env or use a placeholder
       const merchantWalletAddress = process.env.NEXT_PUBLIC_MERCHANT_WALLET;
 
       if (!merchantWalletAddress) {
@@ -179,31 +219,35 @@ const SolanaPayButton: React.FC<SolanaPayButtonProps> = ({ amount }) => {
         );
       }
 
-      // Use a valid Solana address
       const merchantAddress = new PublicKey(
         merchantWalletAddress || "11111111111111111111111111111111"
       );
 
-      // Convert to the format Solana Pay expects - needs to be converted to BigNumber
-      // When using Solana Pay's encodeURL we need to handle the Decimal/BigNumber conversion
-      // Import BigNumber from bignumber.js if available, or convert manually
+      // Generate a new reference key for tracking this transaction
+      const reference = new Keypair().publicKey;
 
-      // Create the payment URL - using the amount directly
       const url = encodeURL({
         recipient: merchantAddress,
         amount: new BigNumber(amount.toString()),
         label: "UnifyGiving",
         message: "Donation",
+        reference, // Use the reference key here
         memo: `donation-${Date.now()}`,
       });
 
-      // Generate QR code
       const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(
         url.toString()
       )}&size=300x300`;
 
       setQrCode(qrCodeUrl);
       setShowQR(true);
+
+      // You can use the reference to find the transaction later
+      const signatureInfo = await findReference(connection, reference, {
+        finality: "confirmed",
+      });
+
+      console.log("Transaction signature:", signatureInfo);
     } catch (err) {
       console.error("Error generating QR code:", err);
       setWalletError(handleError(err));
@@ -234,8 +278,6 @@ const SolanaPayButton: React.FC<SolanaPayButtonProps> = ({ amount }) => {
             sx={{
               width: 250,
               height: 250,
-              border: "1px solid #e0e0e0",
-              borderRadius: 2,
             }}
           />
         ) : (
@@ -262,31 +304,36 @@ const SolanaPayButton: React.FC<SolanaPayButtonProps> = ({ amount }) => {
       <Button
         variant="contained"
         onClick={handleSolanaPayClick}
-        disabled={loadingWallet || !wallet.connected}
+        disabled={loadingWallet || !wallet.connected || isProcessing}
         startIcon={
           loadingWallet ? <CircularProgress size={20} /> : <RiCoinsFill />
         }
         fullWidth
+        sx={{
+          backgroundColor: "#6B48FF", // Match the purple color from your screenshot
+          "&:hover": { backgroundColor: "#5A3EDB" },
+        }}
       >
-        {loadingWallet ? "Processing..." : "Pay with Wallet"}
+        {loadingWallet ? "Processing..." : "Pay with Solana"}
       </Button>
 
       <Button
         variant="outlined"
         onClick={handleShowQR}
         startIcon={<RiQrCodeLine />}
+        disabled={isProcessing}
         fullWidth
       >
         Show QR Code for Mobile
       </Button>
 
-      {walletError && (
+      {walletError && !isProcessing && (
         <Alert severity="error" sx={{ width: "100%" }}>
           {walletError}
         </Alert>
       )}
 
-      {!wallet.connected && (
+      {!wallet.connected && !isProcessing && (
         <Alert severity="info" sx={{ width: "100%" }}>
           Connect your Solana wallet to pay with SOL
         </Alert>
