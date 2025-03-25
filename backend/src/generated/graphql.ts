@@ -161,7 +161,6 @@ export type NewCharityBeneficiary = {
 export type PaymentCompletedResult = {
   __typename?: 'PaymentCompletedResult';
   assetKey: Scalars['String']['output'];
-  collectionKey: Scalars['String']['output'];
   signature: Scalars['String']['output'];
 };
 
@@ -413,7 +412,6 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
 
 export type PaymentCompletedResultResolvers<ContextType = any, ParentType extends ResolversParentTypes['PaymentCompletedResult'] = ResolversParentTypes['PaymentCompletedResult']> = {
   assetKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  collectionKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   signature?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
