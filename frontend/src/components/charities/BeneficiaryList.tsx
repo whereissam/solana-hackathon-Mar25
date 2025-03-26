@@ -42,7 +42,7 @@ const BeneficiaryList: React.FC<BeneficiaryListProps> = ({
     <Box
       sx={{
         backgroundColor: "#222",
-        borderRadius: 2,
+        borderRadius: 1,
         p: 3,
       }}
     >

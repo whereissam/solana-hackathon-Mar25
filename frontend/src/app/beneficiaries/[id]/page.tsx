@@ -3,64 +3,51 @@
 import * as React from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import { useRouter } from "next/navigation";
+import { use } from "react";
 import {
   Box,
   Container,
   Grid,
   Typography,
   Button,
-  Paper,
-  Skeleton,
-  CircularProgress,
-  TextField,
-  Divider,
   Alert,
-  InputAdornment,
+  Paper,
+  Modal,
+  Card,
+  CardMedia,
 } from "@mui/material";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import EditIcon from "@mui/icons-material/Edit";
 import AppBar from "@/components/AppBar";
 import { useAuthStore } from "@/store/authStore";
 import { useDonationStore } from "@/store/donationStore";
-import EmailIcon from "@mui/icons-material/Email";
-import PersonIcon from "@mui/icons-material/Person";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import EditIcon from "@mui/icons-material/Edit";
-import SaveIcon from "@mui/icons-material/Save";
-import CancelIcon from "@mui/icons-material/Cancel";
-import DeleteIcon from "@mui/icons-material/Delete";
 import { GET_BENEFICIARY } from "@/lib/queries/beneficiary-queries";
 import { CREATE_CRYPTO_DONATION } from "@/lib/mutations/payment-mutations";
 import PaymentComponent from "@/components/payment/PaymentComponent";
-import { use } from "react";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { NotFoundState } from "@/components/ui/NotFoundState";
+import { BeneficiaryInfo } from "@/components/beneficiary/BeneficiaryInfo";
+import {
+  CryptoDonationResult,
+  FormData,
+  FormErrors,
+} from "@/types/beneficiary";
 
-// Define the form data interface
-interface FormData {
-  first_name: string;
-  last_name: string;
-  email: string;
-}
-
-// Define the form errors interface (matching the form data shape)
-interface FormErrors {
-  first_name: string;
-  last_name: string;
-  email: string;
-}
-
-interface CryptoDonationResult {
-  createCryptoDonation: {
-    id: string;
-    amount: number;
-    currency: string;
-    status: string;
-  };
-}
-
-interface Beneficiary {
-  first_name: string;
-  last_name: string;
-  email: string;
-  id?: string | number;
-}
+// Modal style
+const modalStyle = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 600,
+  bgcolor: "#111",
+  border: "2px solid #333",
+  boxShadow: 24,
+  p: 4,
+  color: "white",
+  borderRadius: 2,
+};
 
 export default function BeneficiaryDetailsPage({
   params,
@@ -70,20 +57,18 @@ export default function BeneficiaryDetailsPage({
   const { id } = use(params);
   const router = useRouter();
   const beneficiaryId = parseInt(id);
-  console.log("Beneficiary ID:", beneficiaryId); // Log the beneficiaryId
 
   const { user, isAuthenticated } = useAuthStore();
-  // console.log(user);
   const { startDonation, completeDonation } = useDonationStore();
 
   const [isEditMode, setIsEditMode] = React.useState(false);
   const [isDeleting, setIsDeleting] = React.useState(false);
-  const [formData, setFormData] = React.useState({
+  const [formData, setFormData] = React.useState<FormData>({
     first_name: "",
     last_name: "",
     email: "",
   });
-  const [formErrors, setFormErrors] = React.useState({
+  const [formErrors, setFormErrors] = React.useState<FormErrors>({
     first_name: "",
     last_name: "",
     email: "",
@@ -91,6 +76,11 @@ export default function BeneficiaryDetailsPage({
   const [successMessage, setSuccessMessage] = React.useState("");
   const [errorMessage, setErrorMessage] = React.useState("");
   const [donationId, setDonationId] = React.useState("");
+
+  // New state for modal
+  const [openDonateModal, setOpenDonateModal] = React.useState(false);
+  const handleOpenModal = () => setOpenDonateModal(true);
+  const handleCloseModal = () => setOpenDonateModal(false);
 
   const { data, loading, error, refetch } = useQuery(GET_BENEFICIARY, {
     variables: { beneficiaryId2: beneficiaryId },
@@ -200,6 +190,7 @@ export default function BeneficiaryDetailsPage({
 
   const handleInitiateDonation = () => {
     startDonation(beneficiaryId, 0); // Amount will be set in PaymentComponent
+    handleCloseModal(); // Close the modal after initiating donation
   };
 
   const handleDonationComplete = async (
@@ -311,28 +302,42 @@ export default function BeneficiaryDetailsPage({
           )}
 
           <Grid container spacing={3}>
-            {/* Left Side: Donation Component */}
+            {/* Left Side: Image */}
             <Grid item xs={12} md={6}>
-              <PaymentComponent
-                beneficiaryId={beneficiaryId}
-                onInitiateDonation={handleInitiateDonation}
-                onDonationComplete={handleDonationComplete}
-              />
+              <Card sx={{ bgcolor: "#111", borderRadius: 2, height: "100%" }}>
+                <CardMedia
+                  component="img"
+                  height="400"
+                  image="https://plus.unsplash.com/premium_photo-1742404280719-ae54cdb86722?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                  alt={`${beneficiary.first_name} ${beneficiary.last_name}`}
+                  sx={{ objectFit: "cover" }}
+                />
+              </Card>
             </Grid>
 
-            {/* Right Side: Beneficiary Info */}
+            {/* Right Side: Beneficiary Info with Donate Button Below */}
             <Grid item xs={12} md={6}>
-              <Paper
-                elevation={3}
+              <Box
                 sx={{
-                  p: 4,
-                  borderRadius: 2,
-                  backgroundColor: "#111",
-                  color: "white",
+                  display: "flex",
+                  flexDirection: "column",
+                  height: "100%",
                 }}
               >
-                {isEditMode ? (
-                  <EditMode
+                <Paper
+                  elevation={3}
+                  sx={{
+                    p: 4,
+                    borderRadius: 2,
+                    backgroundColor: "#111",
+                    color: "white",
+                    mb: 3,
+                    flexGrow: 1,
+                  }}
+                >
+                  <BeneficiaryInfo
+                    beneficiary={beneficiary}
+                    isEditMode={isEditMode}
                     formData={formData}
                     formErrors={formErrors}
                     handleInputChange={handleInputChange}
@@ -341,367 +346,61 @@ export default function BeneficiaryDetailsPage({
                     handleDelete={handleDelete}
                     isAdmin={isAdmin}
                     isDeleting={isDeleting}
+                    donationId={donationId}
                   />
-                ) : (
-                  <ViewMode beneficiary={beneficiary} donationId={donationId} />
-                )}
-              </Paper>
+                </Paper>
+
+                {/* Donate Button */}
+                <Button
+                  variant="contained"
+                  color="primary"
+                  size="large"
+                  fullWidth
+                  sx={{
+                    py: 1.5,
+                    fontSize: "1.1rem",
+                    fontWeight: "bold",
+                    borderRadius: 2,
+                  }}
+                  onClick={handleOpenModal}
+                >
+                  Donate Now
+                </Button>
+              </Box>
             </Grid>
           </Grid>
-
-          <Box sx={{ mt: 3, display: "flex", justifyContent: "center" }}>
-            <Button
-              variant="outlined"
-              color="primary"
-              onClick={handleGoBack}
-              sx={{ minWidth: 200 }}
-            >
-              Back to Charities
-            </Button>
-          </Box>
         </Box>
       </Container>
-    </Box>
-  );
-}
 
-// Separate components for better organization
-function LoadingState({ handleGoBack }: { handleGoBack: () => void }) {
-  return (
-    <Box
-      sx={{
-        width: "100%",
-        minHeight: "100vh",
-        backgroundColor: "#000",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-      }}
-    >
-      <AppBar />
-      <Container
-        maxWidth="md"
-        sx={{ color: "white", px: { xs: 2, sm: 3 }, pb: 8 }}
+      {/* Donation Modal */}
+      <Modal
+        open={openDonateModal}
+        onClose={handleCloseModal}
+        aria-labelledby="donation-modal-title"
       >
-        <Box sx={{ my: 4 }}>
-          <Button
-            startIcon={<ChevronLeftIcon />}
-            onClick={handleGoBack}
-            sx={{ color: "white", mb: 2 }}
+        <Box sx={modalStyle}>
+          <Typography
+            id="donation-modal-title"
+            variant="h6"
+            component="h2"
+            sx={{ mb: 3 }}
           >
-            Back
-          </Button>
-          <Skeleton
-            variant="rectangular"
-            height={60}
-            width="70%"
-            sx={{ mb: 2 }}
-          />
-          <Skeleton
-            variant="rectangular"
-            height={200}
-            width="100%"
-            sx={{ mb: 2, borderRadius: 2 }}
-          />
-        </Box>
-      </Container>
-    </Box>
-  );
-}
-
-interface ErrorWithMessage {
-  message: string;
-}
-
-function ErrorState({
-  error,
-  handleGoBack,
-}: {
-  error: Error | ErrorWithMessage | unknown;
-  handleGoBack: () => void;
-}) {
-  const getErrorMessage = (err: Error | ErrorWithMessage | unknown): string => {
-    if (err instanceof Error) {
-      return err.message;
-    }
-
-    // Check if error is an object with a message property
-    if (
-      err &&
-      typeof err === "object" &&
-      "message" in err &&
-      typeof err.message === "string"
-    ) {
-      return err.message;
-    }
-
-    // Default error message if we can't extract a message
-    return "Unable to load the beneficiary details. Please try again later.";
-  };
-
-  return (
-    <Box
-      sx={{
-        width: "100%",
-        minHeight: "100vh",
-        backgroundColor: "#000",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-      }}
-    >
-      <AppBar />
-      <Container
-        maxWidth="md"
-        sx={{ color: "white", px: { xs: 2, sm: 3 }, pb: 8 }}
-      >
-        <Box sx={{ my: 4, textAlign: "center" }}>
-          <Typography color="error" variant="h4">
-            Error loading beneficiary details
+            Donate to {beneficiary.first_name} {beneficiary.last_name}
           </Typography>
-          <Typography sx={{ mt: 2 }}>{getErrorMessage(error)}</Typography>
-          <Button variant="contained" sx={{ mt: 3 }} onClick={handleGoBack}>
-            Back
-          </Button>
-        </Box>
-      </Container>
-    </Box>
-  );
-}
 
-function NotFoundState({ handleGoBack }: { handleGoBack: () => void }) {
-  return (
-    <Box
-      sx={{
-        width: "100%",
-        minHeight: "100vh",
-        backgroundColor: "#000",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-      }}
-    >
-      <AppBar />
-      <Container
-        maxWidth="md"
-        sx={{ color: "white", px: { xs: 2, sm: 3 }, pb: 8 }}
-      >
-        <Box sx={{ my: 4, textAlign: "center" }}>
-          <Typography variant="h4">Beneficiary Not Found</Typography>
-          <Typography variant="body1" sx={{ mt: 2, mb: 3 }}>
-            The requested beneficiary could not be found or has been removed.
-          </Typography>
-          <Button variant="contained" color="primary" onClick={handleGoBack}>
-            Back
-          </Button>
-        </Box>
-      </Container>
-    </Box>
-  );
-}
+          <PaymentComponent
+            beneficiaryId={beneficiaryId}
+            onInitiateDonation={handleInitiateDonation}
+            onDonationComplete={handleDonationComplete}
+          />
 
-interface EditModeProps {
-  formData: FormData;
-  formErrors: FormErrors;
-  handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleSave: () => void;
-  handleCancel: () => void;
-  handleDelete: () => void;
-  isAdmin: () => boolean;
-  isDeleting: boolean;
-}
-function EditMode({
-  formData,
-  formErrors,
-  handleInputChange,
-  handleSave,
-  handleCancel,
-  handleDelete,
-  isAdmin,
-  isDeleting,
-}: EditModeProps) {
-  return (
-    <Grid container spacing={3}>
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
-          label="First Name"
-          name="first_name"
-          value={formData.first_name}
-          onChange={handleInputChange}
-          error={!!formErrors.first_name}
-          helperText={formErrors.first_name}
-          required
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <PersonIcon sx={{ color: "rgba(255, 255, 255, 0.7)" }} />
-              </InputAdornment>
-            ),
-          }}
-          sx={{
-            "& .MuiOutlinedInput-root": {
-              "& fieldset": { borderColor: "rgba(255, 255, 255, 0.23)" },
-              "&:hover fieldset": { borderColor: "rgba(255, 255, 255, 0.5)" },
-            },
-            "& .MuiInputLabel-root": { color: "rgba(255, 255, 255, 0.7)" },
-            "& .MuiInputBase-input": { color: "white" },
-          }}
-        />
-      </Grid>
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
-          label="Last Name"
-          name="last_name"
-          value={formData.last_name}
-          onChange={handleInputChange}
-          error={!!formErrors.last_name}
-          helperText={formErrors.last_name}
-          required
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <PersonIcon sx={{ color: "rgba(255, 255, 255, 0.7)" }} />
-              </InputAdornment>
-            ),
-          }}
-          sx={{
-            "& .MuiOutlinedInput-root": {
-              "& fieldset": { borderColor: "rgba(255, 255, 255, 0.23)" },
-              "&:hover fieldset": { borderColor: "rgba(255, 255, 255, 0.5)" },
-            },
-            "& .MuiInputLabel-root": { color: "rgba(255, 255, 255, 0.7)" },
-            "& .MuiInputBase-input": { color: "white" },
-          }}
-        />
-      </Grid>
-      <Grid item xs={12}>
-        <TextField
-          fullWidth
-          label="Email"
-          name="email"
-          type="email"
-          value={formData.email}
-          onChange={handleInputChange}
-          error={!!formErrors.email}
-          helperText={formErrors.email}
-          required
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <EmailIcon sx={{ color: "rgba(255, 255, 255, 0.7)" }} />
-              </InputAdornment>
-            ),
-          }}
-          sx={{
-            "& .MuiOutlinedInput-root": {
-              "& fieldset": { borderColor: "rgba(255, 255, 255, 0.23)" },
-              "&:hover fieldset": { borderColor: "rgba(255, 255, 255, 0.5)" },
-            },
-            "& .MuiInputLabel-root": { color: "rgba(255, 255, 255, 0.7)" },
-            "& .MuiInputBase-input": { color: "white" },
-          }}
-        />
-      </Grid>
-      <Grid item xs={12}>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            gap: 2,
-            mt: 2,
-          }}
-        >
-          {isAdmin() && (
-            <Button
-              variant="outlined"
-              color="error"
-              startIcon={<DeleteIcon />}
-              onClick={handleDelete}
-              disabled={isDeleting}
-            >
-              {isDeleting ? (
-                <CircularProgress size={24} color="inherit" />
-              ) : (
-                "Delete Beneficiary"
-              )}
-            </Button>
-          )}
-          <Box sx={{ display: "flex", gap: 2 }}>
-            <Button
-              variant="outlined"
-              color="primary"
-              startIcon={<CancelIcon />}
-              onClick={handleCancel}
-            >
+          <Box sx={{ mt: 3, display: "flex", justifyContent: "flex-end" }}>
+            <Button onClick={handleCloseModal} color="primary">
               Cancel
             </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              startIcon={<SaveIcon />}
-              onClick={handleSave}
-            >
-              Save Changes
-            </Button>
           </Box>
         </Box>
-      </Grid>
-    </Grid>
-  );
-}
-
-// ViewMode props interface
-interface ViewModeProps {
-  beneficiary: Beneficiary;
-  donationId?: string;
-}
-
-function ViewMode({ beneficiary, donationId }: ViewModeProps) {
-  return (
-    <Box>
-      <Grid container spacing={3}>
-        <Grid item xs={12} sm={6}>
-          <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
-            First Name
-          </Typography>
-          <Typography variant="h6" sx={{ mb: 3 }}>
-            {beneficiary.first_name}
-          </Typography>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
-            Last Name
-          </Typography>
-          <Typography variant="h6" sx={{ mb: 3 }}>
-            {beneficiary.last_name}
-          </Typography>
-        </Grid>
-      </Grid>
-
-      <Divider sx={{ my: 2, backgroundColor: "rgba(255, 255, 255, 0.1)" }} />
-
-      <Box sx={{ mt: 3 }}>
-        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
-          Email Address
-        </Typography>
-        <Typography
-          variant="h6"
-          sx={{ display: "flex", alignItems: "center", gap: 1 }}
-        >
-          <EmailIcon fontSize="small" /> {beneficiary.email}
-        </Typography>
-      </Box>
-
-      <Box sx={{ mt: 3 }}>
-        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
-          ID
-        </Typography>
-        <Typography variant="body2" sx={{ opacity: 0.7 }}>
-          {donationId}
-        </Typography>
-      </Box>
+      </Modal>
     </Box>
   );
 }
