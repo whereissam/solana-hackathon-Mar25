@@ -4,7 +4,7 @@ import React from "react";
 import { Box, Container, Typography } from "@mui/material";
 import AppBar from "@/components/AppBar";
 import Footer from "@/components/Footer";
-import PaymentComponent from "@/components/payment/PaymentComponent";
+// import PaymentComponent from "@/components/payment/PaymentComponent";
 
 export default function DonatePage() {
   return (
@@ -66,7 +66,7 @@ export default function DonatePage() {
         </Box>
 
         <Box sx={{ mt: 2, display: "flex", justifyContent: "center" }}>
-          <PaymentComponent />
+          {/* <PaymentComponent /> */}
         </Box>
       </Container>
 
