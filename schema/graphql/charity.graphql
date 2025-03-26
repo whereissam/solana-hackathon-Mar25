@@ -1,6 +1,10 @@
 type Charity{
     id: Int!
     name: String!
+    website: String
+    mission: String
+    sector: CharitySector
+    description: String!
     address: Address!
     beneficiaries(offset: Int! = 0, limit: Int! = 10): [CharityUser!]! 
 }
@@ -22,11 +26,21 @@ input NewCharityBeneficiary{
     story: String
 }
 
+enum CharitySector {
+    charity
+    ug_partner
+    animals
+}
+
 input NewCharity{
     charityAdmin: NewCharityAdmin!
     name: String!
+    mission: String
+    website: String
+    sector: CharitySector!
     description: String!
-    address: inputAddress!
+    location: inputAddress!
+    image: Upload
 }
 
 input NewCharityAdmin {
@@ -36,6 +50,10 @@ input NewCharityAdmin {
     password: String!
 }
 
+"""
+For file upload, client MUST sent a header called Apollo-Require-Preflight: "true" 
+Or the request will fail with CSRF prevention
+"""
 type Mutation {
     createCharity(detail: NewCharity!): Charity
     createBeneficiary(charityId: Int!, detail: NewCharityBeneficiary!): CharityUser

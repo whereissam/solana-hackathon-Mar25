@@ -15,10 +15,12 @@ export type Scalars = {
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
   BigInt: { input: any; output: any; }
+  Upload: { input: any; output: any; }
 };
 
 export type Address = {
   __typename?: 'Address';
+  address?: Maybe<Scalars['String']['output']>;
   city?: Maybe<Scalars['String']['output']>;
   country?: Maybe<Scalars['String']['output']>;
   lat?: Maybe<Scalars['Float']['output']>;
@@ -54,8 +56,12 @@ export type Charity = {
   __typename?: 'Charity';
   address: Address;
   beneficiaries: Array<CharityUser>;
+  description: Scalars['String']['output'];
   id: Scalars['Int']['output'];
+  mission?: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
+  sector?: Maybe<CharitySector>;
+  website?: Maybe<Scalars['String']['output']>;
 };
 
 
@@ -63,6 +69,12 @@ export type CharityBeneficiariesArgs = {
   limit?: Scalars['Int']['input'];
   offset?: Scalars['Int']['input'];
 };
+
+export enum CharitySector {
+  Animals = 'animals',
+  Charity = 'charity',
+  UgPartner = 'ug_partner'
+}
 
 export type CharityUser = {
   __typename?: 'CharityUser';
@@ -96,6 +108,10 @@ export type Donor = {
   last_name?: Maybe<Scalars['String']['output']>;
 };
 
+/**
+ * For file upload, client MUST sent a header called Apollo-Require-Preflight: "true"
+ * Or the request will fail with CSRF prevention
+ */
 export type Mutation = {
   __typename?: 'Mutation';
   createBeneficiary?: Maybe<CharityUser>;
@@ -107,17 +123,29 @@ export type Mutation = {
 };
 
 
+/**
+ * For file upload, client MUST sent a header called Apollo-Require-Preflight: "true"
+ * Or the request will fail with CSRF prevention
+ */
 export type MutationCreateBeneficiaryArgs = {
   charityId: Scalars['Int']['input'];
   detail: NewCharityBeneficiary;
 };
 
 
+/**
+ * For file upload, client MUST sent a header called Apollo-Require-Preflight: "true"
+ * Or the request will fail with CSRF prevention
+ */
 export type MutationCreateCharityArgs = {
   detail: NewCharity;
 };
 
 
+/**
+ * For file upload, client MUST sent a header called Apollo-Require-Preflight: "true"
+ * Or the request will fail with CSRF prevention
+ */
 export type MutationCreateCryptoDonationArgs = {
   amountInLamports: Scalars['Int']['input'];
   beneficiaryId: Scalars['Int']['input'];
@@ -125,22 +153,34 @@ export type MutationCreateCryptoDonationArgs = {
 };
 
 
+/**
+ * For file upload, client MUST sent a header called Apollo-Require-Preflight: "true"
+ * Or the request will fail with CSRF prevention
+ */
 export type MutationCryptoPaymentCompletedArgs = {
   donationId: Scalars['String']['input'];
   txHash: Scalars['String']['input'];
 };
 
 
+/**
+ * For file upload, client MUST sent a header called Apollo-Require-Preflight: "true"
+ * Or the request will fail with CSRF prevention
+ */
 export type MutationLoginArgs = {
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
 };
 
 export type NewCharity = {
-  address: InputAddress;
   charityAdmin: NewCharityAdmin;
   description: Scalars['String']['input'];
+  image?: InputMaybe<Scalars['Upload']['input']>;
+  location: InputAddress;
+  mission?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
+  sector: CharitySector;
+  website?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type NewCharityAdmin = {
@@ -205,6 +245,7 @@ export type User = {
 };
 
 export type InputAddress = {
+  address?: InputMaybe<Scalars['String']['input']>;
   city?: InputMaybe<Scalars['String']['input']>;
   country?: InputMaybe<Scalars['String']['input']>;
   postcode?: InputMaybe<Scalars['String']['input']>;
@@ -288,6 +329,7 @@ export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   CacheControlScope: CacheControlScope;
   Charity: ResolverTypeWrapper<Charity>;
+  CharitySector: CharitySector;
   CharityUser: ResolverTypeWrapper<CharityUser>;
   Donation: ResolverTypeWrapper<Donation>;
   DonationStatus: DonationStatus;
@@ -303,6 +345,7 @@ export type ResolversTypes = {
   Query: ResolverTypeWrapper<{}>;
   RoleType: RoleType;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
+  Upload: ResolverTypeWrapper<Scalars['Upload']['output']>;
   User: ResolverTypeWrapper<User>;
   inputAddress: InputAddress;
 };
@@ -328,6 +371,7 @@ export type ResolversParentTypes = {
   PaymentCompletedResult: PaymentCompletedResult;
   Query: {};
   String: Scalars['String']['output'];
+  Upload: Scalars['Upload']['output'];
   User: User;
   inputAddress: InputAddress;
 };
@@ -341,6 +385,7 @@ export type CacheControlDirectiveArgs = {
 export type CacheControlDirectiveResolver<Result, Parent, ContextType = any, Args = CacheControlDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type AddressResolvers<ContextType = any, ParentType extends ResolversParentTypes['Address'] = ResolversParentTypes['Address']> = {
+  address?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   city?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   country?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   lat?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
@@ -371,8 +416,12 @@ export interface BigIntScalarConfig extends GraphQLScalarTypeConfig<ResolversTyp
 export type CharityResolvers<ContextType = any, ParentType extends ResolversParentTypes['Charity'] = ResolversParentTypes['Charity']> = {
   address?: Resolver<ResolversTypes['Address'], ParentType, ContextType>;
   beneficiaries?: Resolver<Array<ResolversTypes['CharityUser']>, ParentType, ContextType, RequireFields<CharityBeneficiariesArgs, 'limit' | 'offset'>>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  mission?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sector?: Resolver<Maybe<ResolversTypes['CharitySector']>, ParentType, ContextType>;
+  website?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -422,6 +471,10 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   donations?: Resolver<Array<Maybe<ResolversTypes['Donation']>>, ParentType, ContextType, Partial<QueryDonationsArgs>>;
 };
 
+export interface UploadScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Upload'], any> {
+  name: 'Upload';
+}
+
 export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   first_name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -443,6 +496,7 @@ export type Resolvers<ContextType = any> = {
   Mutation?: MutationResolvers<ContextType>;
   PaymentCompletedResult?: PaymentCompletedResultResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  Upload?: GraphQLScalarType;
   User?: UserResolvers<ContextType>;
 };
 

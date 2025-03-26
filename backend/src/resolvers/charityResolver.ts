@@ -2,10 +2,12 @@ import charityService from '../service/charityService'
 import { MutationLoginArgs, MutationResolvers, AuthPayload, RoleType } from '../generated/graphql'
 import { valueToEnum } from '../utils/valueToEnum'
 import { withAuth, isAdmin, inRole, any, isEqUserId } from './authorization'
-import { QueryCharitiesArgs, CharityBeneficiariesArgs, 
+import {
+    QueryCharitiesArgs, CharityBeneficiariesArgs,
     Charity, MutationCreateCharityArgs, MutationCreateBeneficiaryArgs,
-    QueryBeneficiaryArgs,
- } from '../generated/graphql'
+    QueryBeneficiaryArgs
+} from '../generated/graphql'
+import { uploadImage } from '../service/spacesService'
 
 const resolver = {
     Query: {
@@ -15,11 +17,11 @@ const resolver = {
                 take: args.limit,
                 where: {}
             }
-            if (args.id) 
-                query.where = {id: args.id}
+            if (args.id)
+                query.where = { id: args.id }
             return await charityService.getCharities(query)
         },
-        beneficiary: async (_parent, {id}: QueryBeneficiaryArgs) => {
+        beneficiary: async (_parent, { id }: QueryBeneficiaryArgs) => {
 
             return await charityService.getBeneficiaryById(id)
         },
@@ -39,22 +41,31 @@ const resolver = {
     },
     Mutation: {
         createCharity: withAuth([isAdmin()],
-            async (_parent, { detail: { charityAdmin, name, description, address } }: MutationCreateCharityArgs) => {
+            async (_parent, { detail: { charityAdmin, name, description, location, mission, sector, website, image } }: MutationCreateCharityArgs) => {
+                console.log(image)
                 const charity = await charityService.createCharity(charityAdmin,
                     {
                         name,
                         description,
-                        ...address
+                        mission,
+                        sector,
+                        website,
+                        ...location
                     })
+
+                if (image) {
+                    const { createReadStream, filename, mimetype, encoding } = await image;
+                    await uploadImage(createReadStream(), filename, "charityImage/" + charity.id)
+                }
                 return charity
             }),
         createBeneficiary: withAuth([any(isAdmin())],
-            async (_parent, {charityId, detail}: MutationCreateBeneficiaryArgs) => {
+            async (_parent, { charityId, detail }: MutationCreateBeneficiaryArgs) => {
                 return await charityService.createBeneficiary({
                     charityId, detail
                 })
             }
-        )
+        ),
     }
 }
 

@@ -1,9 +1,18 @@
 import prisma from '../repository/prisma'
-import { Prisma } from '@prisma/client'
+import { Prisma, CharitySector } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import geocoding from './geocoding'
 import { hashPassword } from './userService'
 import { connect } from 'http2'
+
+export interface ICharityAdmin {
+    email: string, password: string, firstName: string, lastName: string 
+}
+
+export interface ICharityDetail { 
+    name: string, description: string, postcode?: string, city?: string, country?: string,
+    mission?: string, sector: CharitySector, address?: string, website?: string
+}
 
 const charityService = {
     getCharities: (args: Prisma.charityFindManyArgs) => {
@@ -55,21 +64,25 @@ const charityService = {
         })
     },
     createCharity: async (
-        { email, password, firstName, lastName }: { email: string, password: string, firstName: string, lastName: string },
-        { name, description, postcode, city, country }: { name: string, description: string, postcode?: string, city?: string, country?: string }
+        { email, password, firstName, lastName }: ICharityAdmin,
+        { name, description, postcode, city, country, sector, mission, address, website }: ICharityDetail 
     ) => {
         // create the location from google api
-        const fullAddress = [city, country, postcode].filter(Boolean).join(", ")
-        const { lat, lng, address } = await geocoding(fullAddress)
+        const fullAddress = [address, city, country, postcode].filter(Boolean).join(", ")
+        const { lat, lng, address: geoAddress } = await geocoding(fullAddress)
+
         return prisma.charity.create({
             data: {
-                name: name,
-                description: description,
-                postcode: postcode,
-                city: city,
-                country: country,
+                name,
+                description,
+                mission,
+                sector,
+                postcode,
+                city,
+                country,
+                website,
                 contact: email,
-                address: address,
+                address: address?? geoAddress,
                 lng,
                 lat,
                 user_admin: {

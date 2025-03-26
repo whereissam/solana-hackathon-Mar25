@@ -1,6 +1,7 @@
 import { ApolloServer } from '@apollo/server'
 import { expressMiddleware } from '@apollo/server/express4'
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer'
+import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.mjs'
 import express from 'express'
 import http from 'http'
 import cors from 'cors'
@@ -49,6 +50,7 @@ async function startup() {
       }
     })
   })
+  app.use(graphqlUploadExpress())
   app.use('/', expressMiddleware(server,{
     context: async ({req}) => { 
       if (!req.headers.token) return {token: null, user: null}

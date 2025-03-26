@@ -1,4 +1,5 @@
 import { mergeResolvers } from '@graphql-tools/merge'
+import GraphQLUpload from 'graphql-upload/GraphQLUpload.mjs'
 import authentication from './authenticationResolver'
 import charityResolver from './charityResolver'
 import donationResolver from './donationResolver'
@@ -8,6 +9,7 @@ import { PrismaClientKnownRequestError, PrismaClientValidationError } from '@pri
 import {BigIntResolver} from 'graphql-scalars'
 
 const resolvers = mergeResolvers([
+    { Upload: GraphQLUpload },
     { BigInt: BigIntResolver },
     authentication,
     resolverWrapper(charityResolver, errorHandler),

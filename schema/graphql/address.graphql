@@ -4,10 +4,12 @@ type Address {
     country: String
     lng: Float
     lat: Float
+    address: String
 }
 
 input inputAddress {
     postcode: String
     city: String
     country: String
+    address: String
 }
