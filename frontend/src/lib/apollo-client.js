@@ -1,13 +1,19 @@
 // src/lib/apollo-client.js
 'use client';
 
-import { ApolloClient, InMemoryCache, createHttpLink, from } from '@apollo/client';
+import { ApolloClient, InMemoryCache, from } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
+import { createUploadLink } from 'apollo-upload-client';
 import { useAuthStore } from '@/store/authStore';
 
-const httpLink = createHttpLink({
+// Replace the HTTP link with an upload link
+const uploadLink = createUploadLink({
   uri: 'https://solana-hackathon-mar25.onrender.com/graphql',
+  headers: {
+    // This header will tell the server this is a preflight-exempt request
+    'apollo-require-preflight': 'true'
+  }
 });
 
 // Error handling link
@@ -38,12 +44,14 @@ const authLink = setContext((_, { headers }) => {
     headers: {
       ...headers,
       token: token,
+      'x-apollo-operation-name': 'CreateCharity'
     }
   };
 });
 
 const client = new ApolloClient({
-  link: from([errorLink, authLink, httpLink]),
+  // Change the link setup to use uploadLink instead of httpLink
+  link: from([errorLink, authLink, uploadLink]),
   cache: new InMemoryCache(),
 });
 

@@ -12,7 +12,10 @@ const CharityInfoSection: React.FC<CharityInfoSectionProps> = ({ charity }) => {
       <CardMedia
         component="img"
         height="300"
-        image={`https://therecordnewspaper.org/wp-content/uploads/2019/05/Catholic-Charities-Building-Southwest-5-16-19-p1-.gif`}
+        image={
+          `https://lon1.digitaloceanspaces.com/ug-hackathon/charityImage/${charity.id}` ||
+          `https://therecordnewspaper.org/wp-content/uploads/2019/05/Catholic-Charities-Building-Southwest-5-16-19-p1-.gif`
+        }
         alt={charity.name}
         sx={{ borderRadius: 2, mb: 2 }}
       />

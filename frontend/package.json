@@ -20,6 +20,7 @@
     "@solana/wallet-adapter-wallets": "^0.19.33",
     "@solana/web3.js": "^1.98.0",
     "@stripe/stripe-js": "^5.9.2",
+    "apollo-upload-client": "^17.0.0",
     "axios": "^1.8.3",
     "bignumber.js": "^9.1.2",
     "decimal.js": "^10.5.0",
