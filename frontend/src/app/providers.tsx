@@ -6,6 +6,7 @@ import { ApolloProvider } from "@apollo/client";
 import apolloClient from "@/lib/apollo-client";
 import { ReactNode, useEffect } from "react";
 import PostHogPageView from "./PostHogPageView";
+import WalletProvider from "@/components/payment/WalletProvider";
 
 export function Providers({ children }: { children: ReactNode }) {
   useEffect(() => {
@@ -29,7 +30,9 @@ export function Providers({ children }: { children: ReactNode }) {
   return (
     <PHProvider client={posthog}>
       <PostHogPageView />
-      <ApolloProvider client={apolloClient}>{children}</ApolloProvider>
+      <ApolloProvider client={apolloClient}>
+        <WalletProvider>{children}</WalletProvider>
+      </ApolloProvider>
     </PHProvider>
   );
 }

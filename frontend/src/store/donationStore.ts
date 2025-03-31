@@ -2,13 +2,15 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
+export type DonationStatus = 'pending' | 'completed' | 'failed' | 'idle';
+
 interface DonationRecord {
   id?: string;
   beneficiaryId: number;
   amount: number;
   lamports: number;
   signature: string;
-  status: 'pending' | 'completed' | 'failed';
+  status: DonationStatus;
   timestamp: number;
 }
 
@@ -16,13 +18,16 @@ interface DonationState {
   currentDonation: DonationRecord | null;
   recentDonations: DonationRecord[];
   isProcessing: boolean;
+  status: DonationStatus | null;
   error: string | null;
+  errorMessage: string | null;
   
   // Actions
   startDonation: (beneficiaryId: number, amount: number) => void;
   completeDonation: (signature: string, lamports: number) => void;
   failDonation: (error: string) => void;
   clearCurrentDonation: () => void;
+  resetDonation: () => void;
   resetError: () => void;
 }
 
@@ -32,7 +37,9 @@ export const useDonationStore = create<DonationState>()(
       currentDonation: null,
       recentDonations: [],
       isProcessing: false,
+      status: null,
       error: null,
+      errorMessage: null,
 
       startDonation: (beneficiaryId: number, amount: number) => 
         set({
@@ -45,7 +52,9 @@ export const useDonationStore = create<DonationState>()(
             timestamp: Date.now(),
           },
           isProcessing: true,
+          status: 'pending',
           error: null,
+          errorMessage: null,
         }),
 
       completeDonation: (signature: string, lamports: number) => 
@@ -63,6 +72,9 @@ export const useDonationStore = create<DonationState>()(
             currentDonation: completedDonation,
             recentDonations: [completedDonation, ...state.recentDonations.slice(0, 4)],
             isProcessing: false,
+            status: 'completed',
+            error: null,
+            errorMessage: null,
           };
         }),
 
@@ -72,12 +84,31 @@ export const useDonationStore = create<DonationState>()(
             ? { ...state.currentDonation, status: 'failed' as const }
             : null,
           isProcessing: false,
-          error,
+          status: 'failed',
+          error: 'donation_failed',
+          errorMessage: error,
         })),
 
-      clearCurrentDonation: () => set({ currentDonation: null }),
+      clearCurrentDonation: () => 
+        set({ 
+          currentDonation: null,
+          isProcessing: false 
+        }),
       
-      resetError: () => set({ error: null }),
+      resetDonation: () => 
+        set({
+          currentDonation: null,
+          isProcessing: false,
+          status: 'idle',
+          error: null,
+          errorMessage: null
+        }),
+      
+      resetError: () => 
+        set({ 
+          error: null, 
+          errorMessage: null 
+        }),
     }),
     { name: 'donation-store' }
   )

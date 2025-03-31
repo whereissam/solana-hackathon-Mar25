@@ -32,7 +32,12 @@ export default function WalletProvider({ children }: { children: ReactNode }) {
 
   return (
     <ConnectionProvider endpoint={endpoint}>
-      <SolanaWalletProvider wallets={wallets} autoConnect={false}>
+      <SolanaWalletProvider
+        wallets={wallets}
+        autoConnect={false}
+        // This is critical - disable automatic wallet selection so user can choose
+        localStorageKey="walletName"
+      >
         <WalletModalProvider>{children}</WalletModalProvider>
       </SolanaWalletProvider>
     </ConnectionProvider>

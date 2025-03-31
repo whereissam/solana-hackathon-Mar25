@@ -14,7 +14,7 @@ import {
   LAMPORTS_PER_SOL,
   Keypair,
 } from "@solana/web3.js";
-import { useWallet, useConnection } from "@solana/wallet-adapter-react";
+import { useWallet } from "@solana/wallet-adapter-react";
 import {
   Box,
   Button,
@@ -25,15 +25,19 @@ import {
 import { RiCoinsFill, RiQrCodeLine } from "react-icons/ri";
 import { BigNumber } from "bignumber.js";
 import { useDonationStore } from "@/store/donationStore";
+import { useMutation } from "@apollo/client";
+import {
+  CREATE_CRYPTO_DONATION,
+  CRYPTO_PAYMENT_COMPLETED,
+} from "@/lib/mutations/payment-mutations";
 
 interface SolanaPayButtonProps {
   amount: number;
-  donationId: string;
+  beneficiaryId: number;
   onDonationComplete?: (
     signature: string,
     lamports: number
   ) => Promise<void | unknown>;
-  onInitiateDonation?: () => void | Promise<string | null>;
 }
 
 interface TransactionResponse {
@@ -45,22 +49,31 @@ interface TransactionResponse {
 
 const SolanaPayButton: React.FC<SolanaPayButtonProps> = ({
   amount,
-  donationId, // Add donationId to destructured props
+  beneficiaryId,
   onDonationComplete,
-  onInitiateDonation,
 }) => {
   const [loadingWallet, setLoadingWallet] = useState<boolean>(false);
   const [walletError, setWalletError] = useState<string | null>(null);
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [showQR, setShowQR] = useState<boolean>(false);
-  // const recipient = new PublicKey("YOUR_ADDRESS");
+  const [donationId, setDonationId] = useState<string | null>(null);
 
   const router = useRouter();
   const wallet = useWallet();
-  const { connection } = useConnection();
+
+  // Create a Solana connection directly rather than using useConnection
+  const connection = new Connection(
+    clusterApiUrl("devnet"),
+    "confirmed" as Commitment
+  );
 
   // Get the donation state from Zustand
-  const { isProcessing, failDonation } = useDonationStore();
+  const { isProcessing, startDonation, completeDonation, failDonation } =
+    useDonationStore();
+
+  // GraphQL mutations
+  const [createCryptoDonation] = useMutation(CREATE_CRYPTO_DONATION);
+  const [cryptoPaymentCompleted] = useMutation(CRYPTO_PAYMENT_COMPLETED);
 
   // Create a more structured error handler
   const handleError = (error: unknown): string => {
@@ -77,6 +90,61 @@ const SolanaPayButton: React.FC<SolanaPayButtonProps> = ({
     return errorMessage;
   };
 
+  // Create a donation record in the database
+  const createDonation = async (): Promise<string | null> => {
+    try {
+      // Step 1: Create a pending donation record in the database FIRST
+      const donationResult = await createCryptoDonation({
+        variables: {
+          beneficiaryId: parseInt(beneficiaryId.toString()),
+          amountInLamports: Math.round(amount * LAMPORTS_PER_SOL), // Approximate amount in lamports
+          tokenCode: "USD",
+        },
+      });
+
+      const newDonationId = donationResult.data.createCryptoDonation.id;
+      setDonationId(newDonationId);
+
+      // Update the donation store
+      startDonation(beneficiaryId, amount);
+
+      return newDonationId;
+    } catch (err) {
+      console.error("Error creating donation record:", err);
+      handleError(err);
+      return null;
+    }
+  };
+
+  // Complete the donation in the database
+  const completeDonationRecord = async (
+    txSignature: string,
+    lamports: number,
+    donId: string
+  ) => {
+    try {
+      const result = await cryptoPaymentCompleted({
+        variables: {
+          donationId: donId,
+          txHash: txSignature,
+        },
+      });
+
+      // Extract returned values
+      const { assetKey, signature } = result.data.cryptoPaymentCompleted;
+      console.log("Asset Key:", assetKey, "Signature:", signature);
+
+      // Update the donation store - this triggers UI updates
+      completeDonation(txSignature, lamports);
+
+      return result.data.cryptoPaymentCompleted;
+    } catch (err) {
+      console.error("Error completing donation:", err);
+      failDonation(err instanceof Error ? err.message : "Unknown error");
+      throw err;
+    }
+  };
+
   // Handle Solana Pay button click for wallet users
   const handleSolanaPayClick = async (): Promise<void> => {
     if (!wallet.connected || !wallet.publicKey) {
@@ -84,23 +152,20 @@ const SolanaPayButton: React.FC<SolanaPayButtonProps> = ({
       return;
     }
 
-    // Call the onInitiateDonation callback to update the store
-    if (onInitiateDonation) {
-      onInitiateDonation();
-    }
-
     setLoadingWallet(true);
     setWalletError(null);
 
-    console.log(
-      "handleSolanaPayClick",
-      amount,
-      wallet.publicKey.toString(),
-      donationId
-    );
-
     try {
-      // Call API route to create a Solana Pay transaction
+      // Step 1: Create donation record if not already created
+      let effectiveDonationId = donationId;
+      if (!effectiveDonationId) {
+        effectiveDonationId = await createDonation();
+        if (!effectiveDonationId) {
+          throw new Error("Failed to create donation record");
+        }
+      }
+
+      // Step 2: Call API route to create a Solana Pay transaction
       const response = await fetch("/api/solana-pay/create-transaction", {
         method: "POST",
         headers: {
@@ -109,7 +174,7 @@ const SolanaPayButton: React.FC<SolanaPayButtonProps> = ({
         body: JSON.stringify({
           amount,
           wallet: wallet.publicKey.toString(),
-          donationId, // Include donationId in the request
+          donationId: effectiveDonationId, // Include donationId in the request
         }),
       });
 
@@ -131,7 +196,7 @@ const SolanaPayButton: React.FC<SolanaPayButtonProps> = ({
         throw new Error("Missing transaction data in response");
       }
 
-      // Process the transaction
+      // Step 3: Process the transaction
       const signature = await processTransaction(data.transaction);
 
       // Calculate the lamports (based on amount and price from response)
@@ -140,7 +205,10 @@ const SolanaPayButton: React.FC<SolanaPayButtonProps> = ({
         (amount / (data.adjustedPrice || 1)) * LAMPORTS_PER_SOL
       );
 
-      // If there's a donation complete callback, call it
+      // Step 4: Complete the donation in the database
+      await completeDonationRecord(signature, lamports, effectiveDonationId);
+
+      // Step 5: Call the completion callback if provided
       if (onDonationComplete) {
         await onDonationComplete(signature, lamports);
       } else {
@@ -170,15 +238,11 @@ const SolanaPayButton: React.FC<SolanaPayButtonProps> = ({
       }
 
       // Sign the transaction
+      console.log("Signing transaction...");
       const signedTx = await wallet.signTransaction(tx);
 
-      // Connect to Solana network
-      const connection = new Connection(
-        clusterApiUrl("devnet"),
-        "confirmed" as Commitment
-      );
-
       // Send the transaction
+      console.log("Sending transaction to Solana network...");
       const signature = await connection.sendRawTransaction(
         signedTx.serialize(),
         {

@@ -22,7 +22,12 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { amount, wallet ,donationId } = body;
+    console.log('Received request:', { amount, wallet,donationId }); // Add this line
 
+    if(!donationId) return NextResponse.json(
+      { error: 'DonationId is required' },
+      { status: 400 }
+    );
     if (!amount || !wallet || !donationId) {
       return NextResponse.json(
         { error: 'Amount, wallet, and donationId are required' },

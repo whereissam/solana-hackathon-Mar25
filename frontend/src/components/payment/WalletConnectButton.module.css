@@ -1,21 +1,213 @@
 .walletButtonContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin: 15px 0;
+  width: 100%;
+}
+
+.walletButton {
+  background-color: #6B48FF !important;
+  color: white !important;
+  padding: 12px 20px !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease !important;
+  font-family: 'Geist', sans-serif !important;
+  cursor: pointer !important;
+}
+
+.walletButton:hover {
+  background-color: #5A3EDB !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Custom wallet button styling */
+.customWalletButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #6B48FF;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  border: none;
+  width: 100%;
+  max-width: 250px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.customWalletButton:hover {
+  background-color: #5A3EDB;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.customWalletButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Wallet selection container */
+.walletSelectionContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 300px;
+  gap: 10px;
+  background-color: #222;
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px solid #333;
+}
+
+.walletSelectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.walletOption {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  padding: 12px 16px;
+  background-color: #333;
+  border: 1px solid #444;
+  border-radius: 8px;
+  color: white;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+  gap: 10px;
+  text-align: left;
+}
+
+.walletOption:hover {
+  background-color: #444;
+  transform: translateY(-2px);
+}
+
+.walletIcon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.cancelButton {
+  margin-top: 8px;
+  padding: 10px 16px;
+  background-color: transparent;
+  border: 1px solid #666;
+  border-radius: 6px;
+  color: #ccc;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.cancelButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.connectedWalletInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.connectedStatus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  background-color: rgba(0, 200, 83, 0.1);
+  border-radius: 6px;
+  color: #00c853;
+  font-size: 0.9rem;
+}
+
+.changeWalletButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #333;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.85rem;
+  border: 1px solid #444;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.changeWalletButton:hover {
+  background-color: #444;
+}
+
+.walletName {
+  font-weight: 600;
+  margin-right: 5px;
+}
+
+.walletOptions {
+  width: 100%;
+  margin-top: 5px;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+}
+
+.walletOptionsLabel {
+  margin-bottom: 2px;
+}
+
+.walletList {
+  font-weight: 500;
+}
+
+.connectingStatus {
+  font-size: 0.85rem;
+  color: #ff9800;
+  background-color: rgba(255, 152, 0, 0.1);
+  padding: 4px 10px;
+  border-radius: 4px;
+  margin-top: 5px;
+  animation: pulse 1.5s infinite;
+}
+
+.errorMessage {
+  font-size: 0.85rem;
+  color: #f44336;
+  background-color: rgba(244, 67, 54, 0.1);
+  padding: 4px 10px;
+  border-radius: 4px;
+  margin-top: 5px;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
   }
-  
-  .walletButton {
-    background-color: #9945FF !important;
-    transition: background-color 0.3s;
+  50% {
+    opacity: 1;
   }
-  
-  .walletButton:hover {
-    background-color: #8A3FE0 !important;
+  100% {
+    opacity: 0.6;
   }
-  
-  .connectedStatus {
-    font-size: 0.8rem;
-    color: #28a745;
-    margin-top: 0.5rem;
-  }
+}

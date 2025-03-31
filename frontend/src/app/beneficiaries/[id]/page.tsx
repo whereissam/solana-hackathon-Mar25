@@ -59,7 +59,7 @@ export default function BeneficiaryDetailsPage({
   const beneficiaryId = parseInt(id);
 
   const { user, isAuthenticated } = useAuthStore();
-  const { startDonation, completeDonation } = useDonationStore();
+  const { startDonation, completeDonation, resetDonation } = useDonationStore();
 
   const [isEditMode, setIsEditMode] = React.useState(false);
   const [isDeleting, setIsDeleting] = React.useState(false);
@@ -76,11 +76,29 @@ export default function BeneficiaryDetailsPage({
   const [successMessage, setSuccessMessage] = React.useState("");
   const [errorMessage, setErrorMessage] = React.useState("");
   const [donationId, setDonationId] = React.useState("");
+  const [donationInProgress, setDonationInProgress] = React.useState(false);
 
   // New state for modal
   const [openDonateModal, setOpenDonateModal] = React.useState(false);
-  const handleOpenModal = () => setOpenDonateModal(true);
-  const handleCloseModal = () => setOpenDonateModal(false);
+
+  // Track if a donation was just completed to prevent re-triggering
+  const justCompletedRef = React.useRef(false);
+
+  const handleOpenModal = () => {
+    // Reset donation state when opening the modal
+    resetDonation();
+    justCompletedRef.current = false;
+    setDonationInProgress(false);
+    setOpenDonateModal(true);
+  };
+
+  const handleCloseModal = () => {
+    // Don't reset if we're in the middle of processing
+    if (!donationInProgress) {
+      resetDonation();
+    }
+    setOpenDonateModal(false);
+  };
 
   const { data, loading, error, refetch } = useQuery(GET_BENEFICIARY, {
     variables: { beneficiaryId2: beneficiaryId },
@@ -189,8 +207,8 @@ export default function BeneficiaryDetailsPage({
   const handleGoBack = () => router.push("/charities");
 
   const handleInitiateDonation = () => {
+    setDonationInProgress(true);
     startDonation(beneficiaryId, 0); // Amount will be set in PaymentComponent
-    handleCloseModal(); // Close the modal after initiating donation
   };
 
   const handleDonationComplete = async (
@@ -198,7 +216,14 @@ export default function BeneficiaryDetailsPage({
     lamports: number
   ) => {
     try {
+      // Only process if we haven't just completed this donation
+      if (justCompletedRef.current) {
+        return;
+      }
+
+      justCompletedRef.current = true;
       completeDonation(signature, lamports);
+
       const result = await createCryptoDonation({
         variables: {
           beneficiaryId,
@@ -214,11 +239,19 @@ export default function BeneficiaryDetailsPage({
       if (donationId) {
         setDonationId(donationId);
         setSuccessMessage("Donation successfully processed!");
+
+        // Clean up and close modal
+        setDonationInProgress(false);
+        handleCloseModal();
+
         setTimeout(() => setSuccessMessage(""), 5000);
       } else {
         throw new Error("Failed to get donation ID from server response");
       }
     } catch (error: unknown) {
+      setDonationInProgress(false);
+      justCompletedRef.current = false;
+
       const errorMessage =
         error instanceof Error ? error.message : "Error processing donation";
       setErrorMessage(errorMessage);
@@ -392,13 +425,8 @@ export default function BeneficiaryDetailsPage({
             beneficiaryId={beneficiaryId}
             onInitiateDonation={handleInitiateDonation}
             onDonationComplete={handleDonationComplete}
+            onCancel={handleCloseModal}
           />
-
-          <Box sx={{ mt: 3, display: "flex", justifyContent: "flex-end" }}>
-            <Button onClick={handleCloseModal} color="primary">
-              Cancel
-            </Button>
-          </Box>
         </Box>
       </Modal>
     </Box>

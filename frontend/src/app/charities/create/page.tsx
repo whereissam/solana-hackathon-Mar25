@@ -36,10 +36,12 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 interface CharityFormData {
   name: string;
   description: string;
-  address: {
+  location: {
+    // Changed address to location to match schema
     city: string | null;
     country: string | null;
     postcode: string | null;
+    address: string | null; // Added address
   };
   charityAdmin: {
     email: string;
@@ -47,6 +49,10 @@ interface CharityFormData {
     lastName: string;
     password: string;
   };
+  image: File | null; // Add image field
+  mission: string; // Add mission
+  sector: string; // Add sector
+  website: string; // Add website
 }
 
 export default function CreateCharityPage() {
@@ -56,10 +62,11 @@ export default function CreateCharityPage() {
   const [formData, setFormData] = React.useState<CharityFormData>({
     name: "",
     description: "",
-    address: {
+    location: {
       city: "",
       country: "",
       postcode: "",
+      address: "",
     },
     charityAdmin: {
       email: "",
@@ -67,6 +74,10 @@ export default function CreateCharityPage() {
       lastName: "",
       password: "",
     },
+    image: null,
+    mission: "",
+    sector: "ug_partner",
+    website: "",
   });
 
   const [formErrors, setFormErrors] = React.useState({
@@ -77,6 +88,11 @@ export default function CreateCharityPage() {
     admin_lastName: "",
     admin_email: "",
     admin_password: "",
+    image: "", // Add image error
+    address: "",
+    mission: "",
+    sector: "",
+    website: "",
   });
 
   const [createCharity, { loading: submitting, error: submitError }] =
@@ -84,18 +100,103 @@ export default function CreateCharityPage() {
 
   const [successMessage, setSuccessMessage] = React.useState("");
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const file = e.target.files && e.target.files[0];
+
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        // 5MB in bytes
+        setFormErrors((prevErrors) => ({
+          ...prevErrors,
+          image: "Image size must be less than 5MB",
+        }));
+        setFormData((prevData) => ({
+          ...prevData,
+          image: null,
+        }));
+      } else {
+        setFormData((prevData) => ({
+          ...prevData,
+          image: file,
+        }));
+        setFormErrors((prevErrors) => ({
+          ...prevErrors,
+          image: "",
+        }));
+      }
+    }
+  };
+
+  const compressImage = (file: File): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (readerEvent) => {
+        const image = new Image();
+        image.onload = () => {
+          // Calculate new dimensions while maintaining aspect ratio
+          let width = image.width;
+          let height = image.height;
+          const maxDimension = 1200; // Reasonable size for most web images
+
+          if (width > maxDimension || height > maxDimension) {
+            if (width > height) {
+              height = Math.round(height * (maxDimension / width));
+              width = maxDimension;
+            } else {
+              width = Math.round(width * (maxDimension / height));
+              height = maxDimension;
+            }
+          }
+
+          // Create canvas and draw resized image
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx!.drawImage(image, 0, 0, width, height);
+
+          // Convert to blob with reduced quality
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) {
+                reject(new Error("Canvas to Blob conversion failed"));
+                return;
+              }
+              // Convert blob to File
+              const newFile = new File([blob], file.name, {
+                type: "image/jpeg",
+                lastModified: Date.now(),
+              });
+              resolve(newFile);
+            },
+            "image/jpeg",
+            0.7 // Adjust quality (0.7 = 70% quality)
+          );
+        };
+        image.src = readerEvent.target?.result as string;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ): void => {
     const { name, value } = e.target;
 
-    if (name === "name" || name === "description") {
+    if (
+      name === "name" ||
+      name === "description" ||
+      name === "mission" ||
+      name === "sector" ||
+      name === "website"
+    ) {
       setFormData((prevData) => ({
         ...prevData,
         [name]: value,
       }));
 
-      // Clear error - using type assertion to avoid TypeScript error
       if (formErrors[name as keyof typeof formErrors]) {
         setFormErrors((prevErrors) => ({
           ...prevErrors,
@@ -103,7 +204,6 @@ export default function CreateCharityPage() {
         }));
       }
     } else if (name.startsWith("admin_")) {
-      // Handle admin fields
       const adminField = name.replace("admin_", "");
       setFormData((prevData) => ({
         ...prevData,
@@ -113,24 +213,26 @@ export default function CreateCharityPage() {
         },
       }));
 
-      // Clear error - using type assertion to avoid TypeScript error
       if (formErrors[name as keyof typeof formErrors]) {
         setFormErrors((prevErrors) => ({
           ...prevErrors,
           [name]: "",
         }));
       }
-    } else {
-      // Handle address fields
+    } else if (
+      name === "address" ||
+      name === "city" ||
+      name === "country" ||
+      name === "postcode"
+    ) {
       setFormData((prevData) => ({
         ...prevData,
-        address: {
-          ...prevData.address,
+        location: {
+          ...prevData.location,
           [name]: value,
         },
       }));
 
-      // Clear error for postcode
       if (name === "postcode" && formErrors.postcode) {
         setFormErrors((prevErrors) => ({
           ...prevErrors,
@@ -160,9 +262,13 @@ export default function CreateCharityPage() {
       admin_lastName: "",
       admin_email: "",
       admin_password: "",
+      image: "",
+      address: "",
+      mission: "",
+      sector: "",
+      website: "",
     };
 
-    // Validate charity fields
     if (!formData.name.trim()) {
       errors.name = "Charity name is required";
       isValid = false;
@@ -173,13 +279,11 @@ export default function CreateCharityPage() {
       isValid = false;
     }
 
-    // Validate address
-    if (!formData.address.postcode?.trim()) {
+    if (!formData.location.postcode?.trim()) {
       errors.postcode = "Postcode is required";
       isValid = false;
     }
 
-    // Validate admin
     if (!formData.charityAdmin.firstName.trim()) {
       errors.admin_firstName = "Admin first name is required";
       isValid = false;
@@ -200,9 +304,28 @@ export default function CreateCharityPage() {
 
     if (!formData.charityAdmin.password.trim()) {
       errors.admin_password = "Password is required";
-      isValid = false;
     } else if (formData.charityAdmin.password.length < 6) {
       errors.admin_password = "Password must be at least 6 characters";
+      isValid = false;
+    }
+
+    if (!formData.image) {
+      errors.image = "Image is required";
+      isValid = false;
+    }
+
+    if (!formData.mission) {
+      errors.mission = "Mission is required";
+      isValid = false;
+    }
+
+    if (!formData.sector) {
+      errors.sector = "Sector is required";
+      isValid = false;
+    }
+
+    if (!formData.website) {
+      errors.website = "Website is required";
       isValid = false;
     }
 
@@ -210,49 +333,78 @@ export default function CreateCharityPage() {
     return isValid;
   };
 
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
   // Add the proper type for the event parameter
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    console.log(formData);
     e.preventDefault();
 
     if (!validateForm()) {
       return;
     }
 
-    // Clean up the data before submitting
-    const detail = {
+    const formDataToSend = {
       name: formData.name,
       description: formData.description,
-      address: {
-        city: formData.address.city || null,
-        country: formData.address.country || null,
-        postcode: formData.address.postcode,
+      location: {
+        city: formData.location.city || null,
+        country: formData.location.country || null,
+        postcode: formData.location.postcode || null,
+        address: formData.location.address || null,
       },
       charityAdmin: {
+        email: formData.charityAdmin.email,
         firstName: formData.charityAdmin.firstName,
         lastName: formData.charityAdmin.lastName,
-        email: formData.charityAdmin.email,
         password: formData.charityAdmin.password,
       },
+      mission: formData.mission,
+      sector: formData.sector,
+      website: formData.website,
+      image: null as string | null,
     };
+
+    if (formData.image) {
+      try {
+        // Compress image before converting to base64
+        const compressedImage = await compressImage(formData.image);
+        const base64Image = await fileToBase64(compressedImage);
+        formDataToSend.image = base64Image;
+      } catch (error) {
+        console.error("Error processing image:", error);
+        setFormErrors((prev) => ({ ...prev, image: "Error processing image" }));
+        return;
+      }
+    }
 
     try {
       const result = await createCharity({
         variables: {
-          detail,
+          detail: {
+            ...formDataToSend,
+            image: formData.image,
+          },
         },
       });
 
-      // Show success message
       setSuccessMessage("Charity successfully created!");
 
-      // Reset form
       setFormData({
         name: "",
         description: "",
-        address: {
+        location: {
           city: "",
           country: "",
           postcode: "",
+          address: "",
         },
         charityAdmin: {
           email: "",
@@ -260,12 +412,19 @@ export default function CreateCharityPage() {
           lastName: "",
           password: "",
         },
+        image: null,
+        mission: "",
+        sector: "ug_partner",
+        website: "",
       });
 
-      // Navigate to the charity detail page after delay
+      console.log("Charity created:", result.data.createCharity);
+
       setTimeout(() => {
-        const newCharityId = result.data.createCharity.id;
-        router.push(`/charities/${newCharityId}`);
+        if (result.data && result.data.createCharity) {
+          const newCharityId = result.data.createCharity.id;
+          router.push(`/charities/${newCharityId}`);
+        }
       }, 2000);
     } catch (error) {
       console.error("Error creating charity:", error);
@@ -427,15 +586,168 @@ export default function CreateCharityPage() {
               </Grid>
 
               <Grid item xs={12}>
+                <Typography variant="h5" sx={{ mb: 2 }}>
+                  Charity Image
+                </Typography>
+                <input
+                  accept="image/*"
+                  id="charity-image-upload"
+                  type="file"
+                  onChange={handleImageChange}
+                  style={{ display: "none" }}
+                />
+                <label htmlFor="charity-image-upload">
+                  <Button
+                    variant="outlined"
+                    component="span"
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        "& fieldset": {
+                          borderColor: "rgba(255, 255, 255, 0.23)",
+                        },
+                        "&:hover fieldset": {
+                          borderColor: "rgba(255, 255, 255, 0.5)",
+                        },
+                      },
+                      "& .MuiInputLabel-root": {
+                        color: "rgba(255, 255, 255, 0.7)",
+                      },
+                      "& .MuiInputBase-input": {
+                        color: "white",
+                      },
+                    }}
+                  >
+                    Upload Image
+                  </Button>
+                </label>
+                {formData.image && (
+                  <Typography variant="body2" sx={{ display: "inline" }}>
+                    {formData.image.name}
+                  </Typography>
+                )}
+                {formErrors.image && (
+                  <FormHelperText error>{formErrors.image}</FormHelperText>
+                )}
+              </Grid>
+
+              <Grid item xs={12}>
                 <Divider
                   sx={{ backgroundColor: "rgba(255, 255, 255, 0.1)", my: 1 }}
                 />
               </Grid>
 
-              {/* Address section */}
+              {/* Mission, Sector, Website - ADDED HERE */}
               <Grid item xs={12}>
                 <Typography variant="h5" sx={{ mb: 2 }}>
-                  Address Information
+                  Additional Information
+                </Typography>
+
+                <TextField
+                  fullWidth
+                  label="Mission"
+                  name="mission"
+                  value={formData.mission}
+                  onChange={handleInputChange}
+                  error={!!formErrors.mission}
+                  helperText={formErrors.mission}
+                  required
+                  multiline
+                  rows={3}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <DescriptionIcon
+                          sx={{ color: "rgba(255, 255, 255, 0.7)" }}
+                        />
+                      </InputAdornment>
+                    ),
+                  }}
+                  sx={{
+                    mb: 2,
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": {
+                        borderColor: "rgba(255, 255, 255, 0.23)",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "rgba(255, 255, 255, 0.5)",
+                      },
+                    },
+                    "& .MuiInputLabel-root": {
+                      color: "rgba(255, 255, 255, 0.7)",
+                    },
+                    "& .MuiInputBase-input": {
+                      color: "white",
+                    },
+                  }}
+                />
+
+                <TextField
+                  fullWidth
+                  label="Sector"
+                  name="sector"
+                  value={"ug_partner"}
+                  // onChange={handleInputChange}
+                  error={!!formErrors.sector}
+                  helperText={formErrors.sector}
+                  required
+                  sx={{
+                    mb: 2,
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": {
+                        borderColor: "rgba(255, 255, 255, 0.23)",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "rgba(255, 255, 255, 0.5)",
+                      },
+                    },
+                    "& .MuiInputLabel-root": {
+                      color: "rgba(255, 255, 255, 0.7)",
+                    },
+                    "& .MuiInputBase-input": {
+                      color: "white",
+                    },
+                  }}
+                />
+
+                <TextField
+                  fullWidth
+                  label="Website"
+                  name="website"
+                  value={formData.website}
+                  onChange={handleInputChange}
+                  error={!!formErrors.website}
+                  helperText={formErrors.website}
+                  required
+                  sx={{
+                    mb: 2,
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": {
+                        borderColor: "rgba(255, 255, 255, 0.23)",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "rgba(255, 255, 255, 0.5)",
+                      },
+                    },
+                    "& .MuiInputLabel-root": {
+                      color: "rgba(255, 255, 255, 0.7)",
+                    },
+                    "& .MuiInputBase-input": {
+                      color: "white",
+                    },
+                  }}
+                />
+              </Grid>
+
+              <Grid item xs={12}>
+                <Divider
+                  sx={{ backgroundColor: "rgba(255, 255, 255, 0.1)", my: 1 }}
+                />
+              </Grid>
+
+              {/* Location Section - ADDED HERE */}
+              <Grid item xs={12}>
+                <Typography variant="h5" sx={{ mb: 2 }}>
+                  Location Information
                 </Typography>
               </Grid>
 
@@ -444,7 +756,7 @@ export default function CreateCharityPage() {
                   fullWidth
                   label="City"
                   name="city"
-                  value={formData.address.city || ""}
+                  value={formData.location.city || ""}
                   onChange={handleInputChange}
                   InputProps={{
                     startAdornment: (
@@ -479,7 +791,7 @@ export default function CreateCharityPage() {
                   fullWidth
                   label="Country"
                   name="country"
-                  value={formData.address.country || ""}
+                  value={formData.location.country || ""}
                   onChange={handleInputChange}
                   InputProps={{
                     startAdornment: (
@@ -514,11 +826,46 @@ export default function CreateCharityPage() {
                   fullWidth
                   label="Postcode"
                   name="postcode"
-                  value={formData.address.postcode || ""}
+                  value={formData.location.postcode || ""}
                   onChange={handleInputChange}
                   error={!!formErrors.postcode}
                   helperText={formErrors.postcode}
                   required
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <MarkunreadMailboxIcon
+                          sx={{ color: "rgba(255, 255, 255, 0.7)" }}
+                        />
+                      </InputAdornment>
+                    ),
+                  }}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": {
+                        borderColor: "rgba(255, 255, 255, 0.23)",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "rgba(255, 255, 255, 0.5)",
+                      },
+                    },
+                    "& .MuiInputLabel-root": {
+                      color: "rgba(255, 255, 255, 0.7)",
+                    },
+                    "& .MuiInputBase-input": {
+                      color: "white",
+                    },
+                  }}
+                />
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label="Address"
+                  name="address"
+                  value={formData.location.address || ""}
+                  onChange={handleInputChange}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">

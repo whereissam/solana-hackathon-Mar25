@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import {
   Box,
@@ -18,13 +18,7 @@ import { RiCoinsFill } from "react-icons/ri";
 import WalletProvider from "./WalletProvider";
 import WalletConnectButton from "./WalletConnectButton";
 import SolanaPayButton from "./SolanaPayButton";
-import { useMutation } from "@apollo/client";
-import {
-  CREATE_CRYPTO_DONATION,
-  CRYPTO_PAYMENT_COMPLETED,
-} from "@/lib/mutations/payment-mutations";
 import { useDonationStore } from "@/store/donationStore";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 type PaymentMethod = "stripe" | "solana" | null;
 
@@ -32,25 +26,76 @@ interface PaymentComponentProps {
   beneficiaryId: number;
   onInitiateDonation?: () => void;
   onDonationComplete?: (signature: string, lamports: number) => Promise<void>;
+  onCancel?: () => void;
 }
 
 const PaymentComponent: React.FC<PaymentComponentProps> = ({
   beneficiaryId,
   onInitiateDonation,
   onDonationComplete,
+  onCancel,
 }) => {
   const [amount, setAmount] = useState<number>(1); // Default to 1 SOL/USD
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(null);
-  const [donationId, setDonationId] = useState<string | null>(null);
 
-  // GraphQL mutations
-  const [createCryptoDonation] = useMutation(CREATE_CRYPTO_DONATION);
-  const [cryptoPaymentCompleted] = useMutation(CRYPTO_PAYMENT_COMPLETED);
+  // Track if donation callback has been called to prevent infinite loop
+  const donationCallbackRef = useRef<boolean>(false);
 
-  // Access donation store
-  const { startDonation, completeDonation } = useDonationStore();
+  // Access donation store for state tracking
+  const {
+    isProcessing,
+    currentDonation,
+    error: donationError,
+    resetDonation,
+    resetError,
+  } = useDonationStore();
+
+  // Monitor donation status changes but with safeguard against multiple callbacks
+  useEffect(() => {
+    // Only proceed if we have a completed donation with signature AND the callback hasn't already been called
+    if (
+      currentDonation &&
+      currentDonation.status === "completed" &&
+      currentDonation.signature &&
+      onDonationComplete &&
+      !donationCallbackRef.current
+    ) {
+      // Set the ref to true to prevent calling the callback again for this donation
+      donationCallbackRef.current = true;
+
+      // Call the parent's completion handler
+      onDonationComplete(
+        currentDonation.signature,
+        currentDonation.lamports
+      ).catch((err) => {
+        console.error("Error in donation completion:", err);
+        setError(
+          err instanceof Error ? err.message : "Failed to complete donation"
+        );
+        // Reset our flag if there was an error
+        donationCallbackRef.current = false;
+      });
+    }
+  }, [currentDonation, onDonationComplete]);
+
+  // Reset when donation state changes to non-completed
+  useEffect(() => {
+    if (!currentDonation || currentDonation.status === "idle") {
+      donationCallbackRef.current = false;
+    }
+  }, [currentDonation]);
+
+  // Reset state when component mounts
+  useEffect(() => {
+    // Reset on mount
+    donationCallbackRef.current = false;
+    return () => {
+      // Reset on unmount
+      resetDonation();
+    };
+  }, [resetDonation]);
 
   // Handle Stripe Checkout
   const handleStripeCheckout = async (
@@ -61,6 +106,10 @@ const PaymentComponent: React.FC<PaymentComponentProps> = ({
     setError(null);
 
     try {
+      if (onInitiateDonation) {
+        onInitiateDonation();
+      }
+
       const { data } = await axios.post("/api/create-checkout-session", {
         amount: amount * 100, // Convert to cents for Stripe
         currency: "usd",
@@ -83,84 +132,39 @@ const PaymentComponent: React.FC<PaymentComponentProps> = ({
   const handleBack = () => {
     setPaymentMethod(null);
     setError(null);
+    resetError(); // Reset donation store error
   };
 
-  // Custom handler for when Solana payment is initiated
-  const handleSolanaInitiate = async () => {
-    setLoading(true);
-    setError(null);
+  // Handle donation completion from SolanaPayButton - Added safeguard against multiple calls
+  const handleSolanaComplete = async (signature: string, lamports: number) => {
+    // Skip if we've already processed this donation
+    if (donationCallbackRef.current) {
+      return;
+    }
 
-    try {
-      // Step 1: Create a pending donation record in the database FIRST
-      const donationResult = await createCryptoDonation({
-        variables: {
-          beneficiaryId: parseInt(beneficiaryId.toString()),
-          amountInLamports: Math.round(amount * LAMPORTS_PER_SOL), // Approximate amount in lamports
-          tokenCode: "USD",
-        },
-      });
-      console.log("Donation result:", donationResult);
-
-      const newDonationId = donationResult.data.createCryptoDonation.id;
-      setDonationId(newDonationId);
-
-      // Call the onInitiateDonation from props if available
-      if (onInitiateDonation) {
-        onInitiateDonation();
+    // Just forward to parent component's callback if provided
+    if (onDonationComplete) {
+      donationCallbackRef.current = true;
+      try {
+        await onDonationComplete(signature, lamports);
+      } catch (err) {
+        donationCallbackRef.current = false;
+        console.error("Error completing donation:", err);
+        setError(
+          err instanceof Error
+            ? err.message
+            : "An error occurred while completing your donation."
+        );
       }
-
-      // Update the donation store
-      startDonation(beneficiaryId, amount);
-
-      return newDonationId;
-    } catch (err) {
-      console.error("Error creating donation record:", err);
-      setError(
-        err instanceof Error
-          ? err.message
-          : "An error occurred while initializing your donation."
-      );
-      setLoading(false);
-      return null;
     }
   };
 
-  // Custom handler for when Solana payment is completed
-  const handleSolanaComplete = async (signature: string, lamports: number) => {
-    try {
-      if (!donationId) {
-        throw new Error(
-          "No donation ID found. The donation record was not created properly."
-        );
-      }
-
-      // Mark payment as completed with the transaction hash
-      await cryptoPaymentCompleted({
-        variables: {
-          donationId: donationId,
-          txHash: signature,
-        },
-      });
-
-      // Update the donation store
-      completeDonation(signature, lamports);
-
-      // Call the onDonationComplete callback if provided
-      if (onDonationComplete) {
-        await onDonationComplete(signature, lamports);
-      }
-
-      // At this point, the transaction is complete and recorded in your backend
-      // SolanaPayButton will handle the redirect to the success page
-    } catch (err) {
-      console.error("Error processing donation completion:", err);
-      setError(
-        err instanceof Error
-          ? err.message
-          : "An error occurred while finalizing your donation."
-      );
-    } finally {
-      setLoading(false);
+  // Handle cancel
+  const handleCancel = () => {
+    resetDonation(); // Clear donation state
+    donationCallbackRef.current = false;
+    if (onCancel) {
+      onCancel();
     }
   };
 
@@ -179,7 +183,7 @@ const PaymentComponent: React.FC<PaymentComponentProps> = ({
             size="large"
             fullWidth
             sx={{
-              backgroundColor: "#6B48FF", // Match the purple color from your screenshot
+              backgroundColor: "#6B48FF",
               "&:hover": { backgroundColor: "#5A3EDB" },
             }}
           >
@@ -192,34 +196,22 @@ const PaymentComponent: React.FC<PaymentComponentProps> = ({
       );
     } else if (paymentMethod === "solana") {
       return (
-        <WalletProvider>
-          <Box display="flex" flexDirection="column" gap={2} width="100%">
-            <WalletConnectButton />
-            {loading && !donationId ? (
-              <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
-                <CircularProgress size={30} />
-              </Box>
-            ) : (
-              <SolanaPayButton
-                amount={amount}
-                donationId={donationId ? donationId : "0"}
-                onInitiateDonation={async () => {
-                  const createdDonationId = await handleSolanaInitiate();
-                  return createdDonationId;
-                }}
-                onDonationComplete={handleSolanaComplete}
-              />
-            )}
-            <Button
-              variant="outlined"
-              onClick={handleBack}
-              size="medium"
-              disabled={loading}
-            >
-              Back
-            </Button>
-          </Box>
-        </WalletProvider>
+        <Box display="flex" flexDirection="column" gap={2} width="100%">
+          <WalletConnectButton />
+          <SolanaPayButton
+            amount={amount}
+            beneficiaryId={beneficiaryId}
+            onDonationComplete={handleSolanaComplete}
+          />
+          <Button
+            variant="outlined"
+            onClick={handleBack}
+            size="medium"
+            disabled={isProcessing}
+          >
+            Back
+          </Button>
+        </Box>
       );
     }
 
@@ -233,7 +225,7 @@ const PaymentComponent: React.FC<PaymentComponentProps> = ({
           size="large"
           fullWidth
           sx={{
-            backgroundColor: "#6B48FF", // Match the purple color from your screenshot
+            backgroundColor: "#6B48FF",
             "&:hover": { backgroundColor: "#5A3EDB" },
           }}
         >
@@ -253,7 +245,7 @@ const PaymentComponent: React.FC<PaymentComponentProps> = ({
           size="large"
           fullWidth
           sx={{
-            backgroundColor: "#6B48FF", // Match the purple color from your screenshot
+            backgroundColor: "#6B48FF",
             "&:hover": { backgroundColor: "#5A3EDB" },
           }}
         >
@@ -290,7 +282,7 @@ const PaymentComponent: React.FC<PaymentComponentProps> = ({
             startAdornment: <InputAdornment position="start">$</InputAdornment>,
           }}
           inputProps={{ min: 1, step: 0.01 }}
-          disabled={paymentMethod !== null} // This will be updated in Step 2
+          disabled={paymentMethod !== null || isProcessing}
           variant="outlined"
           margin="normal"
           sx={{
@@ -305,11 +297,13 @@ const PaymentComponent: React.FC<PaymentComponentProps> = ({
         />
       </Box>
 
-      {renderPaymentMethod()}
+      {/* Wrap with WalletProvider at the component level */}
+      <WalletProvider>{renderPaymentMethod()}</WalletProvider>
 
-      {error && (
+      {/* Show error from local state or donation store */}
+      {(error || donationError) && (
         <Alert severity="error" sx={{ mt: 2 }}>
-          {error}
+          {error || donationError}
         </Alert>
       )}
 
@@ -328,6 +322,12 @@ const PaymentComponent: React.FC<PaymentComponentProps> = ({
             4242 4242 4242 4242
           </Box>
         </Typography>
+      </Box>
+
+      <Box sx={{ mt: 3, display: "flex", justifyContent: "flex-end" }}>
+        <Button onClick={handleCancel} color="primary">
+          Cancel
+        </Button>
       </Box>
     </Paper>
   );

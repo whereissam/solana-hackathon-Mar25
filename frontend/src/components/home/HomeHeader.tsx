@@ -9,7 +9,7 @@ const HomeHeader: React.FC = () => {
   const router = useRouter();
 
   const handleDonateClick = () => {
-    router.push("/donate");
+    router.push("/charities");
   };
 
   const rotatingWords = ["Generosity", "Impact", "Kindness"];
