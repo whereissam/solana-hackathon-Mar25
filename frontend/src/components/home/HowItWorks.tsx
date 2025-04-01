@@ -1,7 +1,7 @@
-// src/components/home/HowItWorks.tsx
 import React from "react";
 import { Box, Typography } from "@mui/material";
-import Carousel from "react-material-ui-carousel";
+import { Carousel } from "react-responsive-carousel";
+import "react-responsive-carousel/lib/styles/carousel.min.css"; // Import carousel styles
 import { sectionStyle } from "@/styles/common";
 import Image from "next/image";
 
@@ -54,38 +54,41 @@ const HowItWorks: React.FC = () => {
           height={600}
         />
       </Box>
-      <Carousel
-        duration={1000}
-        autoPlay={true}
-        interval={2000}
-        animation="slide"
-        sx={{
-          display: { lg: "none" },
-          width: 1,
-          textAlign: "center",
-          minHeight: "702px",
-        }}
-      >
-        <Image
-          src="/img/howItWorks_1.png"
-          alt="Step 1"
-          width={400}
-          height={600}
-          priority
-        />
-        <Image
-          src="/img/howItWorks_2.png"
-          alt="Step 2"
-          width={400}
-          height={600}
-        />
-        <Image
-          src="/img/howItWorks_3.png"
-          alt="Step 3"
-          width={400}
-          height={600}
-        />
-      </Carousel>
+      <Box sx={{ display: { lg: "none" }, width: 1, textAlign: "center" }}>
+        <Carousel
+          showThumbs={false} // Hide thumbnails
+          showStatus={false} // Hide status indicators
+          infiniteLoop={true} //loop the carousel
+          autoPlay={true}
+          interval={2000}
+        >
+          <div style={{ minHeight: "600px" }}>
+            <Image
+              src="/img/howItWorks_1.png"
+              alt="Step 1"
+              width={400}
+              height={600}
+              priority
+            />
+          </div>
+          <div style={{ minHeight: "600px" }}>
+            <Image
+              src="/img/howItWorks_2.png"
+              alt="Step 2"
+              width={400}
+              height={600}
+            />
+          </div>
+          <div style={{ minHeight: "600px" }}>
+            <Image
+              src="/img/howItWorks_3.png"
+              alt="Step 3"
+              width={400}
+              height={600}
+            />
+          </div>
+        </Carousel>
+      </Box>
     </Box>
   );
 };
