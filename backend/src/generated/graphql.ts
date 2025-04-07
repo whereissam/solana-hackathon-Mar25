@@ -15,6 +15,7 @@ export type Scalars = {
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
   BigInt: { input: any; output: any; }
+  DateTime: { input: any; output: any; }
   Upload: { input: any; output: any; }
 };
 
@@ -87,9 +88,13 @@ export type CharityUser = {
 export type Donation = {
   __typename?: 'Donation';
   amount: Scalars['BigInt']['output'];
+  created_at: Scalars['DateTime']['output'];
   currency: Scalars['String']['output'];
   id: Scalars['String']['output'];
+  payment_id?: Maybe<Scalars['String']['output']>;
+  receipt_addr?: Maybe<Scalars['String']['output']>;
   status: DonationStatus;
+  type: DonationType;
 };
 
 export enum DonationStatus {
@@ -97,6 +102,11 @@ export enum DonationStatus {
   Completed = 'completed',
   Paid = 'paid',
   Pending = 'pending'
+}
+
+export enum DonationType {
+  Crypto = 'crypto',
+  Fiat = 'fiat'
 }
 
 export type Donor = {
@@ -331,8 +341,10 @@ export type ResolversTypes = {
   Charity: ResolverTypeWrapper<Charity>;
   CharitySector: CharitySector;
   CharityUser: ResolverTypeWrapper<CharityUser>;
+  DateTime: ResolverTypeWrapper<Scalars['DateTime']['output']>;
   Donation: ResolverTypeWrapper<Donation>;
   DonationStatus: DonationStatus;
+  DonationType: DonationType;
   Donor: ResolverTypeWrapper<Donor>;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
@@ -359,6 +371,7 @@ export type ResolversParentTypes = {
   Boolean: Scalars['Boolean']['output'];
   Charity: Charity;
   CharityUser: CharityUser;
+  DateTime: Scalars['DateTime']['output'];
   Donation: Donation;
   Donor: Donor;
   Float: Scalars['Float']['output'];
@@ -433,11 +446,19 @@ export type CharityUserResolvers<ContextType = any, ParentType extends Resolvers
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export interface DateTimeScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['DateTime'], any> {
+  name: 'DateTime';
+}
+
 export type DonationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Donation'] = ResolversParentTypes['Donation']> = {
   amount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  created_at?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  payment_id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  receipt_addr?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   status?: Resolver<ResolversTypes['DonationStatus'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['DonationType'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -491,6 +512,7 @@ export type Resolvers<ContextType = any> = {
   BigInt?: GraphQLScalarType;
   Charity?: CharityResolvers<ContextType>;
   CharityUser?: CharityUserResolvers<ContextType>;
+  DateTime?: GraphQLScalarType;
   Donation?: DonationResolvers<ContextType>;
   Donor?: DonorResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;

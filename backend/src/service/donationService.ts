@@ -52,15 +52,17 @@ const donationService = {
             const donation = await prisma.donation.findUniqueOrThrow({
                 where: { id: donationId }
             })
+            const solResult = await mintReceipt(donationId)
             await prisma.donation.update({
                 where: { id: donationId },
                 data: {
                     status: DonationStatus.completed,
                     updated_at: new Date(),
                     payment_id: txHash,
+                    receipt_addr: solResult.assetKey,
                 }
             })
-            return await mintReceipt(donationId)
+            return solResult
         } catch (error) {
             if (error instanceof PrismaClientKnownRequestError && error.code === 'P2023') {
                 throw "invalid donation id"

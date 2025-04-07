@@ -6,11 +6,12 @@ import donationResolver from './donationResolver'
 import { resolverWrapper, ResolverFunctionType } from './resolverWrapper'
 import { GraphQLError } from 'graphql'
 import { PrismaClientKnownRequestError, PrismaClientValidationError } from '@prisma/client/runtime/library'
-import {BigIntResolver} from 'graphql-scalars'
+import { BigIntResolver, DateTimeResolver } from 'graphql-scalars'
 
 const resolvers = mergeResolvers([
     { Upload: GraphQLUpload },
     { BigInt: BigIntResolver },
+    { DateTime: DateTimeResolver },
     authentication,
     resolverWrapper(charityResolver, errorHandler),
     resolverWrapper(donationResolver, errorHandler)
@@ -30,7 +31,7 @@ function errorHandler(this: any, f: ResolverFunctionType) {
                     }
                 })
             }
-            if (err instanceof PrismaClientValidationError){
+            if (err instanceof PrismaClientValidationError) {
                 throw new GraphQLError("Error", {
                     extensions: {
                         detail: err.message

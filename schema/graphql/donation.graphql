@@ -5,11 +5,20 @@ enum DonationStatus {
     cancelled
 }
 
+enum DonationType {
+    crypto
+    fiat
+}
+
 type Donation {
     id: String!
     amount: BigInt!
     currency: String!
+    type: DonationType!
     status: DonationStatus!
+    created_at: DateTime!
+    payment_id: String
+    receipt_addr: String
 }
 
 type Query {

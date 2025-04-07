@@ -78,7 +78,7 @@ async function createCollection(){
     }
 }
 
-async function mintReceipt(donationId: string) {
+async function mintReceipt(donationId: string): Promise<{assetKey: string, signature: string}> {
     try {
         const {umi, signer} = getContext()
         

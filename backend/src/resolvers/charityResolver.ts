@@ -22,7 +22,6 @@ const resolver = {
             return await charityService.getCharities(query)
         },
         beneficiary: async (_parent, { id }: QueryBeneficiaryArgs) => {
-
             return await charityService.getBeneficiaryById(id)
         },
     },
