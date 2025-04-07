@@ -44,14 +44,13 @@ const donationService = {
     cryptoPaymentCompleted: async (donationId: string, txHash: string) => {
         try {
             const memo = JSON.parse(await getSolanaMemo(txHash)) as IDonationMemo
-            // Check db for donation
-            // TODO: check user id as well
-            console.log(donationId)
+            if (memo.DonationId != donationId)
+                throw "Donation ID in payment does not match"
 
-            // TODO: Use memo id instead
             const donation = await prisma.donation.findUniqueOrThrow({
                 where: { id: donationId }
             })
+            
             const solResult = await mintReceipt(donationId)
             await prisma.donation.update({
                 where: { id: donationId },
