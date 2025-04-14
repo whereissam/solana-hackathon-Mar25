@@ -431,6 +431,8 @@ export default function CharityDetailsPage({
               userIsAdmin={userIsAdmin}
               onAddClick={handleOpenModal}
               onBeneficiaryClick={navigateToBeneficiary}
+              charityId={charityId || 0}
+              onImportComplete={() => refetch()}
             />
           </Grid>
         </Grid>
