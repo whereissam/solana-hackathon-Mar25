@@ -15,6 +15,8 @@ export const CREATE_CRYPTO_DONATION = gql`
       currency
       id
       status
+      payment_id
+      receipt_addr
     }
   }
 `;

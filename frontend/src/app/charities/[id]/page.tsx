@@ -350,6 +350,11 @@ export default function CharityDetailsPage({
   // Check if user is admin for this charity
   const userIsAdmin = isCharityAdmin(charity);
 
+  const handleBeneficiaryCreated = () => {
+    // Refetch the beneficiaries data to update the list
+    refetch();
+  };
+
   return (
     <Box
       sx={{
@@ -442,6 +447,7 @@ export default function CharityDetailsPage({
           open={isModalOpen}
           onClose={handleCloseModal}
           charityId={charityId || 0}
+          onBeneficiaryCreated={handleBeneficiaryCreated}
         />
       </Container>
     </Box>

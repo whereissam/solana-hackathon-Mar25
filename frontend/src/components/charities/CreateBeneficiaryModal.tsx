@@ -23,6 +23,7 @@ interface CreateBeneficiaryModalProps {
   open: boolean;
   onClose: () => void;
   charityId: number;
+  onBeneficiaryCreated?: () => void;
 }
 
 interface BeneficiaryFormData {
@@ -36,6 +37,7 @@ const CreateBeneficiaryModal: React.FC<CreateBeneficiaryModalProps> = ({
   open,
   onClose,
   charityId,
+  onBeneficiaryCreated,
 }) => {
   // Form state
   const [formData, setFormData] = useState<BeneficiaryFormData>({
@@ -133,6 +135,10 @@ const CreateBeneficiaryModal: React.FC<CreateBeneficiaryModalProps> = ({
       // Show success message
       setSuccessMessage("Beneficiary successfully created!");
 
+      if (onBeneficiaryCreated) {
+        onBeneficiaryCreated();
+      }
+
       // Reset form after successful submission
       setFormData({
         first_name: "",
@@ -179,7 +185,7 @@ const CreateBeneficiaryModal: React.FC<CreateBeneficiaryModalProps> = ({
         sx: {
           backgroundColor: "#111",
           color: "white",
-          borderRadius: 2,
+          borderRadius: 1,
         },
       }}
     >

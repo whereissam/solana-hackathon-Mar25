@@ -10,22 +10,39 @@ import {
   Grid,
   Container,
   Skeleton,
+  Chip,
 } from "@mui/material";
 import Link from "next/link";
+import { useQuery } from "@apollo/client";
 import AppBar from "@/components/AppBar";
+import { useAuthStore } from "@/store/authStore";
+import { GET_DONATIONS } from "@/lib/queries/donation-queries";
 
 // Define the donation receipt interface
 interface DonationReceipt {
   id: string;
-  date: Date;
-  donatee: string;
+  created_at: string;
   amount: number;
   currency: string;
-  donationType: string;
-  signature: string;
+  payment_id: string;
+  receipt_addr: string;
+  status: string;
+  type: string;
 }
 
-// Skeleton card for loading state - updated to match actual card layout
+// Format currency amount
+const formatAmount = (amount: number, currency: string) => {
+  // Handle SOLANA or other crypto values that might be in lamports or similar small units
+  if (currency === "USD" || currency === "EUR" || currency === "€") {
+    // For crypto amounts that are represented in the smallest unit (like lamports for SOL)
+    // We're assuming donations in USD are stored in cents
+    return `${currency === "€" ? currency : currency + " "}${(amount / 100000000).toFixed(2)}`;
+  }
+
+  return `${currency} ${amount}`;
+};
+
+// Skeleton card for loading state
 const ReceiptCardSkeleton = () => (
   <Card
     sx={{
@@ -104,69 +121,84 @@ const FixedOneTimeDonationIcon = () => (
   </svg>
 );
 
+// Recurring donation icon
+const RecurringDonationIcon = () => (
+  <svg
+    width="53"
+    height="54"
+    viewBox="0 0 53 54"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M26.5 51C39.7548 51 50.5 40.2548 50.5 27C50.5 13.7452 39.7548 3 26.5 3C13.2452 3 2.5 13.7452 2.5 27C2.5 40.2548 13.2452 51 26.5 51Z"
+      stroke="#903DF4"
+      strokeWidth="5"
+    />
+    <path
+      d="M15 27C15 33.0751 19.9249 38 26 38C32.0751 38 37 33.0751 37 27C37 20.9249 32.0751 16 26 16"
+      stroke="#903DF4"
+      strokeWidth="5"
+      strokeLinecap="round"
+    />
+    <path
+      d="M26 16L21 21M26 16L31 21"
+      stroke="#903DF4"
+      strokeWidth="5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
 export default function ReceiptsPage() {
+  const { user, token, isAuthenticated } = useAuthStore();
   const [isMounted, setIsMounted] = React.useState(false);
-
-  // Simulate loading state for demonstration
-  const [isFetching, setIsFetching] = React.useState(true);
-
-  // Mock data - replace with your actual data fetching logic
-  const receipts: DonationReceipt[] = [
-    {
-      id: "1",
-      date: new Date(),
-      donatee: "Example Donatee",
-      amount: 100,
-      currency: "€",
-      donationType: "One time Donation",
-      signature: "example-signature",
-    },
-    {
-      id: "2",
-      date: new Date(Date.now() - 86400000), // yesterday
-      donatee: "Local Food Bank",
-      amount: 25,
-      currency: "€",
-      donationType: "Monthly Donation",
-      signature: "food-bank-signature",
-    },
-    {
-      id: "3",
-      date: new Date(Date.now() - 86400000 * 3), // 3 days ago
-      donatee: "Education Fund",
-      amount: 75,
-      currency: "€",
-      donationType: "One time Donation",
-      signature: "education-signature",
-    },
-  ];
 
   React.useEffect(() => {
     setIsMounted(true);
-    // Simulate data fetching
-    const timer = setTimeout(() => {
-      setIsFetching(false);
-    }, 1500);
-    return () => clearTimeout(timer);
   }, []);
 
+  // Use Apollo client to fetch donations
+  const { loading, error, data } = useQuery(GET_DONATIONS, {
+    variables: { donorId: user?.id ? parseInt(user.id) : 1 },
+    skip: !isAuthenticated || !token,
+    fetchPolicy: "network-only",
+  });
+
+  // Generate donation type display name
+  const getDonationTypeDisplay = (type: string) => {
+    switch (type?.toLowerCase()) {
+      case "crypto":
+        return "Crypto Donation";
+      case "recurring":
+        return "Monthly Donation";
+      default:
+        return "One Time Donation";
+    }
+  };
+
   // Group receipts by date
-  const groupedReceipts = React.useMemo(() => {
+  const groupedDonations = React.useMemo(() => {
+    if (!data?.donations) return [];
+
     const groups: Record<string, DonationReceipt[]> = {};
 
-    receipts.forEach((receipt) => {
-      const dateKey = receipt.date.toLocaleDateString();
+    data.donations.forEach((donation: DonationReceipt) => {
+      const date = new Date(donation.created_at);
+      const dateKey = date.toLocaleDateString();
+
       if (!groups[dateKey]) {
         groups[dateKey] = [];
       }
-      groups[dateKey].push(receipt);
+      groups[dateKey].push(donation);
     });
 
     return Object.entries(groups).map(([date, items]) => ({
       date,
       items,
     }));
-  }, [receipts]);
+  }, [data]);
 
   // Only render a minimal placeholder during server-side rendering
   if (!isMounted) {
@@ -183,6 +215,8 @@ export default function ReceiptsPage() {
       />
     );
   }
+
+  const showLoginMessage = !isAuthenticated || !token;
 
   return (
     <Box
@@ -242,36 +276,74 @@ export default function ReceiptsPage() {
           </Typography>
         </Box>
 
-        {isFetching ? (
-          // Show skeleton groups with the same layout as real content
-          groupedReceipts.map((group, groupIndex) => (
-            <Box key={`skeleton-group-${groupIndex}`} sx={{ mb: 4 }}>
-              <Skeleton
-                animation="wave"
-                height={32}
-                width="20%"
-                sx={{ mb: 2, bgcolor: "rgba(255, 255, 255, 0.2)" }}
-              />
-              <Grid container spacing={3}>
-                {Array.from(new Array(group.items.length)).map(
-                  (_, itemIndex) => (
-                    <Grid
-                      item
-                      xs={12}
-                      sm={6}
-                      md={6}
-                      key={`skeleton-item-${groupIndex}-${itemIndex}`}
-                    >
-                      <ReceiptCardSkeleton />
-                    </Grid>
-                  )
-                )}
-              </Grid>
-            </Box>
-          ))
-        ) : groupedReceipts.length > 0 ? (
-          // Show actual donation receipts when data is loaded
-          groupedReceipts.map((group, groupIndex) => (
+        {showLoginMessage ? (
+          <Box sx={{ textAlign: "center", my: 6, py: 4 }}>
+            <Typography variant="h5" sx={{ mb: 2 }}>
+              Please log in to view your donations
+            </Typography>
+            <Typography sx={{ mb: 3, color: "rgba(255, 255, 255, 0.7)" }}>
+              You need to be logged in to access your donation history
+            </Typography>
+            <Button
+              variant="contained"
+              sx={{
+                bgcolor: "rgb(103, 58, 183)",
+                borderRadius: "30px",
+                px: 4,
+                "&:hover": {
+                  bgcolor: "rgb(83, 38, 163)",
+                },
+              }}
+              onClick={() => (window.location.href = "/login")}
+            >
+              Login
+            </Button>
+          </Box>
+        ) : loading ? (
+          // Show skeleton loader
+          <Box sx={{ mb: 4 }}>
+            <Skeleton
+              animation="wave"
+              height={32}
+              width="20%"
+              sx={{ mb: 2, bgcolor: "rgba(255, 255, 255, 0.2)" }}
+            />
+            <Grid container spacing={3}>
+              {Array.from(new Array(2)).map((_, index) => (
+                <Grid item xs={12} sm={6} md={6} key={`skeleton-${index}`}>
+                  <ReceiptCardSkeleton />
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+        ) : error ? (
+          // Show error state
+          <Box sx={{ textAlign: "center", my: 6, py: 4 }}>
+            <Typography variant="h5" sx={{ mb: 2, color: "error.main" }}>
+              Error loading donations
+            </Typography>
+            <Typography sx={{ mb: 3, color: "rgba(255, 255, 255, 0.7)" }}>
+              {error.message ||
+                "An error occurred while fetching your donations. Please try again later."}
+            </Typography>
+            <Button
+              variant="contained"
+              sx={{
+                bgcolor: "rgb(103, 58, 183)",
+                borderRadius: "30px",
+                px: 4,
+                "&:hover": {
+                  bgcolor: "rgb(83, 38, 163)",
+                },
+              }}
+              onClick={() => window.location.reload()}
+            >
+              Retry
+            </Button>
+          </Box>
+        ) : groupedDonations.length > 0 ? (
+          // Show actual donation receipts
+          groupedDonations.map((group, groupIndex) => (
             <Box key={groupIndex} sx={{ mb: 4 }}>
               <Typography
                 variant="h6"
@@ -285,8 +357,8 @@ export default function ReceiptsPage() {
                 {group.date}
               </Typography>
               <Grid container spacing={3}>
-                {group.items.map((receipt) => (
-                  <Grid item xs={12} sm={6} md={6} key={receipt.id}>
+                {group.items.map((donation) => (
+                  <Grid item xs={12} sm={6} md={6} key={donation.id}>
                     <Card
                       sx={{
                         height: "100%",
@@ -321,20 +393,45 @@ export default function ReceiptsPage() {
                             height: 48,
                           }}
                         >
-                          <FixedOneTimeDonationIcon />
+                          {donation.type === "recurring" ? (
+                            <RecurringDonationIcon />
+                          ) : (
+                            <FixedOneTimeDonationIcon />
+                          )}
                         </Box>
                         <Box sx={{ flexGrow: 1 }}>
-                          <Typography
+                          <Box
                             sx={{
-                              fontSize: 18,
-                              fontWeight: 700,
-                              color: "#333",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1,
+                              mb: 0.5,
                             }}
                           >
-                            {receipt.donatee}
-                          </Typography>
+                            <Typography
+                              sx={{
+                                fontSize: 18,
+                                fontWeight: 700,
+                                color: "#333",
+                              }}
+                            >
+                              {donation.type === "crypto"
+                                ? "Crypto Donation"
+                                : "Charity Donation"}
+                            </Typography>
+                            <Chip
+                              label={donation.status}
+                              size="small"
+                              color={
+                                donation.status === "completed"
+                                  ? "success"
+                                  : "warning"
+                              }
+                              sx={{ height: 20, fontSize: "0.7rem" }}
+                            />
+                          </Box>
                           <Typography sx={{ color: "#666" }}>
-                            {receipt.donationType}
+                            {getDonationTypeDisplay(donation.type)}
                           </Typography>
                         </Box>
                         <Typography
@@ -344,12 +441,12 @@ export default function ReceiptsPage() {
                             color: "rgb(103, 58, 183)",
                           }}
                         >
-                          {receipt.currency} {receipt.amount}
+                          {formatAmount(donation.amount, donation.currency)}
                         </Typography>
                       </CardContent>
                       <Box sx={{ px: 2, pb: 2, mt: "auto" }}>
                         <Link
-                          href={`https://explorer.solana.com/address/${receipt.signature}?cluster=devnet#metadata`}
+                          href={`https://explorer.solana.com/address/${donation.receipt_addr}?cluster=devnet`}
                           target="_blank"
                           passHref
                           style={{ textDecoration: "none" }}
@@ -367,7 +464,7 @@ export default function ReceiptsPage() {
                               },
                             }}
                           >
-                            View NFT
+                            View NFT Receipt
                           </Button>
                         </Link>
                       </Box>
