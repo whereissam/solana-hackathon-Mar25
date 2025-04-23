@@ -1,5 +1,6 @@
 import { Router } from "express"
 import { ActionType, ActionGetResponse, LinkedAction, ActionPostResponse } from "@solana/actions"
+import { SystemProgram, Transaction } from "@solana/web3.js";
 
 const router = Router()
 
@@ -13,7 +14,7 @@ router.get('/', async (req, res) => {
             actions: [
                 {
                     href: "https://solana-hackathon-mar25.onrender.com/solana-actions/donate",
-                    label: "Donate in USD",
+                    label: "Donate in SOL",
                     parameters: [{
                         type: "text",
                         name: "amount",
@@ -31,11 +32,20 @@ router.get('/', async (req, res) => {
 
 router.post('/donate', async (req, res) => {
     console.log("Received donation request", req.body)
+    const transaction = new Transaction()
+    const sendSolanaTransaction = SystemProgram.transfer({
+        fromPubkey: req.body.account,
+        toPubkey: req.body.account,
+        lamports: req.body.amount * 1000000000,
+    })
+    transaction.add(sendSolanaTransaction)
+    
     const postResponse: ActionPostResponse = {
         type: "transaction",
-        transaction: "4pjka9zGtydSkoJ2w6gtZkFHRjZrg35e5WVoLBdVeaqpM1iRuSEi8VoXjQPQXJT7fTVgdThwVrL7VzH7s6RuaPrj",
+        transaction: transaction.serialize().toString('base64'),
         message: "Donation Successful",
     }
+    console.log("Post response", postResponse)
     return res.json(postResponse).status(200);
 });
 
