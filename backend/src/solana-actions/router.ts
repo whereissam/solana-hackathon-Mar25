@@ -40,7 +40,7 @@ router.post('/donate', async (req, res) => {
     try {
         console.log("Received donation request", req.body);
 
-        const conn = new Connection("https://api.mainnet-beta.solana.com", "confirmed");
+        const conn = new Connection("https://api.devnet.solana.com", "confirmed");
         const latestBlockhash = await conn.getLatestBlockhash();
 
         // Parse the amount and convert to lamports
