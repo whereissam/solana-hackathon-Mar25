@@ -50,7 +50,7 @@ async function startup() {
       }
     })
   })
-  app.use(graphqlUploadExpress())
+  app.use(graphqlUploadExpress() as unknown as express.RequestHandler)
   app.use('/', expressMiddleware(server,{
     context: async ({req}) => { 
       if (!req.headers.token) return {token: null, user: null}
