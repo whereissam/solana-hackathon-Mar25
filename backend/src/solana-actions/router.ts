@@ -1,6 +1,7 @@
 import { Router } from "express"
 import { ActionType, ActionGetResponse, LinkedAction, ActionPostResponse } from "@solana/actions"
 import { SystemProgram, Transaction } from "@solana/web3.js";
+import { amountToNumber } from "@metaplex-foundation/umi";
 
 const router = Router()
 
@@ -33,10 +34,12 @@ router.get('/', async (req, res) => {
 router.post('/donate', async (req, res) => {
     console.log("Received donation request", req.body)
     const transaction = new Transaction()
+    const amountInCents = Math.floor(parseFloat(req.body.amount) * 100) 
+
     const sendSolanaTransaction = SystemProgram.transfer({
         fromPubkey: req.body.account,
         toPubkey: req.body.account,
-        lamports: req.body.amount * 10000,
+        lamports: BigInt(amountInCents * 10000000),
     })
     transaction.add(sendSolanaTransaction)
     
