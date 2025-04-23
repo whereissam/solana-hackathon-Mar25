@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { ActionType, ActionGetResponse, LinkedAction } from "@solana/actions"
+import { ActionType, ActionGetResponse, LinkedAction, ActionPostResponse } from "@solana/actions"
 
 const router = Router()
 
@@ -18,8 +18,8 @@ router.get('/', async (req, res) => {
                         type: "text",
                         name: "amount",
                         required: true,
-                        min: 1,
                         pattern: "^[0-9]+$",
+                        patternDescription: "Please enter a number",
                     }],
                     type: "transaction",
                 }
@@ -27,6 +27,16 @@ router.get('/', async (req, res) => {
         }
     }
     res.json(action).status(200)
+});
+
+router.post('/donate', async (req, res) => {
+    console.log("Received donation request", req.body)
+    const postResponse: ActionPostResponse = {
+        type: "transaction",
+        transaction: "4pjka9zGtydSkoJ2w6gtZkFHRjZrg35e5WVoLBdVeaqpM1iRuSEi8VoXjQPQXJT7fTVgdThwVrL7VzH7s6RuaPrj",
+        message: "Donation Successful",
+    }
+    return res.json(postResponse).status(200);
 });
 
 export default router
