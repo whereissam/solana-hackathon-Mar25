@@ -36,7 +36,7 @@ router.post('/donate', async (req, res) => {
     const sendSolanaTransaction = SystemProgram.transfer({
         fromPubkey: req.body.account,
         toPubkey: req.body.account,
-        lamports: req.body.amount * 1000000000,
+        lamports: req.body.amount * 10000,
     })
     transaction.add(sendSolanaTransaction)
     
