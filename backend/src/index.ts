@@ -11,6 +11,7 @@ import { loadFilesSync } from '@graphql-tools/load-files'
 import path from 'path'
 import resolvers from './resolvers/resolvers'
 import jwt from 'jsonwebtoken'
+import solanaActionRouter from './solana-actions/router'
 
 dotenv.config()
 
@@ -51,6 +52,7 @@ async function startup() {
     })
   })
   app.use(graphqlUploadExpress() as unknown as express.RequestHandler)
+  app.use('/solana-actions', solanaActionRouter)
   app.use('/', expressMiddleware(server,{
     context: async ({req}) => { 
       if (!req.headers.token) return {token: null, user: null}
