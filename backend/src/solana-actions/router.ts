@@ -27,11 +27,11 @@ router.get('/', async (req, res) => {
             ]
         }
     };
-    res.json(action).status(200).header("Access-Control-Allow-Origin", "*");
+    return res.header("Access-Control-Allow-Origin", "*").status(200).json(action);
 });
 
 router.options('/', (req, res) => {
-    res.header("Access-Control-Allow-Origin", "*")
+    return res.header("Access-Control-Allow-Origin", "*")
         .header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT")
         .header("Access-Control-Allow-Headers", "Content-Type, Authorization, Content-Encoding, Accept-Encoding");
 });
@@ -79,7 +79,7 @@ router.post('/donate', async (req, res) => {
         };
 
         console.log("Post response", postResponse);
-        return res.json(postResponse).status(200);
+        return res.status(200).json(postResponse);
     } catch (error) {
         console.error("Error processing donation:", error);
         res.status(500).json({ error: "Failed to create transaction" });
