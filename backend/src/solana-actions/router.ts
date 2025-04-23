@@ -31,10 +31,13 @@ router.get('/', async (req, res) => {
     res.json(action).status(200)
 });
 
+
+
 router.post('/donate', async (req, res) => {
     console.log("Received donation request", req.body)
+
     const transaction = new Transaction()
-    const amountInCents = Math.floor(parseFloat(req.body.amount) * 100) 
+    const amountInCents = Math.floor(parseFloat(req.body.data.amount) * 100) 
 
     const sendSolanaTransaction = SystemProgram.transfer({
         fromPubkey: req.body.account,
