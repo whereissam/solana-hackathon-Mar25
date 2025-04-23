@@ -3,14 +3,7 @@ import { DonationStatus, DonationType, Prisma } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import charityService from './charityService'
 import { connect } from 'http2'
-import { getSolanaMemo, mintReceipt} from './solanaService'
-
-interface IDonationMemo {
-    DonationId: string,
-    Ver: string,
-    Amount: number,
-    Currency: string
-}
+import { getTransferDetail, mintReceipt, ITransferDetail, IDonationMemo} from './solanaService'
 
 const donationService = {
     createCryptoDonation: async (
@@ -43,15 +36,17 @@ const donationService = {
     },
     cryptoPaymentCompleted: async (donationId: string, txHash: string) => {
         try {
-            const memo = JSON.parse(await getSolanaMemo(txHash)) as IDonationMemo
-            if (memo.DonationId != donationId)
+            const {feePayer, solanaMemo } = await getTransferDetail(txHash)
+            console.log("feePayer", feePayer)
+            console.log("solanaMemo", solanaMemo, solanaMemo.Amount, solanaMemo.DonationId)
+            if (solanaMemo.DonationId != donationId)
                 throw "Donation ID in payment does not match"
 
             const donation = await prisma.donation.findUniqueOrThrow({
                 where: { id: donationId }
             })
             
-            const solResult = await mintReceipt(donationId)
+            const solResult = await mintReceipt(feePayer, donationId)
             await prisma.donation.update({
                 where: { id: donationId },
                 data: {

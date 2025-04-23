@@ -16,7 +16,7 @@ const userService = {
             }
         })
 
-        if (!user.password || await bcrypt.compare(password, user.password)){
+        if (!user.password || !(await bcrypt.compare(password, user.password))){
             throw "INVALID_PASSWORD"
         }
         return {
