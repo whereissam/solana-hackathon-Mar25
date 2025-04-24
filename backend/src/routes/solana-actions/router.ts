@@ -101,6 +101,12 @@ router.post('/donate/:currency/:beneficiaryId', async (req, res) => {
             type: "transaction",
             transaction: transactionBase64,
             message: "Transaction created. Please sign and complete donation",
+            links: {
+                next: {
+                    type: "post",
+                    href: `${process.env.ACTIONS_URL_PREFIX}donateCompleted/${donation.id}`
+                }
+            }
         };
 
         console.log("Post response", postResponse);
@@ -109,6 +115,12 @@ router.post('/donate/:currency/:beneficiaryId', async (req, res) => {
         console.error("Error processing donation:", error);
         res.status(500).json({ error: "Failed to create transaction" });
     }
+});
+
+router.post('/donateCompleted/:donationId', async (req, res) => {
+    const {signature, account} = req.body;
+    const donationId = req.params.donationId;
+    return await donationService.cryptoPaymentCompleted(donationId, signature);
 });
 
 export default router;
