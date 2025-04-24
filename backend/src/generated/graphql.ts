@@ -235,6 +235,7 @@ export type QueryCharitiesArgs = {
 
 
 export type QueryDonationsArgs = {
+  completed?: Scalars['Boolean']['input'];
   donorId?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -490,7 +491,7 @@ export type PaymentCompletedResultResolvers<ContextType = any, ParentType extend
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   beneficiary?: Resolver<ResolversTypes['CharityUser'], ParentType, ContextType, RequireFields<QueryBeneficiaryArgs, 'id'>>;
   charities?: Resolver<Array<ResolversTypes['Charity']>, ParentType, ContextType, RequireFields<QueryCharitiesArgs, 'limit' | 'offset'>>;
-  donations?: Resolver<Array<Maybe<ResolversTypes['Donation']>>, ParentType, ContextType, Partial<QueryDonationsArgs>>;
+  donations?: Resolver<Array<Maybe<ResolversTypes['Donation']>>, ParentType, ContextType, RequireFields<QueryDonationsArgs, 'completed'>>;
 };
 
 export interface UploadScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Upload'], any> {

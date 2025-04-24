@@ -26,13 +26,23 @@ const donationService = {
         })
         return newDonation
     },
-    getDonations: async (donorId: number, args?: Prisma.donationFindManyArgs) => {
-        return await prisma.donation.findMany({
-            where: {
-                donor_id: donorId
-            },
-            ...args
-        })
+    getDonations: async (donorId: number, completed: boolean, args?: Prisma.donationFindManyArgs) => {
+        if (completed) {
+            return await prisma.donation.findMany({
+                where: {
+                    donor_id: donorId,
+                    status: "completed"
+                },
+                ...args
+            })
+        }
+        else
+            return await prisma.donation.findMany({
+                where: {
+                    donor_id: donorId,
+                },
+                ...args
+            })
     },
     cryptoPaymentCompleted: async (donationId: string, txHash: string) => {
         try {

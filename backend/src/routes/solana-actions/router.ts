@@ -60,8 +60,6 @@ router.post('/donate/:currency/:beneficiaryId', async (req, res) => {
 
         const donation = await donationService.createCryptoDonation(donorId, beneficiaryId, amountInLamports, currency);
 
-        //const conn = new Connection("https://api.devnet.solana.com", "confirmed");
-        //const latestBlockhash = await conn.getLatestBlockhash();
 
         // Convert account to PublicKey
         const fromPubkey = new PublicKey(req.body.account); // Fee payer
@@ -76,15 +74,18 @@ router.post('/donate/:currency/:beneficiaryId', async (req, res) => {
 
         const memoInstruction = createMemoInstruction(JSON.stringify({
             DonationId: donation.id,
-            Amount: donation.amount,
+            Amount: req.body.data.amount,
             Currency: donation.currency,
             Version: "1.0"
         }))
 
+        const conn = new Connection("https://api.devnet.solana.com", "confirmed");
+        const latestBlockhash = await conn.getLatestBlockhash();
+
         // Create a transaction
         const transaction = new Transaction({
             feePayer: fromPubkey,
-            recentBlockhash: "" //latestBlockhash.blockhash,
+            recentBlockhash: latestBlockhash.blockhash,
         }).add(transferInstruction).add(memoInstruction);
 
         // Serialize the transaction without signing

@@ -10,11 +10,9 @@ const resolver = {
     Query: {
         donations: withAuth([isAdmin(), isEqUserId("donorId")],
             async (_parent, args: QueryDonationsArgs, context) => {
-            return await donationService.getDonations(context.user.id, 
+            return await donationService.getDonations(
+                context.user.id, args.completed || true,
                 {
-                    where: {
-                        status: DonationStatus.completed,
-                    },
                     orderBy: {
                         created_at: 'desc'
                     }
