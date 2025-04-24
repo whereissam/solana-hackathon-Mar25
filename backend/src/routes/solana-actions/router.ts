@@ -120,7 +120,7 @@ router.post('/donate/:currency/:beneficiaryId', async (req, res) => {
 router.post('/donateCompleted/:donationId', async (req, res) => {
     const {signature, account} = req.body;
     const donationId = req.params.donationId;
-    return await donationService.cryptoPaymentCompleted(donationId, signature);
+    return res.status(200).json(await donationService.cryptoPaymentCompleted(donationId, signature));
 });
 
 export default router;
