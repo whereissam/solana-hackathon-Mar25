@@ -51,4 +51,8 @@ async function uploadImage(dataStream: Readable, filename: string, key: string):
   }
 }
 
-export { uploadImage };
+function getImageBaseUrl(): string {
+  return `${process.env.SPACES_ENDPOINT}/${process.env.SPACES_BUCKET}/`
+}
+
+export { uploadImage, getImageBaseUrl };

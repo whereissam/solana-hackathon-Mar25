@@ -11,7 +11,7 @@ import { loadFilesSync } from '@graphql-tools/load-files'
 import path from 'path'
 import resolvers from './resolvers/resolvers'
 import jwt from 'jsonwebtoken'
-import solanaActionRouter from './solana-actions/router'
+import solanaActionRouter from './routes/solana-actions/router'
 
 dotenv.config()
 

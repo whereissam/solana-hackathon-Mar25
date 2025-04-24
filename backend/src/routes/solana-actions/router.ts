@@ -1,25 +1,33 @@
 import { Router } from "express";
 import { ActionType, ActionGetResponse, LinkedAction, ActionPostResponse } from "@solana/actions";
 import { SystemProgram, Transaction, Connection, PublicKey, TransactionMessage } from "@solana/web3.js";
+import {createMemoInstruction} from "@solana/spl-memo";
+import { getImageBaseUrl } from "../../service/spacesService";
+import charityService from "../../service/charityService";
+import donationService from "../../service/donationService";
+import userService from "../../service/userService";
+
 
 const router = Router();
 
-router.get('/', async (req, res) => {
+router.get('/:beneficiaryId', async (req, res) => {
+    const beneficiaryId = parseInt(req.params.beneficiaryId);
+    const beneficiary = await charityService.getBeneficiaryById(beneficiaryId);
     const action: ActionGetResponse = {
-        icon: "https://unifygiving.com/wp-content/uploads/2024/04/logo.svg",
-        title: "Donate Now",
-        description: "Donate to this Recipient",
+        icon: `${getImageBaseUrl()}/beneficiary/${beneficiaryId}.png`,
+        title: `Donate now!`,
+        description: `Donate to ${beneficiary.first_name} ${beneficiary.last_name}`,
         label: "Donate",
         links: {
             actions: [
                 {
-                    href: "https://solana-hackathon-mar25.onrender.com/solana-actions/donate",
+                    href: `${process.env.ACTIONS_URL_PREFIX}/donate/SOL/${beneficiaryId}`,
                     label: "Donate in SOL",
                     parameters: [{
                         type: "text",
                         name: "amount",
                         required: true,
-                        pattern: "^[0-9]+$",
+                        pattern: "^\\d*\\.?\\d*$",
                         patternDescription: "Please enter a number",
                     }],
                     type: "transaction",
@@ -36,32 +44,48 @@ router.options('/', (req, res) => {
         .header("Access-Control-Allow-Headers", "Content-Type, Authorization, Content-Encoding, Accept-Encoding");
 });
 
-router.post('/donate', async (req, res) => {
+router.post('/donate/:currency/:beneficiaryId', async (req, res) => {
     try {
-        console.log("Received donation request", req.body);
-
-        const conn = new Connection("https://api.devnet.solana.com", "confirmed");
-        const latestBlockhash = await conn.getLatestBlockhash();
-
+        const beneficiaryId = parseInt(req.params.beneficiaryId);
+        const currency = req.params.currency;
+        console.log("Received donation request", req.body, beneficiaryId, currency);
+        if (currency !== "SOL") {
+            return res.status(400).json({ error: "Unsupported currency" });
+        }
         // Parse the amount and convert to lamports
-        const amountInLamports = BigInt(Math.floor(parseFloat(req.body.data.amount) * 100)) * BigInt(1e7);;
+        const amountInLamports = Math.floor(parseFloat(req.body.data.amount) * 1e9);
+
+        const walletAddress= req.body.account;
+        const donorId = await userService.getWalletUserIdOrCreate(walletAddress);
+
+        const donation = await donationService.createCryptoDonation(donorId, beneficiaryId, amountInLamports, currency);
+
+        //const conn = new Connection("https://api.devnet.solana.com", "confirmed");
+        //const latestBlockhash = await conn.getLatestBlockhash();
 
         // Convert account to PublicKey
         const fromPubkey = new PublicKey(req.body.account); // Fee payer
-        const toPubkey = new PublicKey(req.body.account); // Recipient
+        const toPubkey = new PublicKey(process.env.ACTIONS_WALLET_ADDRESS as string); // Recipient
 
         // Create a transfer instruction
         const transferInstruction = SystemProgram.transfer({
             fromPubkey,
             toPubkey,
-            lamports: amountInLamports,
+            lamports: BigInt(amountInLamports),
         });
+
+        const memoInstruction = createMemoInstruction(JSON.stringify({
+            DonationId: donation.id,
+            Amount: donation.amount,
+            Currency: donation.currency,
+            Version: "1.0"
+        }))
 
         // Create a transaction
         const transaction = new Transaction({
             feePayer: fromPubkey,
-            recentBlockhash: latestBlockhash.blockhash,
-        }).add(transferInstruction);
+            recentBlockhash: "" //latestBlockhash.blockhash,
+        }).add(transferInstruction).add(memoInstruction);
 
         // Serialize the transaction without signing
         const serializedTransaction = transaction.serialize({
