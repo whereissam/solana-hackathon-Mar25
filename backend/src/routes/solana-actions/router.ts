@@ -14,14 +14,14 @@ router.get('/:beneficiaryId', async (req, res) => {
     const beneficiaryId = parseInt(req.params.beneficiaryId);
     const beneficiary = await charityService.getBeneficiaryById(beneficiaryId);
     const action: ActionGetResponse = {
-        icon: `${getImageBaseUrl()}/beneficiary/${beneficiaryId}.png`,
+        icon: `${getImageBaseUrl()}beneficiary/${beneficiaryId}.png`,
         title: `Donate now!`,
         description: `Donate to ${beneficiary.first_name} ${beneficiary.last_name}`,
         label: "Donate",
         links: {
             actions: [
                 {
-                    href: `${process.env.ACTIONS_URL_PREFIX}/donate/SOL/${beneficiaryId}`,
+                    href: `${process.env.ACTIONS_URL_PREFIX}donate/SOL/${beneficiaryId}`,
                     label: "Donate in SOL",
                     parameters: [{
                         type: "text",
