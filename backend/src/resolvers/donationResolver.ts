@@ -11,7 +11,7 @@ const resolver = {
         donations: withAuth([isAdmin(), isEqUserId("donorId")],
             async (_parent, args: QueryDonationsArgs, context) => {
             return await donationService.getDonations(
-                context.user.id, args.completed || true,
+                args.donorId || context.user.id, args.completed?? true,
                 {
                     orderBy: {
                         created_at: 'desc'

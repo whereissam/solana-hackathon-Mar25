@@ -56,6 +56,7 @@ async function startup() {
   app.use('/', expressMiddleware(server,{
     context: async ({req}) => { 
       if (!req.headers.token) return {token: null, user: null}
+      //console.log("req.headers.token", req.headers.token)
       return {
         token: req.headers.token, 
         user: jwt.decode(req.headers.token)
