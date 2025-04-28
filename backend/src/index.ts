@@ -12,6 +12,7 @@ import path from 'path'
 import resolvers from './resolvers/resolvers'
 import jwt from 'jsonwebtoken'
 import solanaActionRouter from './routes/solana-actions/router'
+import nftRouter from './routes/nft/router'
 
 dotenv.config()
 
@@ -33,25 +34,8 @@ async function startup() {
 
   app.use(cors())
   app.use(bodyParser.json())
-  app.use('/donation', (req, res) => {
-    res.header('Content-Type', 'application/json')
-    res.send({
-      name: "UG Receipts",
-      description: "XXX",
-      image: "https://unifygiving.com/wp-content/uploads/2024/04/logo.svg",
-      external_url: "https://unifygiving.com",
-      properties: {
-        files: [
-          {
-            uri: "https://unifygiving.com/wp-content/uploads/2024/04/logo.svg",
-            type: "image/svg"
-          }
-        ],
-        category: "image"
-      }
-    })
-  })
   app.use(graphqlUploadExpress() as unknown as express.RequestHandler)
+  app.use('/donation', nftRouter)
   app.use('/solana-actions', solanaActionRouter)
   app.use('/', expressMiddleware(server,{
     context: async ({req}) => { 

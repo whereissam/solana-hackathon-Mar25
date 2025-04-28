@@ -4,6 +4,7 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import charityService from './charityService'
 import { connect } from 'http2'
 import { getTransferDetail, mintReceipt, ITransferDetail, IDonationMemo} from './solanaService'
+import { get } from 'http'
 
 const donationService = {
     createCryptoDonation: async (
@@ -25,6 +26,13 @@ const donationService = {
             }
         })
         return newDonation
+    },
+    getDonationById: async (donationId: string, args?: Prisma.donationFindUniqueArgs) => {
+        return await prisma.donation.findUniqueOrThrow({
+            where: {
+                id: donationId,
+            }
+        })
     },
     getDonations: async (donorId: number, completed: boolean, args?: Prisma.donationFindManyArgs) => {
         if (completed) {

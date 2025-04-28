@@ -46,7 +46,7 @@ const charityService = {
         })
     },
     createBeneficiary: async(
-        { charityId, detail: { first_name, last_name, email, password } }: { charityId: number, detail: { first_name: string, last_name: string, email: string, password: string } }) => {
+        { charityId, detail: { first_name, last_name, email, password } }: { charityId: number, detail: { first_name: string, last_name: string, email?: string, password?: string } }) => {
         return prisma.users.create({
             data: {
                 email, 
