@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4a6da7" />
+      <stop offset="100%" stop-color="#8a63d2" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="600" fill="url(#bg-gradient)" />
+  
+  <!-- Abstract shapes for visual interest -->
+  <circle cx="200" cy="150" r="100" fill="#ffffff" fill-opacity="0.1" />
+  <circle cx="1000" cy="450" r="150" fill="#ffffff" fill-opacity="0.1" />
+  <path d="M0,400 Q300,300 600,400 T1200,300" stroke="#ffffff" stroke-opacity="0.2" stroke-width="5" fill="none" />
+  
+  <!-- Grid pattern -->
+  <g stroke="#ffffff" stroke-opacity="0.05" stroke-width="1">
+    <g id="vertical-lines">
+      <line x1="100" y1="0" x2="100" y2="600" />
+      <line x1="200" y1="0" x2="200" y2="600" />
+      <line x1="300" y1="0" x2="300" y2="600" />
+      <line x1="400" y1="0" x2="400" y2="600" />
+      <line x1="500" y1="0" x2="500" y2="600" />
+      <line x1="600" y1="0" x2="600" y2="600" />
+      <line x1="700" y1="0" x2="700" y2="600" />
+      <line x1="800" y1="0" x2="800" y2="600" />
+      <line x1="900" y1="0" x2="900" y2="600" />
+      <line x1="1000" y1="0" x2="1000" y2="600" />
+      <line x1="1100" y1="0" x2="1100" y2="600" />
+    </g>
+    <g id="horizontal-lines">
+      <line x1="0" y1="100" x2="1200" y2="100" />
+      <line x1="0" y1="200" x2="1200" y2="200" />
+      <line x1="0" y1="300" x2="1200" y2="300" />
+      <line x1="0" y1="400" x2="1200" y2="400" />
+      <line x1="0" y1="500" x2="1200" y2="500" />
+    </g>
+  </g>
+  
+  <!-- Contact icons -->
+  <g fill="#ffffff" fill-opacity="0.8">
+    <!-- Email icon -->
+    <path d="M300,250 h100 v60 h-100 z" stroke="#ffffff" stroke-width="2" fill-opacity="0.2" />
+    <path d="M300,250 l50,30 l50,-30" stroke="#ffffff" stroke-width="2" fill="none" />
+    
+    <!-- Phone icon -->
+    <rect x="500" y="250" width="60" height="80" rx="10" stroke="#ffffff" stroke-width="2" fill-opacity="0.2" />
+    <circle cx="530" cy="310" r="8" stroke="#ffffff" stroke-width="2" fill="none" />
+    
+    <!-- Location icon -->
+    <path d="M730,250 c0,30 -30,60 -30,60 c0,0 -30,-30 -30,-60 c0,-16.5 13.5,-30 30,-30 c16.5,0 30,13.5 30,30 z" stroke="#ffffff" stroke-width="2" fill-opacity="0.2" />
+    <circle cx="700" cy="250" r="10" stroke="#ffffff" stroke-width="2" fill="none" />
+  </g>
+  
+  <!-- Connecting lines between icons -->
+  <path d="M350,280 H500 M560,280 H700" stroke="#ffffff" stroke-opacity="0.3" stroke-width="2" stroke-dasharray="5,5" />
+  
+  <!-- Text elements (simplified for SVG) -->
+  <text x="600" y="150" font-family="Arial, sans-serif" font-size="40" font-weight="bold" text-anchor="middle" fill="#ffffff">Contact Us</text>
+  <text x="600" y="190" font-family="Arial, sans-serif" font-size="20" text-anchor="middle" fill="#ffffff" fill-opacity="0.8">We're here to help with your questions</text>
+</svg>

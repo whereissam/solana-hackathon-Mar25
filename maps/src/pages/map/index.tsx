@@ -1,24 +1,48 @@
-import Head from 'next/head'
+import Head from 'next/head';
+import { useState } from 'react';
+import { MapProvider } from '@/context/map-context';
+import CharityMap from '@/components/Charities/CharityMap';
+import MapControls from '@/components/Charities/MapControls';
+import MapSearch from '@/components/Charities/MapSearch';
+import MapStyles from '@/components/Charities/MapStyles';
 
-import Map from '#components/Map'
+const MapPage = () => {
+  const [selectedCharity, setSelectedCharity] = useState<number | null>(null);
+  
+  // Handler for charity selection
+  const handleCharitySelect = (charityId: number) => {
+    setSelectedCharity(prevSelected => 
+      prevSelected === charityId ? null : charityId
+    );
+  };
 
-const MapPage = () => (
-  <div>
-    <Head>
-      <title> Unify Giving Map Sample | New leaflet mapping Project with next.js and typescript 🤩</title>
-      <meta
-        property="og:title"
-        content=" Unify Giving Map Sample | New leaflet mapping Project with next.js and typescript 🤩"
-        key="title"
-      />
-      <meta
-        name="description"
-        content="next-leaflet-starter-typescript is an extensible next.js starter template for the leaflet-maps-react plugin. Written in typescript,
-      visually enhanced by tailwind and lucide-react icons."
-      />
-    </Head>
-    <Map />
-  </div>
-)
+  return (
+    <MapProvider>
+      <div className="relative h-screen w-full">
+        <Head>
+          <title>Unify Giving - Interactive Charity Map</title>
+          <meta
+            property="og:title"
+            content="Unify Giving - Interactive Charity Map"
+            key="title"
+          />
+          <meta
+            name="description"
+            content="Explore charitable organizations around the world with our interactive map. Find and support causes you care about with Unify Giving."
+          />
+        </Head>
+        
+        <MapSearch />
+        <CharityMap 
+          filteredCharities={[]} 
+          selectedCharity={selectedCharity} 
+          handleCharitySelect={handleCharitySelect} 
+        />
+        <MapControls />
+        <MapStyles />
+      </div>
+    </MapProvider>
+  );
+};
 
-export default MapPage
+export default MapPage;
