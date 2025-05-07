@@ -13,6 +13,7 @@ import resolvers from './resolvers/resolvers'
 import jwt from 'jsonwebtoken'
 import solanaActionRouter from './routes/solana-actions/router'
 import nftRouter from './routes/nft/router'
+import fugRouter from './routes/fug/router'
 
 dotenv.config()
 
@@ -37,6 +38,7 @@ async function startup() {
   app.use(graphqlUploadExpress() as unknown as express.RequestHandler)
   app.use('/donation', nftRouter)
   app.use('/solana-actions', solanaActionRouter)
+  app.use('/FUG', fugRouter)
   app.use('/', expressMiddleware(server,{
     context: async ({req}) => { 
       if (!req.headers.token) return {token: null, user: null}
