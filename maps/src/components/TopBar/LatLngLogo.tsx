@@ -1,29 +1,37 @@
 import Leaflet from 'leaflet'
 import { Compass } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 
-import useMapContext from '#components/Map/useMapContext'
+import { useMap } from '@/context/map-context'
 
 const LatLngLogo = () => {
-  const { map } = useMapContext()
+  const { map } = useMap()
   const [location, setLocation] = useState<Leaflet.LatLng | undefined>()
   const lat = location?.lat.toFixed(4)
   const lng = location?.lng.toFixed(4)
 
+  // Define the move handler as a callback to maintain reference
+  const handleMove = useCallback(() => {
+    if (!map) return;
+    const center = map.getCenter();
+    setLocation(new Leaflet.LatLng(center.lat, center.lng));
+  }, [map]);
+
   useEffect(() => {
     if (!map) return undefined
 
-    setLocation(map.getCenter())
+    // Initial center position
+    const center = map.getCenter()
+    setLocation(new Leaflet.LatLng(center.lat, center.lng))
 
-    map?.on('move', () => {
-      setLocation(map.getCenter())
-    })
+    // Add event listener
+    map.on('move', handleMove)
 
-    // cleanup
+    // cleanup - properly remove the specific event listener
     return () => {
-      map.off()
+      map.off('move', handleMove)
     }
-  }, [map])
+  }, [map, handleMove])
 
   return (
     <div className="flex gap-2 text-lg font-black leading-none text-white md:text-2xl md:leading-none">

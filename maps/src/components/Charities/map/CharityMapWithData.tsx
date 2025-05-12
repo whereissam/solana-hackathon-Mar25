@@ -129,7 +129,10 @@ const CharityMapWithData: React.FC<CharityMapWithDataProps> = ({
   if (loading) {
     return (
       <div className="absolute inset-0 flex items-center justify-center bg-background/80 z-[1000]">
-        <div className="text-lg font-medium">Loading charity locations...</div>
+        <div className="flex flex-col items-center">
+          <div className="spinner-ring w-16 h-16 mb-4"></div>
+          <div className="text-lg font-medium">Loading charity locations...</div>
+        </div>
       </div>
     );
   }

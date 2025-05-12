@@ -43,11 +43,16 @@ export function LocationPopup({ location, onClose }: LocationPopupProps) {
     return <LocateIcon className="h-5 w-5" />;
   };
 
+  // Create a handler that calls onClose if it exists, otherwise does nothing
+  const handleClose = () => {
+    if (onClose) onClose();
+  };
+
   return (
     <Popup
       latitude={lat}
       longitude={lng}
-      onClose={onClose}
+      onClose={handleClose} // Pass the handler function that's always defined
       offset={15}
       closeButton={true}
       closeOnClick={false}

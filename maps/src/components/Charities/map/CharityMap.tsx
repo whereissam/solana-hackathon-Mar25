@@ -199,10 +199,14 @@ const CharityMap: React.FC<CharityMapProps> = ({
                     longitude={charity.longitude}
                     latitude={charity.latitude}
                     data={charity}
-                    onClick={({data}) => handleCharitySelect(data.id)}
+                    onClick={({data}) => {
+                      if (data.id !== undefined) {
+                        handleCharitySelect(Number(data.id));
+                      }
+                    }}
                   >
                     <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
-                      selectedCharity === charity.id ? 'bg-purple-600 text-white' : 'bg-white text-purple-600'
+                      selectedCharity === charity.id ? 'bg-purple-600 text-white selected-marker' : 'bg-white text-purple-600'
                     } border-2 border-purple-600 transition-all duration-200`}>
                       {selectedCharity === charity.id ? '✓' : ''}
                     </div>

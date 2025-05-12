@@ -34,7 +34,7 @@ const MapWithModels: React.FC<MapWithModelsProps> = ({
 }) => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
-  // Removed threeSceneRef as direct manipulation is complex for this scope
+  const threeSceneRef = useRef<THREE.Scene | null>(null);
 
   useEffect(() => {
     if (!models || models.length === 0) { // models will come from the fbxModels import
@@ -87,18 +87,19 @@ const MapWithModels: React.FC<MapWithModelsProps> = ({
     };
 
     const createCustomLayer = (currentMap: mapboxgl.Map) => {
-      const camera = new THREE.Camera(); // This camera's projection matrix is controlled by Mapbox
-      const scene = new THREE.Scene();
+      const threeCamera = new THREE.Camera(); // Define camera here
+      const threeScene = new THREE.Scene(); // Define scene here
+      threeSceneRef.current = threeScene;
 
       // Lighting
       const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
-      scene.add(ambientLight);
+      threeScene.add(ambientLight);
       const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
       directionalLight1.position.set(0, -70, 100).normalize();
-      scene.add(directionalLight1);
+      threeScene.add(directionalLight1);
       const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.8);
       directionalLight2.position.set(0, 70, 100).normalize();
-      scene.add(directionalLight2);
+      threeScene.add(directionalLight2);
 
       // Load each model
       models.forEach((modelData) => {
@@ -131,14 +132,18 @@ const MapWithModels: React.FC<MapWithModelsProps> = ({
             }
 
             const modelScale = modelData.scale || 1.0;
-            object3D.scale.set(modelScale, modelScale, modelScale);
+            if (typeof modelScale === 'number') {
+              object3D.scale.set(modelScale, modelScale, modelScale);
+            } else {
+              object3D.scale.set(modelScale.x, modelScale.y, modelScale.z);
+            }
             
-            threeScene.add(object);
+            threeScene.add(object3D);
             if (currentMap) currentMap.triggerRepaint();
           },
           undefined, // onProgress callback
           (error) => {
-            console.error(`Error loading FBX model ${modelConfig.id} from ${modelConfig.url}:`, error);
+            console.error(`Error loading FBX model ${modelData.id} from ${modelData.url}:`, error);
           }
         );
       });
@@ -198,4 +203,4 @@ const MapWithModels: React.FC<MapWithModelsProps> = ({
   );
 };
 
-export default MapWith3DModels;
+export default MapWithModels;

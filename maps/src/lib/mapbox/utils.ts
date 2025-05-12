@@ -13,24 +13,11 @@ import {
   Home,
 } from "lucide-react";
 
-export const iconMap: { [key: string]: React.ReactNode } = {
-  café: <Coffee className="h-5 w-5" />,
-  cafe: <Coffee className="h-5 w-5" />,
-  coffee: <Coffee className="h-5 w-5" />,
-  restaurant: <Utensils className="h-5 w-5" />,
-  food: <Utensils className="h-5 w-5" />,
-  hotel: <Hotel className="h-5 w-5" />,
-  lodging: <Hotel className="h-5 w-5" />,
-  gym: <Dumbbell className="h-5 w-5" />,
-  bank: <Banknote className="h-5 w-5" />,
-  shopping: <ShoppingBag className="h-5 w-5" />,
-  store: <Store className="h-5 w-5" />,
-  government: <Landmark className="h-5 w-5" />,
-  school: <GraduationCap className="h-5 w-5" />,
-  hospital: <Stethoscope className="h-5 w-5" />,
-  clothing: <Shirt className="h-5 w-5" />,
-  home: <Home className="h-5 w-5" />,
-};
+// Import iconMap from the new file
+import { iconMap } from "./iconMap";
+
+// Re-export iconMap so existing imports still work
+export { iconMap };
 
 export type LocationSuggestion = {
   mapbox_id: string;
@@ -39,21 +26,22 @@ export type LocationSuggestion = {
   maki?: string;
 };
 
-export type LocationFeature = {
-  type: "Feature";
+export interface LocationFeature {
+  id?: string;
+  type: string;
   geometry: {
-    type: "Point";
-    coordinates: [number, number];
+    type: string;
+    coordinates: number[];
   };
   properties: {
-    name: string;
+    name?: string;
     name_preferred?: string;
-    mapbox_id: string;
-    feature_type: string;
-    address?: string;
+    mapbox_id?: string;
+    feature_type?: string;
     full_address?: string;
+    address?: string;
     place_formatted?: string;
-    context: {
+    context?: {
       country?: {
         name: string;
         country_code: string;
@@ -76,7 +64,7 @@ export type LocationFeature = {
       };
       street?: { name: string };
     };
-    coordinates: {
+    coordinates?: {
       latitude: number;
       longitude: number;
       accuracy?: string;
@@ -93,9 +81,13 @@ export type LocationFeature = {
     poi_category_ids?: string[];
     brand?: string[];
     brand_id?: string[];
-    external_ids?: Record<string, string>;
+    external_ids?: {
+      website?: string;
+      [key: string]: any;
+    };
     metadata?: Record<string, unknown>;
     bbox?: [number, number, number, number];
     operational_status?: string;
+    [key: string]: any;
   };
-};
+}
