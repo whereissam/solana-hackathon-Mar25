@@ -8,10 +8,11 @@ import {
   TreesIcon,
 } from "lucide-react";
 import {  } from "react-icons/fa"; // Importing from react-icons
-import { useTheme } from "next-themes";
+// Remove the next-themes import
+// import { useTheme } from "next-themes";
 
 import { useMap } from "@/context/map-context";
-import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/Charities/ui/tabs";
 
 type StyleOption = {
   id: string;
@@ -45,7 +46,7 @@ const STYLE_OPTIONS: StyleOption[] = [
 
 export default function MapStyles() {
   const { map } = useMap();
-  const { setTheme } = useTheme();
+  // Use the safe wrapper instead
   const [activeStyle, setActiveStyle] = useState("streets-v12");
 
   const handleChange = (value: string) => {
@@ -55,13 +56,11 @@ export default function MapStyles() {
   };
 
   useEffect(() => {
-    if (activeStyle === "dark-v11") {
-      setTheme("dark");
-    } else setTheme("light");
-  }, [map, activeStyle]);
+    // No need to set theme if we're not using next-themes
+  }, [map, activeStyle]); 
 
   return (
-    <aside className="absolute bottom-4 left-4 z-10">
+    <aside className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10">
       <Tabs value={activeStyle} onValueChange={handleChange}>
         <TabsList className="bg-background shadow-lg">
           {STYLE_OPTIONS.map((style) => (

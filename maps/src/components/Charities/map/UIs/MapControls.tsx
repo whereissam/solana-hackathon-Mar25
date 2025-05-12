@@ -2,9 +2,9 @@ import React from "react";
 import { PlusIcon, MinusIcon } from "lucide-react";
 
 import { useMap } from "@/context/map-context";
-import { Button } from "./ui/button";
+import { Button } from "@/components/Charities/ui/button";
 
-export default function MapCotrols() {
+export default function MapControls() {  // Fixed typo: MapCotrols → MapControls
   const { map } = useMap();
 
   const zoomIn = () => {

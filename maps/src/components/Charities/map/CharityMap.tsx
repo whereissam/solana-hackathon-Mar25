@@ -1,6 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Charity } from './data/data';
+import { Charity } from '../data/data';
 import 'mapbox-gl/dist/mapbox-gl.css';
+
+// Import UI components
+import MapControls from './UIs/MapControls';
+import MapMarker from './UIs/MapMarker';
+import MapPopUp from './UIs/MapPopUp';
+import MapSearch from './UIs/MapSearch';
+import MapStyles from './UIs/MapStyles';
+import { useMap } from '@/context/map-context';
 
 // We'll import mapboxgl dynamically only on the client side
 let mapboxgl: any;
@@ -17,13 +25,13 @@ const CharityMap: React.FC<CharityMapProps> = ({
   handleCharitySelect 
 }) => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
+  const [mapInstance, setMapInstance] = useState<mapboxgl.Map | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [category, setCategory] = useState('All');
   const [distance, setDistance] = useState(25); // in km
   const [isFullScreen, setIsFullScreen] = useState(false);
 
-  // Define allowed zoom levels
-  const allowedZooms = [9, 11, 13, 15, 17];
+  const { setMap } = useMap(); // Get setMap from the context
 
   // Define Berlin city bounds (approximate)
   const berlinBounds: [[number, number], [number, number]] = [
@@ -37,10 +45,12 @@ const CharityMap: React.FC<CharityMapProps> = ({
     
     // Resize the map after state change to ensure proper rendering
     setTimeout(() => {
-      if (mapContainerRef.current) {
-        const event = new Event('resize');
-        window.dispatchEvent(event);
+      if (mapInstance) {
+        mapInstance.resize();
       }
+      // Also dispatch window resize for other potential listeners
+      const event = new Event('resize');
+      window.dispatchEvent(event);
     }, 100);
   };
 
@@ -50,17 +60,14 @@ const CharityMap: React.FC<CharityMapProps> = ({
         mapboxgl = module.default;
         mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || '';
         
-        if (mapContainerRef.current && !mapLoaded) {
+        if (mapContainerRef.current && !mapInstance) {
           const map = new mapboxgl.Map({
             container: mapContainerRef.current,
             style: 'mapbox://styles/mapbox/streets-v11',
             center: [13.4050, 52.52], // Berlin [lng, lat]
-            zoom: 9,
-            minZoom: 9,
-            maxZoom: 17,
             pitch: 45,
             bearing: -17.6,
-            maxBounds: berlinBounds, // Prevent panning/zooming out of Berlin
+            maxBounds: berlinBounds,
           });
 
           // Add navigation controls
@@ -70,28 +77,13 @@ const CharityMap: React.FC<CharityMapProps> = ({
           map.addControl(new mapboxgl.FullscreenControl({
             container: mapContainerRef.current
           }));
+          
+          map.on('load', () => {
+            setMapInstance(map);
+            setMap(map);
+            setMapLoaded(true);
 
-          let isZooming = false;
-
-          // Snap zoom to allowed levels
-          map.on('zoomend', () => {
-            if (isZooming) return; // Skip if we're already handling a zoom
-            
-            const currentZoom = map.getZoom();
-            // Find the closest allowed zoom level
-            const closest = allowedZooms.reduce((prev, curr) =>
-              Math.abs(curr - currentZoom) < Math.abs(prev - currentZoom) ? curr : prev
-            );
-            
-            if (currentZoom !== closest) {
-              isZooming = true;
-              map.zoomTo(closest, { duration: 0 });
-              setTimeout(() => { isZooming = false; }, 50); // Reset after a short delay
-            }
-          });
-
-          // Add 3D buildings layer after the map style has loaded
-          map.on('style.load', () => {
+            // Add 3D buildings layer
             map.addLayer(
               {
                 id: '3d-buildings',
@@ -123,46 +115,23 @@ const CharityMap: React.FC<CharityMapProps> = ({
             );
           });
 
-          // Add charity markers
-          filteredCharities.forEach((charity) => {
-            if (charity.longitude && charity.latitude) {
-              const el = document.createElement('div');
-              el.className = 'charity-marker';
-              el.style.width = '28px';
-              el.style.height = '28px';
-              el.style.background = selectedCharity === charity.id ? '#7c3aed' : '#f59e42';
-              el.style.borderRadius = '50%';
-              el.style.border = '2px solid white';
-              el.style.boxShadow = '0 2px 6px rgba(0,0,0,0.15)';
-              el.style.display = 'flex';
-              el.style.alignItems = 'center';
-              el.style.justifyContent = 'center';
-              el.style.cursor = 'pointer';
-              el.innerHTML = `<i class="fas fa-hand-holding-heart" style="color:white;font-size:16px;"></i>`;
-              el.onclick = () => handleCharitySelect(charity.id);
-
-              new mapboxgl.Marker(el)
-                .setLngLat([charity.longitude, charity.latitude])
-                .addTo(map);
-            }
-          });
-
-          setMapLoaded(true);
-
           return () => {
             map.remove();
+            setMapInstance(null);
+            setMap(null);
             setMapLoaded(false);
           };
         }
       });
     }
-  }, [mapLoaded, filteredCharities, selectedCharity, handleCharitySelect]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setMap]);
 
   return (
     <div className="py-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Dropdown Filters - DaisyUI and Tailwind */}
-        <div className="flex flex-wrap gap-4 mb-6">
+        {/* Dropdown Filters */}
+        <div className="flex flex-wrap gap-4 mb-6 items-center">
           {/* Category Dropdown */}
           <select
             className="select select-bordered w-48"
@@ -179,6 +148,7 @@ const CharityMap: React.FC<CharityMapProps> = ({
             <option value="Arts & Culture">Arts & Culture</option>
             <option value="Disaster Relief">Disaster Relief</option>
           </select>
+          
           {/* Distance Dropdown */}
           <select
             className="select select-bordered w-40"
@@ -210,9 +180,45 @@ const CharityMap: React.FC<CharityMapProps> = ({
         </div>
         
         {/* Map and Sidebar */}
-        <div className={`flex ${isFullScreen ? 'h-[calc(100vh-10rem)]' : 'h-[600px]'} rounded-xl overflow-hidden shadow-lg`}>
+        <div className={`flex ${isFullScreen ? 'fixed inset-0 z-50 top-[6rem]': 'h-[600px]'} rounded-xl overflow-hidden shadow-lg bg-white`}>
           {/* Map Container */}
-          <div ref={mapContainerRef} className="flex-grow relative" />
+          <div className="relative w-full h-full">
+            <div ref={mapContainerRef} className="w-full h-full relative" />
+            
+            {/* Map UI Components */}
+            {mapInstance && (
+              <>
+                <MapSearch />
+                <MapStyles />
+                <MapControls />
+                
+                {/* Render markers for each charity */}
+                {filteredCharities.map((charity) => (
+                  <MapMarker
+                    key={charity.id}
+                    longitude={charity.longitude}
+                    latitude={charity.latitude}
+                    data={charity}
+                    onClick={({data}) => handleCharitySelect(data.id)}
+                  >
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                      selectedCharity === charity.id ? 'bg-purple-600 text-white' : 'bg-white text-purple-600'
+                    } border-2 border-purple-600 transition-all duration-200`}>
+                      {selectedCharity === charity.id ? '✓' : ''}
+                    </div>
+                  </MapMarker>
+                ))}
+                
+                {/* MapPopUp for selected charity */}
+                {mapLoaded && selectedCharity !== null && (
+                  <MapPopUp
+                    charity={filteredCharities.find(c => c.id === selectedCharity)}
+                    onClose={() => handleCharitySelect(null as any)}
+                  />
+                )}
+              </>
+            )}
+          </div>
           
           {/* Charity List Sidebar */}
           <div className="w-80 bg-white overflow-y-auto border-l border-gray-200">

@@ -1,0 +1,47 @@
+/* Add these styles to your global CSS */
+.charity-popup-container {
+  z-index: 10;
+}
+
+.charity-popup-container .mapboxgl-popup-content {
+  padding: 0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  pointer-events: auto !important; /* Ensure popup is interactive */
+}
+
+.charity-popup-container .mapboxgl-popup-close-button {
+  font-size: 16px;
+  color: #666;
+  right: 8px;
+  top: 8px;
+  z-index: 20; /* Ensure close button is above content */
+  pointer-events: auto !important; /* Ensure close button is clickable */
+}
+
+.charity-popup-container .mapboxgl-popup-close-button:hover {
+  color: #333;
+  background: none;
+}
+
+/* Add these new styles */
+.charity-popup-container .mapboxgl-popup-tip {
+  border-top-color: white; /* Match the popup background color */
+}
+
+.charity-popup {
+  max-width: 280px;
+  pointer-events: auto !important; /* Ensure popup content is interactive */
+}
+
+.charity-popup button:focus {
+  outline: 2px solid #9333ea; /* Purple focus ring for accessibility */
+  outline-offset: 2px;
+}
+
+/* Ensure the popup doesn't get hidden */
+.mapboxgl-popup {
+  z-index: 999 !important;
+  pointer-events: auto !important;
+}

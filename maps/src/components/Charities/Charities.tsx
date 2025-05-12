@@ -2,11 +2,12 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Box, Container } from '@mui/material';
-import FilterSection from './FilterSection';
-import CharityList from './CharityList';
-import CharityMap from './CharityMap';
-import FeaturedCategories from './FeaturedCategories';
-import Newsletter from './Newsletter';
+import FilterSection from './list/FilterSection';
+import CharityList from './list/CharityList';
+import CharityMap from './map/CharityMap';
+import { MapProvider } from '@/context/map-context';
+// Import these components only if they exist
+// If they don't exist, you'll need to create them or remove the imports
 import { charities, categories } from './data/data';
 
 // Define the Charity interface to fix the implicit 'any' type
@@ -22,7 +23,7 @@ interface Charity {
   // Add other properties as needed
 }
 
-const Dashboard: React.FC = () => {
+const Charities: React.FC = () => {
   // State management
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -131,15 +132,19 @@ const Dashboard: React.FC = () => {
         />
 
         {viewMode === 'map' ? (
-          <CharityMap 
-            filteredCharities={filteredCharities} 
-            selectedCharity={selectedCharity} 
-            handleCharitySelect={handleCharitySelect} 
-          />
+          <MapProvider> {/* Add MapProvider here */}
+            <CharityMap 
+              filteredCharities={filteredCharities} 
+              selectedCharity={selectedCharity} 
+              handleCharitySelect={handleCharitySelect} 
+            />
+          </MapProvider>
         ) : (
           <CharityList filteredCharities={filteredCharities} />
         )}
 
+        {/* Remove or comment out these components if they don't exist */}
+        {/*
         <FeaturedCategories
           categories={categories}
           filteredCharities={filteredCharities} 
@@ -147,9 +152,11 @@ const Dashboard: React.FC = () => {
           onCategorySelect={setSelectedCategory}
         />
         <Newsletter />
+        */}
       </Box>
     </Box>
   );
 };
 
-export default Dashboard;
+// Change the export to match the component name
+export default Charities;

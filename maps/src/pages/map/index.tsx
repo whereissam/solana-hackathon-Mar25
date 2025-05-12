@@ -1,10 +1,10 @@
 import Head from 'next/head';
 import { useState } from 'react';
 import { MapProvider } from '@/context/map-context';
-import CharityMap from '@/components/Charities/CharityMap';
-import MapControls from '@/components/Charities/MapControls';
-import MapSearch from '@/components/Charities/MapSearch';
-import MapStyles from '@/components/Charities/MapStyles';
+import CharityMap from '@/components/Charities/map/CharityMap';
+import MapControls from '@/components/Charities/map/UIs/MapControls';
+import MapSearch from '@/components/Charities/map/UIs/MapSearch';
+import MapStyles from '@/components/Charities/map/UIs/MapStyles';
 
 const MapPage = () => {
   const [selectedCharity, setSelectedCharity] = useState<number | null>(null);

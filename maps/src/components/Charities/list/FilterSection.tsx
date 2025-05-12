@@ -3,7 +3,7 @@ import { Box, Container, TextField, Button, InputAdornment, Typography } from '@
 import SearchIcon from '@mui/icons-material/Search';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import MapIcon from '@mui/icons-material/Map';
-import { Category } from './data/data';
+import { Category } from '../data/data';
 
 interface FilterSectionProps {
   viewMode: 'list' | 'map';
@@ -19,6 +19,7 @@ interface FilterSectionProps {
   showAdvancedFilters: boolean;
   setShowAdvancedFilters: React.Dispatch<React.SetStateAction<boolean>>;
   categories: Category[];
+  resetFilters: () => void;
 }
 
 const FilterSection: React.FC<FilterSectionProps> = ({

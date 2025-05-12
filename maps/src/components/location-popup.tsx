@@ -8,10 +8,10 @@ import {
   ExternalLink,
 } from "lucide-react";
 
-import { Button } from "./Dashboard/ui/button";
-import Popup from "./Dashboard//MapPopUp";
-import { Badge } from "./Dashboard/ui/badge";
-import { Separator } from "./Dashboard/ui/separator";
+import { Button } from "@/components/Charities/ui/button";
+import Popup from "@/components/Charities/map/UIs/MapPopUp";
+import { Badge } from "@/components/Charities/ui/badge";
+import { Separator } from "@/components/Charities/ui/separator";
 
 type LocationPopupProps = {
   location: LocationFeature;

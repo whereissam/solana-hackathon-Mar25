@@ -1,7 +1,7 @@
 import { MapPin } from "lucide-react";
 
 import { LocationFeature } from "@/lib/mapbox/utils";
-import Marker from "./Dashboard/MapMarker";
+import Marker from "@/components/Charities/map/UIs/MapMarker";
 
 interface LocationMarkerProps {
   location: LocationFeature;

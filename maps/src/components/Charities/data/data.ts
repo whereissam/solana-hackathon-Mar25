@@ -60,7 +60,7 @@ export const charities: Charity[] = [
     longitude: 13.4234,
     latitude: 52.4892,
     certifications: ["Verified", "Platinum Transparency"],
-    imagePath: "/images/charities/education-1.jpg"
+    imagePath: "/images/charities/education-2.jpg"
   },
   {
     id: 2,
@@ -73,7 +73,7 @@ export const charities: Charity[] = [
     longitude: 13.3833,
     latitude: 52.5219,
     certifications: ["Eco-Certified", "Gold Transparency"],
-    imagePath: "/images/charities/environment-1.jpg"
+    imagePath: "/images/charities/environment-3.jpg"
   },
   {
     id: 3,
@@ -85,7 +85,8 @@ export const charities: Charity[] = [
     location: "Wedding, Berlin",
     longitude: 13.3661,
     latitude: 52.5429,
-    certifications: ["Healthcare Excellence", "Silver Transparency"]
+    certifications: ["Healthcare Excellence", "Silver Transparency"],
+    imagePath: "/images/charities/healthcare-1.jpg"
   },
   {
     id: 4,
@@ -97,7 +98,9 @@ export const charities: Charity[] = [
     location: "Lichtenberg, Berlin",
     longitude: 13.4908,
     latitude: 52.5075,
-    certifications: ["Animal Care Certified"]
+    certifications: ["Animal Care Certified"],
+    imagePath: "/images/charities/animalWelfare-1.jpg"
+
   },
   {
     id: 5,
@@ -109,7 +112,8 @@ export const charities: Charity[] = [
     location: "Neukölln, Berlin",
     longitude: 13.4416,
     latitude: 52.4767,
-    certifications: ["Child Welfare Certified", "Platinum Transparency"]
+    certifications: ["Child Welfare Certified", "Platinum Transparency"],
+    imagePath: "/images/charities/children.jpg"
   },
   {
     id: 6,
@@ -121,7 +125,8 @@ export const charities: Charity[] = [
     location: "Charlottenburg, Berlin",
     longitude: 13.3017,
     latitude: 52.5033,
-    certifications: ["Cultural Heritage Partner"]
+    certifications: ["Cultural Heritage Partner"],
+    imagePath: "/images/charities/environment-3.jpg"
   },
   {
     id: 7,
@@ -133,7 +138,8 @@ export const charities: Charity[] = [
     location: "Friedrichshain, Berlin",
     longitude: 13.4509,
     latitude: 52.5167,
-    certifications: ["Emergency Response Certified"]
+    certifications: ["Emergency Response Certified"],
+    imagePath: "/images/charities/disasterRelief-2.jpg"
   },
   {
     id: 8,
@@ -145,7 +151,8 @@ export const charities: Charity[] = [
     location: "Moabit, Berlin",
     longitude: 13.3409,
     latitude: 52.5250,
-    certifications: ["Humanitarian Excellence"]
+    certifications: ["Humanitarian Excellence"],
+    imagePath: "/images/charities/disasterRelief-3.jpg"
   },
   {
     id: 9,
@@ -157,7 +164,8 @@ export const charities: Charity[] = [
     location: "Prenzlauer Berg, Berlin",
     longitude: 13.4099,
     latitude: 52.5429,
-    certifications: ["Green Initiative Certified"]
+    certifications: ["Green Initiative Certified"],
+    imagePath: "/images/charities/environment-3.jpg"
   },
   {
     id: 10,
@@ -169,7 +177,8 @@ export const charities: Charity[] = [
     location: "Schöneberg, Berlin",
     longitude: 13.3500,
     latitude: 52.4800,
-    certifications: ["Tech Education Certified"]
+    certifications: ["Tech Education Certified"],
+    imagePath: "/images/charities/education-2.jpg"
   },
   {
     id: 11,
@@ -181,7 +190,8 @@ export const charities: Charity[] = [
     location: "Steglitz, Berlin",
     longitude: 13.3242,
     latitude: 52.4583,
-    certifications: ["Elder Care Certified", "Verified"]
+    certifications: ["Elder Care Certified", "Verified"],
+    imagePath: "/images/charities/healthcare-2.jpg"
   },
   {
     id: 12,
@@ -193,7 +203,8 @@ export const charities: Charity[] = [
     location: "Tempelhof, Berlin",
     longitude: 13.3869,
     latitude: 52.4700,
-    certifications: ["Education Excellence", "Silver Transparency"]
+    certifications: ["Education Excellence", "Silver Transparency"],
+    imagePath: "/images/charities/education-1.jpg"
   },
   {
     id: 13,
@@ -205,7 +216,8 @@ export const charities: Charity[] = [
     location: "Spandau, Berlin",
     longitude: 13.2088,
     latitude: 52.5344,
-    certifications: ["Food Safety Certified", "Platinum Transparency"]
+    certifications: ["Food Safety Certified", "Platinum Transparency"],
+    imagePath: "/images/charities/disasterRelief-1.jpg"
   },
   {
     id: 14,
@@ -217,7 +229,8 @@ export const charities: Charity[] = [
     location: "Marzahn, Berlin",
     longitude: 13.5446,
     latitude: 52.5372,
-    certifications: ["Youth Development", "Gold Transparency"]
+    certifications: ["Youth Development", "Gold Transparency"],
+    imagePath: "/images/charities/children.jpg"
   },
   {
     id: 15,
@@ -229,7 +242,8 @@ export const charities: Charity[] = [
     location: "Köpenick, Berlin",
     longitude: 13.5775,
     latitude: 52.4300,
-    certifications: ["Environmental Impact", "Water Quality Certified"]
+    certifications: ["Environmental Impact", "Water Quality Certified"],
+    imagePath: "/images/charities/environment-1.jpg"
   },
   {
     id: 16,
@@ -241,7 +255,8 @@ export const charities: Charity[] = [
     location: "Tiergarten, Berlin",
     longitude: 13.3500,
     latitude: 52.5100,
-    certifications: ["Heritage Preservation", "Historical Society Partner"]
+    certifications: ["Heritage Preservation", "Historical Society Partner"],
+    imagePath: "/images/charities/children.jpg"
   },
   {
     id: 17,
@@ -253,6 +268,7 @@ export const charities: Charity[] = [
     location: "Wilmersdorf, Berlin",
     longitude: 13.3200,
     latitude: 52.4900,
-    certifications: ["Mental Health Excellence", "Verified"]
+    certifications: ["Mental Health Excellence", "Verified"],
+    imagePath: "/images/charities/healthcare-3.jpg"
   }
 ];

@@ -45,6 +45,7 @@ const Dashboard: React.FC = () => {
     <Box className="min-h-screen bg-gray-50 flex flex-col">
       <Header 
         showProfileMenu={showProfileMenu}
+        setShowProfileMenu={setShowProfileMenu}
       />
       
       <Box className="flex flex-1">

@@ -87,7 +87,8 @@ export const charities: Charity[] = [
     location: "Wedding, Berlin",
     longitude: 13.3661,
     latitude: 52.5429,
-    certifications: ["Healthcare Excellence", "Silver Transparency"]
+    certifications: ["Healthcare Excellence", "Silver Transparency"],
+    imagePath: "/images/charities/healthcare-2.jpg"
   },
   {
     id: 4,
@@ -99,7 +100,8 @@ export const charities: Charity[] = [
     location: "Lichtenberg, Berlin",
     longitude: 13.4908,
     latitude: 52.5075,
-    certifications: ["Animal Care Certified"]
+    certifications: ["Animal Care Certified"],
+    imagePath: "/images/charities/animalWelfare-2.jpg"
   }
   // Additional charities would be listed here
 ];

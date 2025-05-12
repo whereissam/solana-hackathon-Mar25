@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import Head from 'next/head';
-import Dashboard from '#components/Charities/Charities';
-import Footer from '#components/common/Footer';
+import Charities from '@/components/Charities/Charities';
+import Footer from '@/components/common/Footer';
 import Header from '@/components/common/Header';
 
-const DashboardPage = () => {
+const CharitiesPage = () => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   return (
@@ -28,10 +28,10 @@ const DashboardPage = () => {
         title="Unify Giving"
       />
       
-      <Dashboard />
+      <Charities />
       <Footer />
     </div>
   );
 };
 
-export default DashboardPage;
+export default CharitiesPage;

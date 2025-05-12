@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Charity } from './data/data';
+import { Charity } from '@/components/data/charities/data';
 
 interface CharityListProps {
   filteredCharities: Charity[];

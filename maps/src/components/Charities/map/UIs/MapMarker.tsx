@@ -73,17 +73,31 @@ export default function Marker({
 
     const handleMouseEnter = () => handleHover(true);
     const handleMouseLeave = () => handleHover(false);
+    
+    // Add right-click handler
+    const handleContextMenu = (e: MouseEvent) => {
+      e.preventDefault(); // Prevent default context menu
+      handleClick();
+    };
 
     // Add event listeners
     markerEl.addEventListener("mouseenter", handleMouseEnter);
     markerEl.addEventListener("mouseleave", handleMouseLeave);
-    markerEl.addEventListener("click", handleClick);
+    markerEl.addEventListener("contextmenu", handleContextMenu); // Add right-click listener
+    // Remove the regular click listener to avoid conflicts
+    // markerEl.addEventListener("click", handleClick);
 
     // Marker options
     const options = {
       element: markerEl,
       ...props,
     };
+
+    // Before creating the marker, add validation
+    if (isNaN(longitude) || isNaN(latitude)) {
+      console.error(`Invalid coordinates: [${longitude}, ${latitude}] for data:`, data);
+      return;
+    }
 
     marker = new mapboxgl.Marker(options)
       .setLngLat([longitude, latitude])
@@ -95,7 +109,8 @@ export default function Marker({
       if (markerEl) {
         markerEl.removeEventListener("mouseenter", handleMouseEnter);
         markerEl.removeEventListener("mouseleave", handleMouseLeave);
-        markerEl.removeEventListener("click", handleClick);
+        markerEl.removeEventListener("contextmenu", handleContextMenu);
+        // markerEl.removeEventListener("click", handleClick);
       }
     };
   }, [map, longitude, latitude, props]);
