@@ -52,7 +52,24 @@ const authLink = setContext((_, { headers }) => {
 const client = new ApolloClient({
   // Change the link setup to use uploadLink instead of httpLink
   link: from([errorLink, authLink, uploadLink]),
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    typePolicies: {
+      Charity: {
+        // Unique identifier for Charity objects
+        keyFields: ['id'],
+        // Fields that should be merged rather than overwritten
+        fields: {
+          beneficiaries: {
+            // Merge function for beneficiaries array
+            merge(existing = [], incoming) {
+              return [...existing, ...incoming];
+            }
+          }
+        }
+      },
+      // Add similar configurations for other types
+    }
+  }),
 });
 
 export default client;

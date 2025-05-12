@@ -1,0 +1,43 @@
+enum PaymentMethod {
+  CREDIT_CARD
+  PAYPAL
+  CRYPTOCURRENCY
+  BANK_TRANSFER
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+type Payment {
+  id: ID!
+  donation_id: ID!
+  amount: Float!
+  currency: String!
+  method: PaymentMethod!
+  status: PaymentStatus!
+  transaction_id: String
+  created_at: DateTime!
+  updated_at: DateTime
+}
+
+input NewPaymentInput {
+  donation_id: ID!
+  amount: Float!
+  currency: String!
+  method: PaymentMethod!
+}
+
+type Query {
+  payments(donationId: ID, status: PaymentStatus): [Payment!]!
+  payment(id: ID!): Payment
+}
+
+type Mutation {
+  createPayment(input: NewPaymentInput!): Payment!
+  updatePaymentStatus(id: ID!, status: PaymentStatus!): Payment!
+  processPayment(paymentId: ID!): Payment!
+}
