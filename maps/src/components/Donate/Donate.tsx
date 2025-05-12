@@ -1,12 +1,23 @@
-import React, { useState } from "react";
-import Link from "next/link";
-import HeroSection from './HeroSection';
+import React from "react";
+import DonateHero from '@/components/Donate/DonateHero';
 import CategoriesSection from './CategoriesSection';
 import CharitiesSection from './CharitiesSection';
 import DonationForm from './DonationForm';
 import PaymentSection from './PaymentSection';
 import ImpactSection from './ImpactSection';
 import { useDonation } from './hooks/useDonation';
+
+// Hero section content constants
+const HERO_CONTENT = {
+  title: "Make a Difference Today",
+  subtitle: "Your donation can change lives. Support causes you care about and see the impact of your generosity.",
+  backgroundImage: "/images/donateBanner.jpg",
+  stats: {
+    raised: "$2.5M+",
+    donors: "12K+",
+    charities: "50+"
+  }
+};
 
 const Donate: React.FC = () => {
   const {
@@ -16,12 +27,10 @@ const Donate: React.FC = () => {
     isRecurring,
     recurringFrequency,
     paymentMethod,
-    showProfileMenu,
     selectedCategory,
     handleAmountSelect,
     handleCustomAmountChange,
     handleCharitySelect,
-    setShowProfileMenu,
     setSelectedCategory,
     setIsRecurring,
     setRecurringFrequency,
@@ -31,7 +40,12 @@ const Donate: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800 flex flex-col">
       <main className="flex-grow">
-        <HeroSection />
+        <DonateHero 
+          title={HERO_CONTENT.title}
+          subtitle={HERO_CONTENT.subtitle}
+          backgroundImage={HERO_CONTENT.backgroundImage}
+          stats={HERO_CONTENT.stats}
+        />        
         
         <CategoriesSection 
           selectedCategory={selectedCategory}

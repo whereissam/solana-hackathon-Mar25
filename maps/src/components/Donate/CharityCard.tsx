@@ -2,15 +2,18 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-interface Charity {
+export interface Charity {
   id: number;
   name: string;
   category: string;
+  rating: number;
+  location: string;
+  longitude: number;
+  latitude: number;
   description: string;
   impact: string;
-  rating: number;
   certifications: string[];
-  imagePrompt: string;
+  imagePath?: string;
 }
 
 interface CharityCardProps {

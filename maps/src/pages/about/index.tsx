@@ -34,7 +34,11 @@ const AboutPage: React.FC = () => {
       />
       
       <main>
-        <AboutHero />
+        <AboutHero 
+          title="About Unify Compass"
+          subtitle="Learn about our mission and impact"
+          backgroundImage="/images/about/aboutBanner.jpg"
+        />
         <AboutMission mission={missionData} />
         <AboutValues values={valuesData} />
         <AboutTeam members={teamData} />

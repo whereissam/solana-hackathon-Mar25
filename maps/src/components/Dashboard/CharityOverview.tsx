@@ -1,5 +1,6 @@
 import React from 'react';
 import { Charity } from '../Charities/data/data';
+import { motion } from 'framer-motion';
 
 interface CharityOverviewProps {
   charities?: Charity[];
@@ -7,14 +8,25 @@ interface CharityOverviewProps {
 
 const CharityOverview: React.FC<CharityOverviewProps> = ({ charities = [] }) => {
   return (
-    <div className="bg-white rounded-lg shadow">
+    <motion.div 
+      className="bg-white rounded-lg shadow"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
       <div className="p-6 border-b border-gray-200">
         <h2 className="text-xl font-bold">Top Charities</h2>
       </div>
       <div className="p-6">
         <ul className="divide-y divide-gray-200">
-          {charities.map((charity) => (
-            <li key={charity.id} className="py-4 first:pt-0 last:pb-0">
+          {charities.map((charity, index) => (
+            <motion.li 
+              key={charity.id} 
+              className="py-4 first:pt-0 last:pb-0"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3, delay: index * 0.1 }}
+            >
               <div className="flex items-center">
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
                   <span className="text-primary font-medium">{charity.name.charAt(0)}</span>
@@ -36,16 +48,21 @@ const CharityOverview: React.FC<CharityOverviewProps> = ({ charities = [] }) => 
                   <span className="text-xs text-gray-500 ml-1">{charity.rating}</span>
                 </div>
               </div>
-            </li>
+            </motion.li>
           ))}
         </ul>
       </div>
-      <div className="p-4 border-t border-gray-200 text-center">
+      <motion.div 
+        className="p-4 border-t border-gray-200 text-center"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.5 }}
+      >
         <button className="text-sm text-primary hover:underline">
           View all charities
         </button>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 
