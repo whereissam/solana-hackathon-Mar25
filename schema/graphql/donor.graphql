@@ -1,0 +1,26 @@
+type Donor {
+  id: ID!
+  first_name: String
+  last_name: String
+  email: String!
+  donations_given: Float!
+  donations: [Donation!]
+}
+
+input NewDonorInput {
+  first_name: String!
+  last_name: String!
+  email: String!
+  password: String!
+}
+
+type Query {
+  donors(offset: Int! = 0, limit: Int! = 10): [Donor!]!
+  donor(id: ID!): Donor
+}
+
+type Mutation {
+  createDonor(input: NewDonorInput!): Donor!
+  updateDonor(id: ID!, input: NewDonorInput!): Donor!
+  deleteDonor(id: ID!): Boolean!
+}

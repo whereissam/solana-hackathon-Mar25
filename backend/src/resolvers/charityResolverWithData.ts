@@ -28,8 +28,8 @@ const resolver = {
      */
     charities: async (_parent, args: QueryCharitiesArgs) => {
       return await dataService.getCharities({
-        skip: args.offset,
-        take: args.limit,
+        skip: args.offset ?? 0,  // Provide default value of 0 if undefined
+        take: args.limit ?? 30,  // Provide default value of 30 if undefined
         where: args.id ? { id: args.id } : {}
       });
     },
@@ -48,8 +48,8 @@ const resolver = {
      */
     beneficiaries: async (parent: Charity, args: CharityBeneficiariesArgs) => {
       return dataService.getBeneficiaries(parent.id, {
-        skip: args.offset,
-        take: args.limit
+        skip: args.offset ?? 0,  // Provide default value of 0 if undefined
+        take: args.limit ?? 10   // Provide default value of 10 if undefined
       });
     },
     
@@ -57,6 +57,9 @@ const resolver = {
      * Get address for a charity
      */
     address: (parent) => {
+      // Add cache control info to the resolver
+      const info = { cacheControl: { maxAge: 3600 } };
+      
       return {
         ...parent
       };

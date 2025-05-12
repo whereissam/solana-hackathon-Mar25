@@ -1,10 +1,10 @@
-type Charity{
+type Charity @cacheControl(maxAge: 3600) {
     id: Int!
     name: String!
     website: String
     mission: String
     sector: CharitySector
-    description: String!
+    description: String! @cacheControl(maxAge: 86400)
     address: Address!
     beneficiaries(offset: Int! = 0, limit: Int! = 10): [CharityUser!]! 
 }

@@ -51,8 +51,26 @@ export default function MapStyles() {
 
   const handleChange = (value: string) => {
     if (!map) return;
-    map.setStyle(`mapbox://styles/mapbox/${value}`);
-    setActiveStyle(value);
+    
+    // Add a brief camera animation when changing styles
+    map.easeTo({
+      pitch: map.getPitch() + 5,
+      duration: 300,
+    });
+    
+    // Set the style with a slight delay for better visual effect
+    setTimeout(() => {
+      map.setStyle(`mapbox://styles/mapbox/${value}`);
+      setActiveStyle(value);
+      
+      // Return camera to original position
+      setTimeout(() => {
+        map.easeTo({
+          pitch: map.getPitch() - 5,
+          duration: 300,
+        });
+      }, 300);
+    }, 150);
   };
 
   useEffect(() => {

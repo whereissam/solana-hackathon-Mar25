@@ -23,13 +23,14 @@ export default function MapProvider({
   initialViewState,
   children,
 }: MapComponentProps) {
-  const map = useRef<mapboxgl.Map | null>(null);
+  const mapRef = useRef<mapboxgl.Map | null>(null);
+  const [map, setMap] = useState<mapboxgl.Map | null>(null);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    if (!mapContainerRef.current || map.current) return;
+    if (!mapContainerRef.current || mapRef.current) return;
 
-    map.current = new mapboxgl.Map({
+    mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current,
       style: "mapbox://styles/mapbox/standard",
       center: [initialViewState.longitude, initialViewState.latitude],
@@ -38,21 +39,23 @@ export default function MapProvider({
       logoPosition: "bottom-right",
     });
 
-    map.current.on("load", () => {
+    mapRef.current.on("load", () => {
       setLoaded(true);
+      setMap(mapRef.current);
     });
 
     return () => {
-      if (map.current) {
-        map.current.remove();
-        map.current = null;
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+        setMap(null);
       }
     };
   }, [initialViewState, mapContainerRef]);
 
   return (
     <div className="z-[1000]">
-      <MapContext.Provider value={{ map: map.current! }}>
+      <MapContext.Provider value={{ map: map!, setMap }}>
         {children}
       </MapContext.Provider>
       {!loaded && (

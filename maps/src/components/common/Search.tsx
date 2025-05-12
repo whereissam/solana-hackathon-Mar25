@@ -1,6 +1,7 @@
 'use client';
 
-import Form from 'next/form';
+// Remove this import
+// import Form from 'next/form';
 import { useFormStatus } from 'react-dom';
 import { useRef, use, useEffect, useState } from 'react';
 import { SearchIcon } from 'lucide-react';
@@ -40,9 +41,10 @@ function SearchBase({ initialQuery }: { initialQuery: string }) {
   }
 
   return (
-    <Form
+    // Replace Form with standard HTML form
+    <form
       ref={formRef}
-      action={handleSubmit}
+      action={handleSubmit as any}
       className="relative flex flex-1 flex-shrink-0 w-full rounded shadow-sm"
     >
       <label htmlFor="search" className="sr-only">
@@ -60,7 +62,7 @@ function SearchBase({ initialQuery }: { initialQuery: string }) {
         className="w-full border-0 px-10 py-6 text-base md:text-sm overflow-hidden focus-visible:ring-0"
       />
       <LoadingSpinner />
-    </Form>
+    </form>
   );
 }
 

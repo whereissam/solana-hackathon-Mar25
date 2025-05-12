@@ -71,6 +71,10 @@ export default function Marker({
     const markerEl = markerRef.current;
     if (!map || !markerEl) return;
 
+    // Add entrance animation class
+    markerEl.classList.add('marker-entrance');
+    markerEl.style.animation = 'markerEntrance 0.5s ease-out';
+
     const handleMouseEnter = () => handleHover(true);
     const handleMouseLeave = () => handleHover(false);
     
