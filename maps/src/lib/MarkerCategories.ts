@@ -1,6 +1,5 @@
-import { Dog,Landmark, LocateFixed, LucideProps, PersonStanding } from 'lucide-react'
+import { Dog, Landmark, LocateFixed, LucideProps, PersonStanding } from 'lucide-react'
 import { FunctionComponent } from 'react'
-import colors from 'tailwindcss/colors'
 
 export enum Category {
   LOCATE = 0,
@@ -24,25 +23,24 @@ const MarkerCategories: MarkerCategoryType = {
   [Category.LOCATE]: {
     name: 'User Location',
     icon: LocateFixed,
-    color: colors.green[400],
+    color: '#4ade80', // green-400 equivalent
     hideInMenu: false,
   },
   [Category.CAT1]: {
     name: 'Category 1',
     icon: Landmark,
-    color: colors.blue[400],
+    color: '#60a5fa', // blue-400 equivalent
   },
   [Category.CAT2]: {
     name: 'Category 2',
     icon: PersonStanding,
-    color: colors.green[400],
+    color: '#4ade80', // green-400 equivalent
   },
   [Category.CAT3]: {
     name: 'Category 3',
     icon: Dog,
-    color: colors.orange[400],
+    color: '#fb923c', // orange-400 equivalent
   },
-
 }
 
 export default MarkerCategories

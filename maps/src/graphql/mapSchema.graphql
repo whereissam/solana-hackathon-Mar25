@@ -1,0 +1,28 @@
+# GraphQL Schema for Map-Related Queries
+
+# Location type for map display
+type Location {
+  lat: Float!
+  lng: Float!
+  address: String
+  city: String
+  country: String
+}
+
+# Charity with location data for map display
+type CharityLocation {
+  id: Int!
+  name: String!
+  description: String
+  sector: CharitySector
+  location: Location!
+}
+
+# Extend the existing Query type with map-specific queries
+extend type Query {
+  # Get all charities with location data for map display
+  charitiesWithLocation(offset: Int = 0, limit: Int = 100, sector: CharitySector): [CharityLocation!]!
+  
+  # Get a single charity with location data by ID
+  charityLocationById(id: Int!): CharityLocation
+}

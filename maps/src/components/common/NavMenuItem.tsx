@@ -16,13 +16,17 @@ const NavMenuItem = ({ icon, href, external = false, label }: NavMenuItemProps) 
 
   return (
     <li className={`${router.pathname === (href || '/') ? 'underline underline-offset-1' : ''}`}>
-      <Link href={href} target={external ? '_blank' : '_self'} className="flex items-center gap-2">
+      <Link
+        href={href}
+        target={external ? '_blank' : '_self'}
+        className="flex items-center gap-2"
+        legacyBehavior>
         <>
           {icon} {label}
         </>
       </Link>
     </li>
-  )
+  );
 }
 
 export default NavMenuItem

@@ -1,4 +1,4 @@
-import { Leaf } from 'lucide-react'
+import { Heart, MapPin } from 'lucide-react'
 import Head from 'next/head'
 import Link from 'next/link'
 
@@ -8,70 +8,73 @@ import { AppConfig } from '#lib/AppConfig'
 const Home = () => (
   <div className="container mx-auto max-w-2xl p-3 max-md:max-w-none">
     <Head>
-      <title>Jumpstart your new leaflet mapping Project with next.js and typescript 🤩</title>
+      <title>Unify Giving - Connect with charitable organizations on the map</title>
       <meta
         property="og:title"
-        content="Jumpstart your new leaflet mapping Project with next.js and typescript 🤩"
+        content="Unify Giving - Connect with charitable organizations on the map"
         key="title"
       />
       <meta
         name="description"
-        content="next-leaflet-starter-typescript is an extensible next.js starter template for the leaflet-maps-react plugin. Written in typescript,
-      visually enhanced by tailwind and lucide-react icons."
+        content="Unify Giving helps you discover and support charitable organizations through an interactive map interface. Find and connect with causes you care about."
       />
     </Head>
     <header className="items-top mt-10 gap-4 md:flex">
       <span className="text-primary">
-        <Leaf size={AppConfig.ui.bigIconSize} className="mt-2" />
+        <Heart size={AppConfig.ui.bigIconSize} className="mt-2" />
       </span>
       <div>
-        <h2 className="text-4xl font-bold ">Unify Giving with leaflet-react</h2>
-        <h3 className="mb-16 text-3xl">written in Typescript</h3>
+        <h2 className="text-4xl font-bold">Unify Giving</h2>
+        <h3 className="mb-16 text-3xl">Mapping compassion worldwide</h3>
       </div>
     </header>
     <section>
       <p className="mb-2">
-        <span>An extensible </span>
+        <span>Unify Giving connects donors with charitable organizations through interactive maps. Find causes you care about based on location, category, and impact. Powered by </span>
         <Link className="text-primary" target="_blank" href="https://nextjs.org/">
-          next.js
-        </Link>
-        <span> starter for the </span>
-        <Link className="text-primary" target="_blank" href="https://react-leaflet.js.org/">
-          leaflet-react
-        </Link>
-        <span> plugin. Written in </span>
-        <Link className="text-primary" target="_blank" href="https://www.typescriptlang.org/">
-          typescript
-        </Link>
-        <span>, visually enhanced by </span>
-        <Link className="text-primary" target="_blank" href="https://tailwindcss.com/">
-          tailwind
+          Next.js
         </Link>
         <span> and </span>
-        <Link className="text-primary" target="_blank" href="https://lucide.dev/">
-          lucide icons
+        <Link className="text-primary" target="_blank" href="https://react-leaflet.js.org/">
+          React Leaflet
         </Link>
-        <span>. ✨</span>
+        <span>, our platform makes charitable giving more accessible and transparent. </span>
+        <MapPin className="inline h-4 w-4" />
+        <span> Discover charities near you today!</span>
       </p>
     </section>
     <section className="grid grid-cols-1 md:grid-cols-2">
       <div>
-        <h3 className="my-5 text-xl">Demo Content</h3>
+        <h3 className="my-5 text-xl">Explore Our Platform</h3>
         <NavMenu />
+      </div>
+      <div className="flex flex-col items-center justify-center p-4">
+        <div className="mb-4 rounded-lg bg-primary-50 p-4 text-center">
+          <h4 className="mb-2 font-semibold">Featured Categories</h4>
+          <div className="flex flex-wrap gap-2 text-sm">
+            <span className="rounded-full bg-primary-100 px-3 py-1">Education</span>
+            <span className="rounded-full bg-primary-100 px-3 py-1">Healthcare</span>
+            <span className="rounded-full bg-primary-100 px-3 py-1">Environment</span>
+            <span className="rounded-full bg-primary-100 px-3 py-1">Humanitarian</span>
+          </div>
+        </div>
+        <Link href="/charities" className="rounded bg-primary px-6 py-2 text-white hover:bg-primary-dark">
+          View Charity Map
+        </Link>
       </div>
     </section>
     <footer className="mt-16 flex justify-between rounded bg-light p-3 text-sm">
       <div>
-        2023, some rights reserved <br />
+        {new Date().getFullYear()}, Unify Giving <br />
         <Link
-          href="https://github.com/richard-unterberg/typescript-next-leaflet-starter"
+          href="/about"
           className="text-primary"
         >
-          typescript-next-leaflet-starter
+          About Our Mission
         </Link>
       </div>
       <div className="text-primary">
-        <Leaf size={AppConfig.ui.mapIconSize} className="mt-2" />
+        <Heart size={AppConfig.ui.mapIconSize} className="mt-2" />
       </div>
     </footer>
   </div>
