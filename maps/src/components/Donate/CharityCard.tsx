@@ -37,7 +37,7 @@ const CharityCard: React.FC<CharityCardProps> = ({
     >
       <div className="h-48 overflow-hidden relative">
         <Image
-          src={`/images/charities/charity${charity.id}.jpg`}
+          src={charity.imagePath || `/images/charities/charity${charity.id}.jpg`}
           alt={charity.name}
           className="object-cover object-center"
           fill

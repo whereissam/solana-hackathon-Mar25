@@ -1,0 +1,74 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    String    @id @default(auto()) @map("_id") @db.ObjectId
+  email                 String    @unique
+  name                  String?
+  authId                String?   @unique // Add this line, make it @unique if it should be
+  charitiesAdministered Charity[] @relation("CharityAdminToCharities")
+  donations             Donation[]
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+}
+
+model Charity {
+  id               String        @id @default(auto()) @map("_id") @db.ObjectId
+  name             String
+  description      String
+  mission          String?
+  sector           String        // For MongoDB, enums are typically handled at the application level or as string arrays
+  address          String?
+  website          String?
+  charityAdminId   String?       @db.ObjectId // Foreign key to User, type String for ObjectId
+  charityAdmin     User?         @relation("CharityAdminToCharities", fields: [charityAdminId], references: [id])
+  beneficiaries    Beneficiary[]
+  donations        Donation[]
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+}
+
+model Beneficiary {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  firstName   String?
+  lastName    String?
+  email       String?  @unique
+  story       String?
+  charityId   String   @db.ObjectId // Foreign key to Charity, type String for ObjectId
+  charity     Charity  @relation(fields: [charityId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Donation {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId // Changed from cuid() to auto() for consistency with other models
+  amount        BigInt   // Prisma supports BigInt for MongoDB
+  currency      String
+  type          String
+  status        String
+  payment_id    String?
+  receipt_addr  String?
+  charityId     String   @db.ObjectId // Foreign key to Charity, type String for ObjectId
+  charity       Charity  @relation(fields: [charityId], references: [id])
+  donorId       String?  @db.ObjectId // Foreign key to User, type String for ObjectId
+  donor         User?    @relation(fields: [donorId], references: [id])
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt
+}
+
+// You might want to define Prisma Enums if your DB supports them and you want stricter type safety at DB level
+// enum CharitySectorPrisma {
+//   ANIMALS
+//   EDUCATION
+//   HEALTH
+//   // ... other sectors
+// }

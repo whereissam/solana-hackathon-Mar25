@@ -50,7 +50,8 @@ async function startup() {
       }
     })
   })
-  app.use(graphqlUploadExpress())
+  // Fix the graphqlUploadExpress middleware
+  app.use('/graphql', graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 10 }) as any)
   app.use('/', expressMiddleware(server,{
     context: async ({req}) => { 
       if (!req.headers.token) return {token: null, user: null}

@@ -15,7 +15,7 @@ interface DonateHeroProps {
 const DonateHero: React.FC<DonateHeroProps> = ({ 
   title = "Make a Difference Today", 
   subtitle = "Your donation can change lives. Support causes you care about and see the impact of your generosity.", 
-  backgroundImage = "/images/donateBanner.jpg",
+  backgroundImage = "/images/donate/donateBanner.jpg",
   stats = {
     raised: "$2.5M+",
     donors: "12K+",

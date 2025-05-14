@@ -16,11 +16,11 @@ input NewDonorInput {
 
 type Query {
   donors(offset: Int! = 0, limit: Int! = 10): [Donor!]!
-  donor(id: ID!): Donor
+  donor(id: ID!): Donor # Correctly ID!
 }
 
 type Mutation {
   createDonor(input: NewDonorInput!): Donor!
-  updateDonor(id: ID!, input: NewDonorInput!): Donor!
-  deleteDonor(id: ID!): Boolean!
+  updateDonor(id: ID!, input: NewDonorInput!): Donor! # Correctly ID!
+  deleteDonor(id: ID!): Boolean! # Correctly ID!
 }

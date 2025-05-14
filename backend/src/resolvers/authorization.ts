@@ -63,10 +63,13 @@ export function isEqUserId(argName: string) {
     }
 }
 
-export function withAuth(strategies: StrategyFunctionType[], resolver: (parent, args, contextValue) => any) {
-    return async (parent, args, contextValue) => {
-        const user = contextValue.user
-        any(...strategies)(user, args)
-        return resolver(parent, args, contextValue)
-    }
+export function withAuth(
+  strategies: StrategyFunctionType[], 
+  resolver: (parent: any, args: any, contextValue: any) => any
+) {
+    return async (parent: any, args: any, contextValue: any) => {
+        const user = contextValue.user;
+        any(...strategies)(user, args);
+        return resolver(parent, args, contextValue);
+    };
 }

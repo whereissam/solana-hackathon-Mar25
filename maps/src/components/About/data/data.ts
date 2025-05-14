@@ -14,32 +14,32 @@ export const missionStatement: MissionStatementType = {
 
 export const coreValues: CoreValueType[] = [
   {
-    icon: "🔍",
+    icon: "Search",
     title: "Transparency",
     description: "We believe in complete transparency in all charitable transactions, allowing donors to see exactly where their money goes."
   },
   {
-    icon: "🔒",
+    icon: "Shield",
     title: "Security",
     description: "Using blockchain technology, we ensure that all donations are securely processed and recorded on an immutable ledger."
   },
   {
-    icon: "💡",
+    icon: "Lightbulb",
     title: "Innovation",
     description: "We continuously explore new technologies and approaches to improve the charitable giving experience."
   },
   {
-    icon: "🤝",
+    icon: "Users",
     title: "Collaboration",
     description: "We work closely with charities, donors, and technology partners to create a more effective giving ecosystem."
   },
   {
-    icon: "🌍",
+    icon: "Globe",
     title: "Global Impact",
     description: "Our platform enables donors to support causes around the world, breaking down geographical barriers to giving."
   },
   {
-    icon: "⚡",
+    icon: "Zap",
     title: "Efficiency",
     description: "We minimize overhead costs and administrative burdens, ensuring more of each donation reaches its intended beneficiaries."
   }

@@ -14,10 +14,9 @@ export interface DonorFormData {
   isAnonymous: boolean;
 }
 
-export type PaymentMethod = 'card' | 'paypal' | 'crypto';
 export interface PaymentMethod {
   id: number;
-  name: string;
+  name: 'Credit Card' | 'PayPal' | 'Cryptocurrency' | 'Bank Transfer';
   icon: string;
   description: string;
   isActive: boolean;

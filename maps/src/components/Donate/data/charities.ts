@@ -22,9 +22,7 @@ export const charities = [
     impact: "Reached 50,000+ students in 25 countries",
     rating: 4.9,
     certifications: ["501(c)(3)", "Platinum Transparency"],
-    imagePrompt:
-      "Professional education charity logo with open book and globe symbol on clean white background, modern minimalist design with blue color scheme, representing global learning and knowledge sharing",
-  },
+    imagePath: "/images/charities/education-1.jpg", },
   {
     id: 2,
     name: "Ocean Conservation Alliance",

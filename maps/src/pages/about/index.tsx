@@ -7,10 +7,21 @@ import AboutMission from '@/components/About/AboutMission';
 import AboutValues from '@/components/About/AboutValues';
 import AboutTeam from '@/components/About/AboutTeam';
 import AboutContact from '@/components/About/AboutContact';
-import { missionData, valuesData, teamData, contactData } from '@/components/About/data/data';
+import { missionStatement, coreValues, teamMembers } from '@/components/About/data/data';
 
 const AboutPage: React.FC = () => {
   const [showProfileMenu, setShowProfileMenu] = React.useState(false);
+
+  const contactData = {
+    email: "info@unifygiving.com",
+    phone: "+1 (555) 123-4567",
+    address: "123 Charity Lane, Berlin, Germany",
+    socialMedia: {
+      twitter: "https://twitter.com/unifygiving",
+      facebook: "https://facebook.com/unifygiving",
+      linkedin: "https://linkedin.com/company/unifygiving"
+    }
+  };
 
   return (
     <div className="min-h-screen bg-base-200">
@@ -39,9 +50,9 @@ const AboutPage: React.FC = () => {
           subtitle="Learn about our mission and impact"
           backgroundImage="/images/about/aboutBanner.jpg"
         />
-        <AboutMission mission={missionData} />
-        <AboutValues values={valuesData} />
-        <AboutTeam members={teamData} />
+        <AboutMission mission={missionStatement} />
+        <AboutValues values={coreValues} />
+        <AboutTeam members={teamMembers} />
         <AboutContact contact={contactData} />
       </main>
       
