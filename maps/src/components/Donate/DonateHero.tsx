@@ -24,7 +24,7 @@ const DonateHero: React.FC<DonateHeroProps> = ({
 }) => {
   return (
     <section className="relative h-96 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-r from-purple-900 via-purple-800 to-transparent z-10"></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-primary/90 via-primary/70 to-transparent z-10"></div>
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{

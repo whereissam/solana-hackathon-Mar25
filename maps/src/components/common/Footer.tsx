@@ -9,7 +9,7 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           {/* Column 1: Brand */}
           <div>
-            <h3 className="text-white font-bold text-xl mb-4">Unify Giving</h3>
+            <h3 className="text-white font-bold text-xl mb-4">Unify Compass</h3>
             <p className="text-gray-400 text-sm">
               Connecting donors with trusted charitable organizations making a positive impact around the world.
             </p>
@@ -55,7 +55,7 @@ const Footer: React.FC = () => {
         {/* Bottom section with copyright and links */}
         <div className="pt-6 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm text-gray-500 mb-4 md:mb-0">
-            © {new Date().getFullYear()} Unify Giving. All rights reserved.
+            © {new Date().getFullYear()} Unify Compass. All rights reserved.
           </p>
           <div className="flex flex-col md:flex-row items-center">
             {/* Social Media Icons */}

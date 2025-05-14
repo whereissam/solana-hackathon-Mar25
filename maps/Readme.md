@@ -1,6 +1,6 @@
-# Unify Giving Project - Next.js & Leaflet Starter Kit
+# Unify Compass Project - Next.js & Leaflet Starter Kit
 
-An extensible [Next.js](https://nextjs.org/) starter kit built with [react-leaflet](https://react-leaflet.js.org/) for interactive mapping features. Designed specifically for the **Unify Giving Project**, this template creates beautiful, responsive maps enhanced with [Tailwind CSS](https://tailwindcss.com/) and [Lucide Icons](https://lucide.dev/). ✨
+An extensible [Next.js](https://nextjs.org/) starter kit built with [react-leaflet](https://react-leaflet.js.org/) for interactive mapping features. Designed specifically for the **Unify Compass Project**, this template creates beautiful, responsive maps enhanced with [Tailwind CSS](https://tailwindcss.com/) and [Lucide Icons](https://lucide.dev/). ✨
 
 Setup powered by [TypeScript](https://www.typescriptlang.org/) for robust type safety and enhanced developer experience. 👐
 
@@ -176,7 +176,7 @@ Customize marker icons by adding new SVG files to the `public/markers/` director
 
 ## Contributing
 
-We welcome contributions to the Unify Giving Project! Please feel free to submit issues or pull requests.
+We welcome contributions to the Unify Compass Project! Please feel free to submit issues or pull requests.
 
 ## License
 

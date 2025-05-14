@@ -20,17 +20,17 @@ const ContactPage: React.FC = () => {
         "You can use our search feature and filter by location to find charities in your area. Our interactive map also allows you to visually browse organizations near you.",
     },
     {
-      question: "How can I volunteer through Unify Giving?",
+      question: "How can I volunteer through Unify Compass?",
       answer:
         "Browse volunteer opportunities on our platform, create an account, and apply directly through our site. You can filter by cause, skills required, and time commitment to find the perfect match.",
     },
     {
       question: "Is my donation secure and tax-deductible?",
       answer:
-        "Yes, all donations made through Unify Giving are secure and encrypted. All registered charities on our platform are verified 501(c)(3) organizations, making your donations tax-deductible.",
+        "Yes, all donations made through Unify Compass are secure and encrypted. All registered charities on our platform are verified 501(c)(3) organizations, making your donations tax-deductible.",
     },
     {
-      question: "How can my organization join Unify Giving?",
+      question: "How can my organization join Unify Compass?",
       answer:
         "Organizations can apply to join our platform by completing the registration form in the Partners section. Our team will review your application and reach out within 3-5 business days.",
     },
@@ -44,22 +44,22 @@ const ContactPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-base-200 text-base-content flex flex-col">
       <Head>
-        <title>Unify Giving - Contact Us</title>
+        <title>Unify Compass - Contact Us</title>
         <meta
           property="og:title"
-          content="Unify Giving - Contact Us"
+          content="Unify Compass - Contact Us"
           key="title"
         />
         <meta
           name="description"
-          content="Get in touch with the Unify Giving team. We're here to answer your questions and help you make a difference."
+          content="Get in touch with the Unify Compass team. We're here to answer your questions and help you make a difference."
         />
       </Head>
       
       <Header 
         showProfileMenu={showProfileMenu} 
         setShowProfileMenu={setShowProfileMenu}
-        title="Unify Giving"
+        title="Unify Compass"
       />
       
       <main className="flex-grow">
@@ -215,7 +215,7 @@ const ContactPage: React.FC = () => {
                 Frequently Asked Questions
               </h2>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                Find answers to common questions about Unify Giving and how we can help you make a difference.
+                Find answers to common questions about Unify Compass and how we can help you make a difference.
               </p>
             </div>
             <div className="max-w-4xl mx-auto">

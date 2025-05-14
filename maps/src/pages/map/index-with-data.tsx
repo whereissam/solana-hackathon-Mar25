@@ -34,15 +34,15 @@ const MapPageWithData = () => {
     <ApolloProvider client={apolloClient}>
       <div className="relative h-screen w-full">
         <Head>
-          <title>Unify Giving - Interactive Charity Map</title>
+          <title>Unify Compass - Interactive Charity Map</title>
           <meta
             property="og:title"
-            content="Unify Giving - Interactive Charity Map"
+            content="Unify Compass - Interactive Charity Map"
             key="title"
           />
           <meta
             name="description"
-            content="Explore charitable organizations around the world with our interactive map. Find and support causes you care about with Unify Giving."
+            content="Explore charitable organizations around the world with our interactive map. Find and support causes you care about with Unify Compass."
           />
         </Head>
         

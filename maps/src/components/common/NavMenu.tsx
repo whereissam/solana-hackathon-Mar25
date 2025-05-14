@@ -20,7 +20,7 @@ const NavMenu = ({ variant = NavMenuVariant.INTRO }: NavMenuProps) => {
   return (
     <ul className={`${listStyle}`}>
       <NavMenuItem href="/" label="Intro" icon={<Home size={navIconSize} />} />
-      <NavMenuItem href="/map" label="Unify Giving Map" icon={<Compass size={navIconSize} />} />
+      <NavMenuItem href="/map" label="Unify Compass Map" icon={<Compass size={navIconSize} />} />
       <NavMenuItem
         href=""
         label=""

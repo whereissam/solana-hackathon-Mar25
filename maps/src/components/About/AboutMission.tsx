@@ -63,7 +63,7 @@ const AboutMission: React.FC<MissionProps> = ({ mission }) => {
           >
             <h2 className="text-3xl font-bold text-gray-800 mb-6">Our Story</h2>
             <p className="text-lg text-gray-700 mb-6">
-              Unify Giving began when our founder, Sarah Johnson, recognized a critical gap between local charities and the communities they serve. After years working in the nonprofit sector, she saw how smaller organizations struggled with visibility while community members wanted to help but didn't know where to start.
+              Unify Compass began when our founder, Sarah Johnson, recognized a critical gap between local charities and the communities they serve. After years working in the nonprofit sector, she saw how smaller organizations struggled with visibility while community members wanted to help but didn't know where to start.
             </p>
             <p className="text-lg text-gray-700 mb-8">
               What started as a simple database has grown into a comprehensive platform connecting thousands of charities with volunteers, donors, and partners across the country. Our mission remains the same: to make local impact accessible to everyone.
@@ -85,7 +85,7 @@ const AboutMission: React.FC<MissionProps> = ({ mission }) => {
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-800">2020: Foundation</h3>
-                  <p className="text-gray-600">Unify Giving launches with 100 partner organizations</p>
+                  <p className="text-gray-600">Unify Compass launches with 100 partner organizations</p>
                 </div>
               </motion.div>
               

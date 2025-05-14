@@ -26,22 +26,22 @@ const AboutPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-base-200">
       <Head>
-        <title>Unify Giving - About Us</title>
+        <title>Unify Compass - About Us</title>
         <meta
           property="og:title"
-          content="Unify Giving - About Us"
+          content="Unify Compass - About Us"
           key="title"
         />
         <meta
           name="description"
-          content="Learn about Unify Giving's mission, values, and the team behind our platform dedicated to making charitable giving more transparent and impactful."
+          content="Learn about Unify Compass's mission, values, and the team behind our platform dedicated to making charitable giving more transparent and impactful."
         />
       </Head>
       
       <Header 
         showProfileMenu={showProfileMenu} 
         setShowProfileMenu={setShowProfileMenu}
-        title="Unify Giving"
+        title="Unify Compass"
       />
       
       <main>

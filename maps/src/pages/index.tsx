@@ -8,15 +8,15 @@ import { AppConfig } from '#lib/AppConfig'
 const Home = () => (
   <div className="container mx-auto max-w-2xl p-3 max-md:max-w-none">
     <Head>
-      <title>Unify Giving - Connect with charitable organizations on the map</title>
+      <title>Unify Compass - Connect with charitable organizations on the map</title>
       <meta
         property="og:title"
-        content="Unify Giving - Connect with charitable organizations on the map"
+        content="Unify Compass - Connect with charitable organizations on the map"
         key="title"
       />
       <meta
         name="description"
-        content="Unify Giving helps you discover and support charitable organizations through an interactive map interface. Find and connect with causes you care about."
+        content="Unify Compass helps you discover and support charitable organizations through an interactive map interface. Find and connect with causes you care about."
       />
     </Head>
     <header className="items-top mt-10 gap-4 md:flex">
@@ -24,13 +24,13 @@ const Home = () => (
         <Heart size={AppConfig.ui.bigIconSize} className="mt-2" />
       </span>
       <div>
-        <h2 className="text-4xl font-bold">Unify Giving</h2>
+        <h2 className="text-4xl font-bold">Unify Compass</h2>
         <h3 className="mb-16 text-3xl">Mapping compassion worldwide</h3>
       </div>
     </header>
     <section>
       <p className="mb-2">
-        <span>Unify Giving connects donors with charitable organizations through interactive maps. Find causes you care about based on location, category, and impact. Powered by </span>
+        <span>Unify Compass connects donors with charitable organizations through interactive maps. Find causes you care about based on location, category, and impact. Powered by </span>
         <Link className="text-primary" target="_blank" href="https://nextjs.org/">
           Next.js
         </Link>
@@ -65,7 +65,7 @@ const Home = () => (
     </section>
     <footer className="mt-16 flex justify-between rounded bg-light p-3 text-sm">
       <div>
-        {new Date().getFullYear()}, Unify Giving <br />
+        {new Date().getFullYear()}, Unify Compass <br />
         <Link
           href="/about"
           className="text-primary"
