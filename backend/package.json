@@ -36,7 +36,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "graphql": "^16.8.1",
+    "graphql": "^16.11.0",
     "graphql-scalars": "^1.24.2",
     "graphql-tools": "^9.0.18",
     "graphql-upload": "^17.0.0",
