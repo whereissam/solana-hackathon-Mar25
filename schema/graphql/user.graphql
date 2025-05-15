@@ -1,5 +1,5 @@
 type Donor{
-    id: ID! # Correct
+    id: Int!
     first_name: String
     last_name: String
     email: String!
@@ -7,7 +7,7 @@ type Donor{
 }
 
 type Beneficiary{
-    id: ID! # Correct
+    id: Int!
     first_name: String
     last_name: String
     email: String!
@@ -15,7 +15,7 @@ type Beneficiary{
 }
 
 type User {
-  id: ID! # Correct
+  id: Int!
   first_name: String
   last_name: String
   email: String!
@@ -30,7 +30,7 @@ enum RoleType {
 }
 
 type Mcfile {
-    id: ID! // Correct
+    id: Int!
     first_name: String
     last_name: String
     email: String!
@@ -38,7 +38,7 @@ type Mcfile {
 }
 
 type Mcfile {
-    id: ID! // Correct
+    id: Int!
     first_name: String
     last_name: String
     email: String!
@@ -46,7 +46,7 @@ type Mcfile {
 }
 
 type Mcfile {
-  id: ID! // Correct
+  id: Int!
   first_name: String
   last_name: String
   email: String!

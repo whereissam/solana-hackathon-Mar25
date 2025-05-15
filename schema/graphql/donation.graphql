@@ -11,7 +11,7 @@ enum DonationType {
 }
 
 type Donation {
-    id: String! # String is acceptable, ID is conventional
+    id: String!     
     amount: BigInt!
     currency: String!
     type: DonationType!
@@ -22,7 +22,7 @@ type Donation {
 }
 
 type Query {
-    donations(donorId: ID): [Donation]! # Correctly ID
+    donations(donorId: ID): [Donation]!
 }
 
 type PaymentCompletedResult {
@@ -31,6 +31,6 @@ type PaymentCompletedResult {
 }
 
 type Mutation {
-    createCryptoDonation(beneficiaryId: ID!, amountInLamports: Int!, tokenCode: String!): Donation! # Correctly ID!
+    createCryptoDonation(beneficiaryId: Int!, amountInLamports: Int!, tokenCode: String!): Donation! # Correctly Int!
     cryptoPaymentCompleted(donationId: String!, txHash: String!) : PaymentCompletedResult!
 }
