@@ -152,11 +152,11 @@ const MapPopUp: React.FC<MapPopUpProps> = ({
           
           // Mock beneficiary data with random names
           const mockBeneficiaries = [
-            { id: 1, first_name: "Luna", last_name: "Smith", email: "luna.smith@email.com", image: "/images/beneficiary/beneficiary-1.jpg" },
-            { id: 2, first_name: "Max", last_name: "Johnson", email: "max.johnson@email.com", image: "/images/beneficiary/beneficiary-2.jpg" },
-            { id: 3, first_name: "Bella", last_name: "Williams", email: "bella.williams@email.com", image: "/images/beneficiary/beneficiary-3.jpg" },
-            { id: 4, first_name: "Charlie", last_name: "Brown", email: "charlie.brown@email.com", image: "/images/beneficiary/beneficiary-4.jpg" },
-            { id: 5, first_name: "Oliver", last_name: "Davis", email: "oliver.davis@email.com", image: "/images/beneficiary/beneficiary-5.jpg" }
+            { id: "1", first_name: "Luna", last_name: "Smith", email: "luna.smith@email.com" },
+            { id: "2", first_name: "Max", last_name: "Johnson", email: "max.johnson@email.com" },
+            { id: "3", first_name: "Bella", last_name: "Williams", email: "bella.williams@email.com" },
+            { id: "4", first_name: "Charlie", last_name: "Brown", email: "charlie.brown@email.com" },
+            { id: "5", first_name: "Oliver", last_name: "Davis", email: "oliver.davis@email.com" }
           ];
 
           beneficiaryContent.innerHTML = `
@@ -167,7 +167,7 @@ const MapPopUp: React.FC<MapPopUpProps> = ({
                   <div class="bg-white rounded-lg shadow-md overflow-hidden transform transition-transform duration-200 hover:scale-105">
                     <div class="relative h-40 overflow-hidden">
                       <img 
-                        src="${beneficiary.image}" 
+                        src="/images/beneficiary/beneficiary-${beneficiary.id}.jpg" 
                         alt="${beneficiary.first_name} ${beneficiary.last_name}"
                         class="w-full h-full object-cover"
                       />
@@ -196,7 +196,7 @@ const MapPopUp: React.FC<MapPopUpProps> = ({
           beneficiaryPopupRef.current = new mapboxgl.Popup({
             closeButton: true,
             closeOnClick: false,
-            maxWidth: '800px', // Increased to accommodate grid
+            maxWidth: '800px',
             className: 'beneficiary-popup-container',
             anchor: 'center',
             offset: 15
@@ -204,7 +204,7 @@ const MapPopUp: React.FC<MapPopUpProps> = ({
 
           // Set content and position for beneficiary popup
           beneficiaryPopupRef.current
-            .setLngLat([lng, lat]) // Centered position
+            .setLngLat([lng, lat])
             .setDOMContent(beneficiaryContent)
             .addTo(map);
 
@@ -215,10 +215,13 @@ const MapPopUp: React.FC<MapPopUpProps> = ({
               e.stopPropagation();
               const beneficiaryId = (button as HTMLElement).dataset.beneficiaryId;
               if (onDonateClick && charity) {
-                onDonateClick({
-                  ...charity,
-                  selectedBeneficiaryId: beneficiaryId
-                });
+                const selectedBeneficiary = mockBeneficiaries.find(b => b.id === beneficiaryId);
+                if (selectedBeneficiary) {
+                  onDonateClick({
+                    ...charity,
+                    selectedBeneficiaryId: selectedBeneficiary.id
+                  });
+                }
               }
               // Close both popups
               if (beneficiaryPopupRef.current) beneficiaryPopupRef.current.remove();
