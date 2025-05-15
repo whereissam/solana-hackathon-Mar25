@@ -1,11 +1,24 @@
-import { Connection, PublicKey, PartiallyDecodedInstruction, Keypair } from '@solana/web3.js'
-import { createSignerFromKeypair, generateSigner, KeypairSigner, signerIdentity, Umi } from '@metaplex-foundation/umi'
-import {base58, publicKey as publicKeySerializer} from '@metaplex-foundation/umi/serializers'
+import { Connection, PublicKey, PartiallyDecodedInstruction, Keypair, ParsedTransaction, ParsedTransactionWithMeta } from '@solana/web3.js'
+import { createSignerFromKeypair, generateSigner, KeypairSigner, signerIdentity, Umi, publicKey as UmiPublicKey } from '@metaplex-foundation/umi'
+import {base58} from '@metaplex-foundation/umi/serializers'
 import {mplCore, createCollectionV2, fetchCollection, create, Plugin, updateAuthority, ruleSet} from '@metaplex-foundation/mpl-core'
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults'
 import * as fs from 'fs'
 import * as path from 'path'
+import { get } from 'http'
 
+
+export interface IDonationMemo {
+    DonationId: string,
+    Ver: string,
+    Amount: number,
+    Currency: string
+}
+
+export interface ITransferDetail {
+    feePayer: string,
+    solanaMemo: IDonationMemo
+}
 
 function getSignerFromFile(umi: Umi, filePath: string): KeypairSigner{
     const signerFile = fs.readFileSync(filePath, 'utf-8')
@@ -26,7 +39,27 @@ function getContext(): {umi: Umi, signer: KeypairSigner} {
     return global.umiContext
 }
 
-async function getSolanaMemo(txHash: string, rpcUrl = process.env.SOLANA_RPC_URL) {
+function getFeePayer(transaction: ParsedTransactionWithMeta): string{
+    return transaction.transaction.message.accountKeys[0].pubkey.toBase58();
+}
+
+function getSolanaMemo(transaction: ParsedTransactionWithMeta) : IDonationMemo{
+    for (const instruction of transaction.transaction.message.instructions) {
+        const programId = new PublicKey(instruction.programId).toString();
+
+        // Check if the instruction is from the Memo program
+        if (programId === process.env.SOLANA_MEMO_PROGRAM_ID) {
+            if ('data' in instruction && 'programId' in instruction) {
+                return JSON.parse(Buffer.from(instruction.data, 'base64').toString('utf-8')) as IDonationMemo;
+            }
+            return JSON.parse(instruction.parsed) as IDonationMemo;
+        }
+    }
+    throw "Memo not found in transaction";
+}
+
+async function getTransferDetail(txHash: string, rpcUrl = process.env.SOLANA_RPC_URL)
+    : Promise<ITransferDetail> {
     try {
         const connection = new Connection(rpcUrl??"", 'confirmed');
         const transaction = await connection.getParsedTransaction(txHash);
@@ -35,20 +68,7 @@ async function getSolanaMemo(txHash: string, rpcUrl = process.env.SOLANA_RPC_URL
             throw new Error('Transaction not found');
         }
 
-        // Iterate through the transaction instructions to find the memo
-        for (const instruction of transaction.transaction.message.instructions) {
-            const programId = new PublicKey(instruction.programId).toString();
-
-            // Check if the instruction is from the Memo program
-            if (programId === process.env.SOLANA_MEMO_PROGRAM_ID) {
-                if ('data' in instruction && 'programId' in instruction) {
-                    return Buffer.from(instruction.data, 'base64').toString('utf-8');
-                }
-                return instruction.parsed;
-            }
-        }
-
-        return null; // No memo found
+        return { feePayer: getFeePayer(transaction), solanaMemo: getSolanaMemo(transaction) };
     } catch (error) {
         console.error('Error fetching Solana memo:', error);
         throw error;
@@ -78,7 +98,7 @@ async function createCollection(){
     }
 }
 
-async function mintReceipt(donationId: string): Promise<{assetKey: string, signature: string}> {
+async function mintReceipt(receiptOwner: string, donationId: string): Promise<{assetKey: string, signature: string}> {
     try {
         const {umi, signer} = getContext()
         
@@ -89,6 +109,7 @@ async function mintReceipt(donationId: string): Promise<{assetKey: string, signa
         const result = await create(umi, {
             asset: assetSigner,
             collection: collection, 
+            owner: UmiPublicKey(receiptOwner),
             name: `UG Receipts for donation ${donationId}`,
             payer: signer,
             uri: `https://solana-hackathon-mar25.onrender.com/donation/${donationId}`,
@@ -118,4 +139,4 @@ async function mintReceipt(donationId: string): Promise<{assetKey: string, signa
     }
 }
 
-export { getSolanaMemo, mintReceipt };
+export { getTransferDetail, mintReceipt };

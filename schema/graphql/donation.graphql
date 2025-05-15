@@ -22,7 +22,8 @@ type Donation {
 }
 
 type Query {
-    donations(donorId: ID): [Donation]!
+
+    donations(donorId: Int, completed: Boolean! = true): [Donation]!
 }
 
 type PaymentCompletedResult {

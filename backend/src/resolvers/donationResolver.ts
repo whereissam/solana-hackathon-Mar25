@@ -9,13 +9,18 @@ import { DonationStatus } from '../generated/graphql'
 
 const resolver = {
     Query: {
-        donationsByDonor: withAuth([], async (_parent, args, context) => { // Renamed for clarity, or adjust service call
-            if (!context.user?.id) {
-                throw new Error("User not authenticated");
-            }
-            // Corrected to use getDonationsByDonor
-            return await donationService.getDonationsByDonor(context.user.id, args); 
-        }),
+
+        donations: withAuth([isAdmin(), isEqUserId("donorId")],
+            async (_parent, args: QueryDonationsArgs, context) => {
+            return await donationService.getDonations(
+                args.donorId || context.user.id, args.completed?? true,
+                {
+                    orderBy: {
+                        created_at: 'desc'
+                    }
+                }
+            )
+        })
     },
     Mutation: {
         createCryptoDonation: async (_parent, args: MutationCreateCryptoDonationArgs, context)=>{

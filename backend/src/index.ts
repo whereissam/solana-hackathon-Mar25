@@ -11,6 +11,9 @@ import { loadFilesSync } from '@graphql-tools/load-files'
 import path from 'path'
 import resolvers from './resolvers/resolvers'
 import jwt from 'jsonwebtoken'
+import solanaActionRouter from './routes/solana-actions/router'
+import nftRouter from './routes/nft/router'
+import fugRouter from './routes/fug/router'
 
 dotenv.config()
 
@@ -55,9 +58,13 @@ async function startup() {
   })
   // Use the dynamically imported graphqlUploadExpress
   app.use('/graphql', graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 10 }));
+  app.use('/donation', nftRouter)
+  app.use('/solana-actions', solanaActionRouter)
+  app.use('/FUG', fugRouter)
   app.use('/', expressMiddleware(server,{
     context: async ({req}) => {
       if (!req.headers.token) return {token: null, user: null}
+      //console.log("req.headers.token", req.headers.token)
       return {
         token: req.headers.token,
         user: jwt.decode(Array.isArray(req.headers.token) ? req.headers.token[0] : req.headers.token)

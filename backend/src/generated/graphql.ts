@@ -264,10 +264,10 @@ export type NewCharityAdmin = {
 };
 
 export type NewCharityBeneficiary = {
-  email: Scalars['String']['input'];
+  email?: InputMaybe<Scalars['String']['input']>;
   first_name: Scalars['String']['input'];
   last_name: Scalars['String']['input'];
-  password: Scalars['String']['input'];
+  password?: InputMaybe<Scalars['String']['input']>;
   story?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -343,6 +343,7 @@ export type QueryCharitiesArgs = {
 
 
 export type QueryDonationsArgs = {
+  completed?: Scalars['Boolean']['input'];
   donorId?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -377,11 +378,12 @@ export enum RoleType {
 
 export type User = {
   __typename?: 'User';
-  email: Scalars['String']['output'];
+  email?: Maybe<Scalars['String']['output']>;
   first_name?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   last_name?: Maybe<Scalars['String']['output']>;
   role: RoleType;
+  wallet_address?: Maybe<Scalars['String']['output']>;
 };
 
 export type InputAddress = {
@@ -647,11 +649,8 @@ export type PaymentCompletedResultResolvers<ContextType = any, ParentType extend
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   beneficiary?: Resolver<ResolversTypes['CharityUser'], ParentType, ContextType, RequireFields<QueryBeneficiaryArgs, 'id'>>;
   charities?: Resolver<Array<ResolversTypes['Charity']>, ParentType, ContextType, RequireFields<QueryCharitiesArgs, 'limit' | 'offset'>>;
-  donations?: Resolver<Array<Maybe<ResolversTypes['Donation']>>, ParentType, ContextType, Partial<QueryDonationsArgs>>;
-  donor?: Resolver<Maybe<ResolversTypes['Donor']>, ParentType, ContextType, RequireFields<QueryDonorArgs, 'id'>>;
-  donors?: Resolver<Array<ResolversTypes['Donor']>, ParentType, ContextType, RequireFields<QueryDonorsArgs, 'limit' | 'offset'>>;
-  payment?: Resolver<Maybe<ResolversTypes['Payment']>, ParentType, ContextType, RequireFields<QueryPaymentArgs, 'id'>>;
-  payments?: Resolver<Array<ResolversTypes['Payment']>, ParentType, ContextType, Partial<QueryPaymentsArgs>>;
+
+  donations?: Resolver<Array<Maybe<ResolversTypes['Donation']>>, ParentType, ContextType, RequireFields<QueryDonationsArgs, 'completed'>>;
 };
 
 export interface UploadScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Upload'], any> {
@@ -659,11 +658,12 @@ export interface UploadScalarConfig extends GraphQLScalarTypeConfig<ResolversTyp
 }
 
 export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
-  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  email?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   first_name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   last_name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   role?: Resolver<ResolversTypes['RoleType'], ParentType, ContextType>;
+  wallet_address?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

@@ -8,6 +8,7 @@ import bcrypt from 'bcrypt'
 // import { createJWT } from './auth'; // Assuming createJWT is correctly located in './auth.ts'
 
 export async function hashPassword(password: string){ // Added type for password
+
     return await bcrypt.hash(password, bcrypt.genSaltSync())
 }
 
@@ -40,10 +41,51 @@ const userService = {
                 // If authId is meant to be the email:
                 email: authId
             }
+
+        })
+
+        if (!user.password || !(await bcrypt.compare(password, user.password))) {
+            throw "INVALID_PASSWORD"
+        }
+        return {
+            user,
+            token: createJWT(user)
+        }
+    },
+    loginWithWallet: async (walletAddress: string) => {
+        const user = await prisma.users.findFirstOrThrow({
+            where: {
+                wallet_address: walletAddress
+            }
+        })
+        return {
+            user,
+            token: createJWT(user)
+        }
+    },
+    createWalletUser: async (walletAddress: string) => {
+        return await prisma.users.create({
+            data: {
+                wallet_address: walletAddress,
+                agree_to_terms: true,
+                role: 'donor',
+                status: 'active'
+            }
         });
-        return user; // Return the user
-    }
-    // Add other user service methods here if needed
-};
+    },
+    getWalletUserIdOrCreate: async (walletAddress: string) => {
+        let userId = -1
+        try {
+            const user = await prisma.users.findFirstOrThrow({
+                where: { wallet_address: walletAddress }
+            })
+            userId = user.id
+        }catch {
+            const user = await userService.createWalletUser(walletAddress)
+            userId = user.id
+        }
+        return userId
+    },
+}
 
 export default userService;

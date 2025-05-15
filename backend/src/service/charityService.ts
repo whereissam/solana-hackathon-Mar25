@@ -35,8 +35,23 @@ const charityService = {
         });
     },
 
-    getBeneficiaryById: async (beneficiaryId: string, args?: Prisma.BeneficiaryFindUniqueArgs) => {
-        return prisma.beneficiary.findUnique({ where: { id: beneficiaryId }, ...args });
+    createBeneficiary: async(
+        { charityId, detail: { first_name, last_name, email, password } }: { charityId: number, detail: { first_name: string, last_name: string, email?: string, password?: string } }) => {
+        return prisma.users.create({
+            data: {
+                email, 
+                password: await hashPassword(password), 
+                first_name, last_name,
+                agree_to_terms: true,
+                role: 'recipient',
+                status: 'active',
+                charity_recipient: {
+                    connect: {
+                        id: charityId
+                    }
+                }
+            }
+        })
     },
 
     getBeneficiaries: async (charityId: string, args: { skip?: number, take?: number }) => {
