@@ -1,7 +1,7 @@
 import { GraphQLError } from "graphql";
 
 export enum ErrorTypes {
-    UNAUTHROIZED = "UNAUTHROIZED",
+    UNAUTHORIZED = "UNAUTHORIZED", // Fix typo from UNAUTHROIZED
     INVALID_ARGUMENTS = "INVALID_ARGUMENTS"
 }
 
@@ -15,5 +15,5 @@ export class BaseError extends GraphQLError{
     }
 }
 
-export const UnauthroizedError = (message:string) => (new BaseError(message, ErrorTypes.UNAUTHROIZED))
+export const UnauthroizedError = (message:string) => (new BaseError(message, ErrorTypes.UNAUTHORIZED))
 export const InvalidArgumentsError = (message:string) => (new BaseError(message, ErrorTypes.INVALID_ARGUMENTS))

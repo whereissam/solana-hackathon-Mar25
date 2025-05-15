@@ -7,10 +7,13 @@ export interface ContactInfoType {
   address: string;
   email: string;
   phone: string;
-  socialLinks: {
-    icon: string;
-    url: string;
-  }[];
+  socialLinks: SocialLinkType[];
+}
+
+export interface SocialLinkType {
+  icon: string;
+  url: string;
+  platform: string;
 }
 
 export interface ContactHeroType {

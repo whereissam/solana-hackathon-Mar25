@@ -29,7 +29,7 @@ export const contactInfo: ContactInfoType = {
 export const contactHero: ContactHeroType = {
   title: "Contact Us",
   subtitle: "We'd love to hear from you. Reach out with any questions or feedback.",
-  backgroundImage: "/images/contact-hero.jpg"
+  backgroundImage: "/images/contactBanner.jpg"
 };
 
 export const faqs: FAQType[] = [

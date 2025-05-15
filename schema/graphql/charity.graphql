@@ -1,5 +1,5 @@
 type Charity @cacheControl(maxAge: 3600) {
-    id: Int!
+    id: ID! # Changed from Int!
     name: String!
     website: String
     mission: String
@@ -9,11 +9,11 @@ type Charity @cacheControl(maxAge: 3600) {
     beneficiaries(offset: Int! = 0, limit: Int! = 10): [CharityUser!]! 
 }
 type Query{
-    charities(id: Int, offset: Int! = 0, limit: Int! = 30): [Charity!]! 
-    beneficiary(id: Int!): CharityUser!
+    charities(id: ID, offset: Int! = 0, limit: Int! = 30): [Charity!]! # Changed id from Int
+    beneficiary(id: ID!): CharityUser! # Changed from Int!
 }
 type CharityUser{
-    id: Int!
+    id: ID! # Changed from Int!
     email: String!
     first_name: String
     last_name: String
@@ -50,11 +50,9 @@ input NewCharityAdmin {
     password: String!
 }
 
-"""
-For file upload, client MUST sent a header called Apollo-Require-Preflight: "true" 
-Or the request will fail with CSRF prevention
-"""
+# For file upload, client MUST sent a header called Apollo-Require-Preflight: "true" 
+# Or the request will fail with CSRF prevention
 type Mutation {
     createCharity(detail: NewCharity!): Charity
-    createBeneficiary(charityId: Int!, detail: NewCharityBeneficiary!): CharityUser
+    createBeneficiary(charityId: ID!, detail: NewCharityBeneficiary!): CharityUser # Changed charityId from Int!
 }

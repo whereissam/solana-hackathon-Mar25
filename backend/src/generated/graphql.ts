@@ -111,6 +111,7 @@ export enum DonationType {
 
 export type Donor = {
   __typename?: 'Donor';
+  donations?: Maybe<Array<Donation>>;
   donations_given: Scalars['Float']['output'];
   email: Scalars['String']['output'];
   first_name?: Maybe<Scalars['String']['output']>;
@@ -127,9 +128,15 @@ export type Mutation = {
   createBeneficiary?: Maybe<CharityUser>;
   createCharity?: Maybe<Charity>;
   createCryptoDonation: Donation;
+  createDonor: Donor;
+  createPayment: Payment;
   cryptoPaymentCompleted: PaymentCompletedResult;
+  deleteDonor: Scalars['Boolean']['output'];
   login?: Maybe<AuthPayload>;
   logout: Scalars['Boolean']['output'];
+  processPayment: Payment;
+  updateDonor: Donor;
+  updatePaymentStatus: Payment;
 };
 
 
@@ -167,6 +174,24 @@ export type MutationCreateCryptoDonationArgs = {
  * For file upload, client MUST sent a header called Apollo-Require-Preflight: "true"
  * Or the request will fail with CSRF prevention
  */
+export type MutationCreateDonorArgs = {
+  input: NewDonorInput;
+};
+
+
+/**
+ * For file upload, client MUST sent a header called Apollo-Require-Preflight: "true"
+ * Or the request will fail with CSRF prevention
+ */
+export type MutationCreatePaymentArgs = {
+  input: NewPaymentInput;
+};
+
+
+/**
+ * For file upload, client MUST sent a header called Apollo-Require-Preflight: "true"
+ * Or the request will fail with CSRF prevention
+ */
 export type MutationCryptoPaymentCompletedArgs = {
   donationId: Scalars['String']['input'];
   txHash: Scalars['String']['input'];
@@ -177,9 +202,47 @@ export type MutationCryptoPaymentCompletedArgs = {
  * For file upload, client MUST sent a header called Apollo-Require-Preflight: "true"
  * Or the request will fail with CSRF prevention
  */
+export type MutationDeleteDonorArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/**
+ * For file upload, client MUST sent a header called Apollo-Require-Preflight: "true"
+ * Or the request will fail with CSRF prevention
+ */
 export type MutationLoginArgs = {
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
+};
+
+
+/**
+ * For file upload, client MUST sent a header called Apollo-Require-Preflight: "true"
+ * Or the request will fail with CSRF prevention
+ */
+export type MutationProcessPaymentArgs = {
+  paymentId: Scalars['ID']['input'];
+};
+
+
+/**
+ * For file upload, client MUST sent a header called Apollo-Require-Preflight: "true"
+ * Or the request will fail with CSRF prevention
+ */
+export type MutationUpdateDonorArgs = {
+  id: Scalars['ID']['input'];
+  input: NewDonorInput;
+};
+
+
+/**
+ * For file upload, client MUST sent a header called Apollo-Require-Preflight: "true"
+ * Or the request will fail with CSRF prevention
+ */
+export type MutationUpdatePaymentStatusArgs = {
+  id: Scalars['ID']['input'];
+  status: PaymentStatus;
 };
 
 export type NewCharity = {
@@ -208,17 +271,62 @@ export type NewCharityBeneficiary = {
   story?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type NewDonorInput = {
+  email: Scalars['String']['input'];
+  first_name: Scalars['String']['input'];
+  last_name: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+};
+
+export type NewPaymentInput = {
+  amount: Scalars['Float']['input'];
+  currency: Scalars['String']['input'];
+  donation_id: Scalars['ID']['input'];
+  method: PaymentMethod;
+};
+
+export type Payment = {
+  __typename?: 'Payment';
+  amount: Scalars['Float']['output'];
+  created_at: Scalars['DateTime']['output'];
+  currency: Scalars['String']['output'];
+  donation_id: Scalars['ID']['output'];
+  id: Scalars['ID']['output'];
+  method: PaymentMethod;
+  status: PaymentStatus;
+  transaction_id?: Maybe<Scalars['String']['output']>;
+  updated_at?: Maybe<Scalars['DateTime']['output']>;
+};
+
 export type PaymentCompletedResult = {
   __typename?: 'PaymentCompletedResult';
   assetKey: Scalars['String']['output'];
   signature: Scalars['String']['output'];
 };
 
+export enum PaymentMethod {
+  BankTransfer = 'BANK_TRANSFER',
+  CreditCard = 'CREDIT_CARD',
+  Cryptocurrency = 'CRYPTOCURRENCY',
+  Paypal = 'PAYPAL'
+}
+
+export enum PaymentStatus {
+  Completed = 'COMPLETED',
+  Failed = 'FAILED',
+  Pending = 'PENDING',
+  Refunded = 'REFUNDED'
+}
+
 export type Query = {
   __typename?: 'Query';
   beneficiary: CharityUser;
   charities: Array<Charity>;
   donations: Array<Maybe<Donation>>;
+  donor?: Maybe<Donor>;
+  donors: Array<Donor>;
+  payment?: Maybe<Payment>;
+  payments: Array<Payment>;
 };
 
 
@@ -237,6 +345,28 @@ export type QueryCharitiesArgs = {
 export type QueryDonationsArgs = {
   completed?: Scalars['Boolean']['input'];
   donorId?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryDonorArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryDonorsArgs = {
+  limit?: Scalars['Int']['input'];
+  offset?: Scalars['Int']['input'];
+};
+
+
+export type QueryPaymentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryPaymentsArgs = {
+  donationId?: InputMaybe<Scalars['ID']['input']>;
+  status?: InputMaybe<PaymentStatus>;
 };
 
 export enum RoleType {
@@ -355,7 +485,12 @@ export type ResolversTypes = {
   NewCharity: NewCharity;
   NewCharityAdmin: NewCharityAdmin;
   NewCharityBeneficiary: NewCharityBeneficiary;
+  NewDonorInput: NewDonorInput;
+  NewPaymentInput: NewPaymentInput;
+  Payment: ResolverTypeWrapper<Payment>;
   PaymentCompletedResult: ResolverTypeWrapper<PaymentCompletedResult>;
+  PaymentMethod: PaymentMethod;
+  PaymentStatus: PaymentStatus;
   Query: ResolverTypeWrapper<{}>;
   RoleType: RoleType;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
@@ -383,6 +518,9 @@ export type ResolversParentTypes = {
   NewCharity: NewCharity;
   NewCharityAdmin: NewCharityAdmin;
   NewCharityBeneficiary: NewCharityBeneficiary;
+  NewDonorInput: NewDonorInput;
+  NewPaymentInput: NewPaymentInput;
+  Payment: Payment;
   PaymentCompletedResult: PaymentCompletedResult;
   Query: {};
   String: Scalars['String']['output'];
@@ -465,6 +603,7 @@ export type DonationResolvers<ContextType = any, ParentType extends ResolversPar
 };
 
 export type DonorResolvers<ContextType = any, ParentType extends ResolversParentTypes['Donor'] = ResolversParentTypes['Donor']> = {
+  donations?: Resolver<Maybe<Array<ResolversTypes['Donation']>>, ParentType, ContextType>;
   donations_given?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   first_name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -477,9 +616,28 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   createBeneficiary?: Resolver<Maybe<ResolversTypes['CharityUser']>, ParentType, ContextType, RequireFields<MutationCreateBeneficiaryArgs, 'charityId' | 'detail'>>;
   createCharity?: Resolver<Maybe<ResolversTypes['Charity']>, ParentType, ContextType, RequireFields<MutationCreateCharityArgs, 'detail'>>;
   createCryptoDonation?: Resolver<ResolversTypes['Donation'], ParentType, ContextType, RequireFields<MutationCreateCryptoDonationArgs, 'amountInLamports' | 'beneficiaryId' | 'tokenCode'>>;
+  createDonor?: Resolver<ResolversTypes['Donor'], ParentType, ContextType, RequireFields<MutationCreateDonorArgs, 'input'>>;
+  createPayment?: Resolver<ResolversTypes['Payment'], ParentType, ContextType, RequireFields<MutationCreatePaymentArgs, 'input'>>;
   cryptoPaymentCompleted?: Resolver<ResolversTypes['PaymentCompletedResult'], ParentType, ContextType, RequireFields<MutationCryptoPaymentCompletedArgs, 'donationId' | 'txHash'>>;
+  deleteDonor?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteDonorArgs, 'id'>>;
   login?: Resolver<Maybe<ResolversTypes['AuthPayload']>, ParentType, ContextType, RequireFields<MutationLoginArgs, 'email' | 'password'>>;
   logout?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  processPayment?: Resolver<ResolversTypes['Payment'], ParentType, ContextType, RequireFields<MutationProcessPaymentArgs, 'paymentId'>>;
+  updateDonor?: Resolver<ResolversTypes['Donor'], ParentType, ContextType, RequireFields<MutationUpdateDonorArgs, 'id' | 'input'>>;
+  updatePaymentStatus?: Resolver<ResolversTypes['Payment'], ParentType, ContextType, RequireFields<MutationUpdatePaymentStatusArgs, 'id' | 'status'>>;
+};
+
+export type PaymentResolvers<ContextType = any, ParentType extends ResolversParentTypes['Payment'] = ResolversParentTypes['Payment']> = {
+  amount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  created_at?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  donation_id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  method?: Resolver<ResolversTypes['PaymentMethod'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['PaymentStatus'], ParentType, ContextType>;
+  transaction_id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  updated_at?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type PaymentCompletedResultResolvers<ContextType = any, ParentType extends ResolversParentTypes['PaymentCompletedResult'] = ResolversParentTypes['PaymentCompletedResult']> = {
@@ -491,6 +649,7 @@ export type PaymentCompletedResultResolvers<ContextType = any, ParentType extend
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   beneficiary?: Resolver<ResolversTypes['CharityUser'], ParentType, ContextType, RequireFields<QueryBeneficiaryArgs, 'id'>>;
   charities?: Resolver<Array<ResolversTypes['Charity']>, ParentType, ContextType, RequireFields<QueryCharitiesArgs, 'limit' | 'offset'>>;
+
   donations?: Resolver<Array<Maybe<ResolversTypes['Donation']>>, ParentType, ContextType, RequireFields<QueryDonationsArgs, 'completed'>>;
 };
 
@@ -519,6 +678,7 @@ export type Resolvers<ContextType = any> = {
   Donation?: DonationResolvers<ContextType>;
   Donor?: DonorResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
+  Payment?: PaymentResolvers<ContextType>;
   PaymentCompletedResult?: PaymentCompletedResultResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Upload?: GraphQLScalarType;

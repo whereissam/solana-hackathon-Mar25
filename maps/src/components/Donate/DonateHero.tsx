@@ -1,14 +1,34 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const HeroSection: React.FC = () => {
+interface DonateHeroProps {
+  title: string;
+  subtitle: string;
+  backgroundImage: string;
+  stats?: {
+    raised: string;
+    donors: string;
+    charities: string;
+  };
+}
+
+const DonateHero: React.FC<DonateHeroProps> = ({ 
+  title = "Make a Difference Today", 
+  subtitle = "Your donation can change lives. Support causes you care about and see the impact of your generosity.", 
+  backgroundImage = "/images/donate/donateBanner.jpg",
+  stats = {
+    raised: "$2.5M+",
+    donors: "12K+",
+    charities: "50+"
+  }
+}) => {
   return (
     <section className="relative h-96 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-r from-purple-900 via-purple-800 to-transparent z-10"></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-primary/90 via-primary/70 to-transparent z-10"></div>
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{
-          backgroundImage: `url('/images/donate-hero.jpg')`,
+          backgroundImage: `url('${backgroundImage}')`,
         }}
       ></div>
       <div className="relative z-20 max-w-7xl mx-auto px-6 h-full flex items-center">
@@ -19,7 +39,7 @@ const HeroSection: React.FC = () => {
             transition={{ duration: 0.5 }}
             className="text-4xl md:text-5xl font-bold mb-4"
           >
-            Make a Difference Today
+            {title}
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
@@ -27,8 +47,7 @@ const HeroSection: React.FC = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-xl mb-6"
           >
-            Your donation can change lives. Support causes you care about
-            and see the impact of your generosity.
+            {subtitle}
           </motion.p>
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -37,15 +56,15 @@ const HeroSection: React.FC = () => {
             className="flex flex-wrap gap-4 mb-8"
           >
             <div className="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-3">
-              <div className="text-2xl font-bold">$2.5M+</div>
+              <div className="text-2xl font-bold">{stats.raised}</div>
               <div className="text-sm">Raised</div>
             </div>
             <div className="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-3">
-              <div className="text-2xl font-bold">12K+</div>
+              <div className="text-2xl font-bold">{stats.donors}</div>
               <div className="text-sm">Donors</div>
             </div>
             <div className="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-3">
-              <div className="text-2xl font-bold">50+</div>
+              <div className="text-2xl font-bold">{stats.charities}</div>
               <div className="text-sm">Charities</div>
             </div>
           </motion.div>
@@ -67,4 +86,4 @@ const HeroSection: React.FC = () => {
   );
 };
 
-export default HeroSection;
+export default DonateHero;

@@ -1,13 +1,15 @@
 import charityService from '../service/charityService'
-import { MutationLoginArgs, MutationResolvers, AuthPayload, RoleType } from '../generated/graphql'
+import { MutationLoginArgs, MutationResolvers, AuthPayload, RoleType, MutationCreateCryptoDonationArgs, QueryDonationsArgs } from '../generated/graphql'
 import { valueToEnum } from '../utils/valueToEnum'
 import { withAuth, isAdmin, inRole, any, isEqUserId } from './authorization'
-import { MutationCreateCryptoDonationArgs, QueryDonationsArgs } from '../generated/graphql'
 import donationService from '../service/donationService'
-import { DonationStatus } from '@prisma/client'
+// Remove the import from @prisma/client and define enum locally if needed
+// Define the enum locally to match what's in the GraphQL schema
+import { DonationStatus } from '../generated/graphql'
 
 const resolver = {
     Query: {
+
         donations: withAuth([isAdmin(), isEqUserId("donorId")],
             async (_parent, args: QueryDonationsArgs, context) => {
             return await donationService.getDonations(
@@ -24,7 +26,8 @@ const resolver = {
         createCryptoDonation: async (_parent, args: MutationCreateCryptoDonationArgs, context)=>{
             return donationService.createCryptoDonation(
                 context.user.id,
-                args.beneficiaryId,
+                // Convert beneficiaryId from number to string
+                String(args.beneficiaryId),
                 args.amountInLamports,
                 args.tokenCode
             )

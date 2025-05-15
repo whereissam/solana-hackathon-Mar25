@@ -1,50 +1,40 @@
-import prisma from '../repository/prisma'
-import { Prisma, CharitySector } from '@prisma/client'
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
-import geocoding from './geocoding'
-import { hashPassword } from './userService'
-import { connect } from 'http2'
+import prisma from '../repository/prisma';
+import { Prisma, PrismaClient } from '@prisma/client';
+import { CharitySector as GQLCharitySector, QueryBeneficiaryArgs } from '../generated/graphql'; 
 
-export interface ICharityAdmin {
-    email: string, password: string, firstName: string, lastName: string 
-}
-
-export interface ICharityDetail { 
-    name: string, description: string, postcode?: string, city?: string, country?: string,
-    mission?: string, sector: CharitySector, address?: string, website?: string
+export interface ICharityDetail {
+    name: string;
+    description: string;
+    mission?: string;
+    sector: GQLCharitySector;
+    address?: string;
+    website?: string;
+    charityAdminId?: string;
 }
 
 const charityService = {
-    getCharities: (args: Prisma.charityFindManyArgs) => {
-        return prisma.charity.findMany({
-            ...args,
-        })
+    getCharities: (args: Prisma.CharityFindManyArgs) => {
+        return prisma.charity.findMany(args);
     },
-    getCharityById: (charityId: number, args) => {
-        return prisma.charity.findUnique({
-            where: {
-                id: charityId,
+
+    getCharityById: (charityId: string, args?: Prisma.CharityFindUniqueArgs) => {
+        return prisma.charity.findUnique({ where: { id: charityId }, ...args });
+    },
+
+    createCharity: async (detail: ICharityDetail) => {
+        return prisma.charity.create({
+            data: {
+                name: detail.name,
+                description: detail.description,
+                mission: detail.mission,
+                sector: detail.sector, 
+                address: detail.address,
+                website: detail.website,
+                charityAdminId: detail.charityAdminId,
             },
-            ...args
-        })
+        });
     },
-    getBeneficiaryById: (beneficiaryId: number) => {
-        return prisma.users.findUniqueOrThrow({
-            where: {
-                id: beneficiaryId,
-                role: 'recipient'
-            }
-        })
-    },
-    getBeneficiaries: (charityId: number, args) => {
-        return prisma.charity.findUnique({
-            where: {
-                id: charityId,
-            },
-        }).user_recipient({
-            ...args
-        })
-    },
+
     createBeneficiary: async(
         { charityId, detail: { first_name, last_name, email, password } }: { charityId: number, detail: { first_name: string, last_name: string, email?: string, password?: string } }) => {
         return prisma.users.create({
@@ -63,48 +53,26 @@ const charityService = {
             }
         })
     },
-    createCharity: async (
-        { email, password, firstName, lastName }: ICharityAdmin,
-        { name, description, postcode, city, country, sector, mission, address, website }: ICharityDetail 
-    ) => {
-        // create the location from google api
-        const fullAddress = [address, city, country, postcode].filter(Boolean).join(", ")
-        const { lat, lng, address: geoAddress } = await geocoding(fullAddress)
 
-        return prisma.charity.create({
+    getBeneficiaries: async (charityId: string, args: { skip?: number, take?: number }) => {
+        return prisma.beneficiary.findMany({
+            where: { charityId: charityId },
+            skip: args.skip,
+            take: args.take,
+        });
+    },
+
+    createBeneficiary: async (charityId: string, detail: any) => {
+        return prisma.beneficiary.create({
             data: {
-                name,
-                description,
-                mission,
-                sector,
-                postcode,
-                city,
-                country,
-                website,
-                contact: email,
-                address: address?? geoAddress,
-                lng,
-                lat,
-                user_admin: {
-                    connectOrCreate: {
-                        where: {
-                            email: email
-                        },
-                        create: {
-                            first_name: firstName,
-                            last_name: lastName,
-                            email: email,
-                            password: await hashPassword(password),
-                            agree_to_terms: true,
-                            status: "active",
-                            role: "charity"
-                        }
-                    }
+                ...detail,
+                charity: {
+                    connect: { id: charityId }
                 }
             }
-        })
-    }
-}
+        });
+    },
+};
 
+export default charityService;
 
-export default charityService

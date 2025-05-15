@@ -2,6 +2,33 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+/* Base styles */
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-start-rgb));
+}
+
+/* Custom utility classes */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Custom rounded button style */
+.rounded-button {
+  border-radius: 0.5rem;
+}
+
 /* FIXME: find a way to reset styles of leaflet in components */
 .leaflet-marker-icon.leaflet-div-icon {
   background: none;

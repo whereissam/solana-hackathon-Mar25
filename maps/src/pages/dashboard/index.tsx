@@ -5,10 +5,10 @@ import Dashboard from '#components/Dashboard/Dashboard';
 const DashboardPage = () => (
   <div>
     <Head>
-      <title>Unify Giving - Dashboard</title>
+      <title>Unify Compass - Dashboard</title>
       <meta
         property="og:title"
-        content="Unify Giving - Dashboard"
+        content="Unify Compass - Dashboard"
         key="title"
       />
       <meta

@@ -10,22 +10,22 @@ const CharitiesPage = () => {
   return (
     <div>
       <Head>
-        <title>Unify Giving - Charity Dashboard</title>
+        <title>Unify Compass - Charity Dashboard</title>
         <meta
           property="og:title"
-          content="Unify Giving - Charity Dashboard"
+          content="Unify Compass - Charity Dashboard"
           key="title"
         />
         <meta
           name="description"
-          content="Browse and filter charitable organizations by category, location, and impact. Find the perfect cause to support with Unify Giving."
+          content="Browse and filter charitable organizations by category, location, and impact. Find the perfect cause to support with Unify Compass."
         />
       </Head>
       
       <Header 
         showProfileMenu={showProfileMenu} 
         setShowProfileMenu={setShowProfileMenu}
-        title="Unify Giving"
+        title="Unify Compass"
       />
       
       <Charities />

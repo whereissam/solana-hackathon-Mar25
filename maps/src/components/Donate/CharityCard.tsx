@@ -2,15 +2,18 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-interface Charity {
+export interface Charity {
   id: number;
   name: string;
   category: string;
+  rating: number;
+  location: string;
+  longitude: number;
+  latitude: number;
   description: string;
   impact: string;
-  rating: number;
   certifications: string[];
-  imagePrompt: string;
+  imagePath?: string;
 }
 
 interface CharityCardProps {
@@ -34,7 +37,7 @@ const CharityCard: React.FC<CharityCardProps> = ({
     >
       <div className="h-48 overflow-hidden relative">
         <Image
-          src={`/images/charities/charity${charity.id}.jpg`}
+          src={charity.imagePath || `/images/charities/charity${charity.id}.jpg`}
           alt={charity.name}
           className="object-cover object-center"
           fill

@@ -1,3 +1,17 @@
+export interface Charity {
+  id: number;
+  name: string;
+  category: string;
+  description: string;
+  impact: string;
+  rating: number;
+  certifications: string[];
+  location: string;      // Add this
+  longitude: number;     // Add this
+  latitude: number;      // Add this
+  imagePrompt?: string;
+  imagePath?: string;
+}
 export const charities = [
   {
     id: 1,
@@ -8,9 +22,7 @@ export const charities = [
     impact: "Reached 50,000+ students in 25 countries",
     rating: 4.9,
     certifications: ["501(c)(3)", "Platinum Transparency"],
-    imagePrompt:
-      "Professional education charity logo with open book and globe symbol on clean white background, modern minimalist design with blue color scheme, representing global learning and knowledge sharing",
-  },
+    imagePath: "/images/charities/education-1.jpg", },
   {
     id: 2,
     name: "Ocean Conservation Alliance",
@@ -20,9 +32,7 @@ export const charities = [
     impact: "Removed 2.5M pounds of plastic from oceans",
     rating: 4.8,
     certifications: ["501(c)(3)", "Gold Transparency"],
-    imagePrompt:
-      "Clean professional logo for ocean conservation organization featuring stylized wave and marine life elements, blue and teal color palette on white background, modern minimalist design conveying environmental protection",
-  },
+    imagePath: "/images/charities/environment-1.jpg",  },
   {
     id: 3,
     name: "Medical Relief International",
@@ -32,9 +42,7 @@ export const charities = [
     impact: "Served 120,000+ patients in 15 countries",
     rating: 4.7,
     certifications: ["501(c)(3)", "Platinum Transparency"],
-    imagePrompt:
-      "Professional healthcare charity logo with medical cross and globe symbol on clean white background, red and white color scheme, modern minimalist design representing international medical aid and emergency response",
-  },
+    imagePath: "/images/charities/healthcare-1.jpg",  },
   {
     id: 4,
     name: "Wildlife Protection Fund",
@@ -43,9 +51,7 @@ export const charities = [
     impact: "Protected 500,000+ acres of critical habitat",
     rating: 4.8,
     certifications: ["501(c)(3)", "Gold Transparency"],
-    imagePrompt:
-      "Professional wildlife conservation logo with stylized animal silhouette on clean white background, green and earth tone color palette, modern minimalist design representing animal protection and habitat preservation",
-  },
+    imagePath: "/images/charities/animalWelfare-1.jpg", },
   {
     id: 5,
     name: "Hunger Relief Network",
@@ -55,9 +61,7 @@ export const charities = [
     impact: "Provided 8M+ meals to families in need",
     rating: 4.9,
     certifications: ["501(c)(3)", "Platinum Transparency"],
-    imagePrompt:
-      "Professional humanitarian aid charity logo with wheat symbol and helping hands on clean white background, warm orange color palette, modern minimalist design representing food security and hunger relief efforts",
-  },
+    imagePath: "/images/charities/disasterRelief-2.jpg", },
   {
     id: 6,
     name: "Children's Future Foundation",
@@ -67,7 +71,5 @@ export const charities = [
     impact: "Helped 75,000+ children access education",
     rating: 4.8,
     certifications: ["501(c)(3)", "Gold Transparency"],
-    imagePrompt:
-      "Professional children's charity logo with stylized child figure and protective symbol on clean white background, bright primary colors, modern minimalist design representing child welfare and development",
-  },
+    imagePath: "/images/charities/children.jpg", },
 ];

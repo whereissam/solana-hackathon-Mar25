@@ -1,4 +1,4 @@
-# Image Guidelines for Unify Giving
+# Image Guidelines for Unify Compass
 
 ## Banner Images
 

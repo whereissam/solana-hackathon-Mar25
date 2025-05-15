@@ -1,5 +1,5 @@
 type Donor {
-  id: ID!
+  id: Int!
   first_name: String
   last_name: String
   email: String!
@@ -16,11 +16,11 @@ input NewDonorInput {
 
 type Query {
   donors(offset: Int! = 0, limit: Int! = 10): [Donor!]!
-  donor(id: ID!): Donor
+  donor(id: Int!): Donor
 }
 
 type Mutation {
   createDonor(input: NewDonorInput!): Donor!
-  updateDonor(id: ID!, input: NewDonorInput!): Donor!
-  deleteDonor(id: ID!): Boolean!
+  updateDonor(id: Int!, input: NewDonorInput!): Donor!
+  deleteDonor(id: Int!): Boolean!
 }

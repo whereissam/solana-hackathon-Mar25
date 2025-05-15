@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    String    @id @default(auto()) @map("_id") @db.ObjectId
+  email                 String    @unique
+  name                  String?
+  authId                String?   @unique
+  charitiesAdministered Charity[] @relation("CharityAdminToCharities")
+  donations             Donation[]
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+}
+
+model Charity {
+  id               String        @id @default(auto()) @map("_id") @db.ObjectId
+  name             String
+  description      String
+  mission          String?
+  sector           String
+  address          String?
+  website          String?
+  charityAdminId   String?       @db.ObjectId
+  charityAdmin     User?         @relation("CharityAdminToCharities", fields: [charityAdminId], references: [id])
+  beneficiaries    Beneficiary[]
+  donations        Donation[]
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+}
+
+model Beneficiary {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  firstName   String?
+  lastName    String?
+  email       String?  @unique
+  story       String?
+  charityId   String   @db.ObjectId
+  charity     Charity  @relation(fields: [charityId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Donation {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  amount        BigInt
+  currency      String
+  type          String
+  status        String
+  payment_id    String?
+  receipt_addr  String?
+  charityId     String   @db.ObjectId
+  charity       Charity  @relation(fields: [charityId], references: [id])
+  donorId       String?  @db.ObjectId
+  donor         User?    @relation(fields: [donorId], references: [id])
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt
+}

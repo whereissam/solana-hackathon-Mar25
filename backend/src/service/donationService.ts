@@ -1,3 +1,4 @@
+
 import prisma from '../repository/prisma'
 import { DonationStatus, DonationType, Prisma } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
@@ -6,6 +7,18 @@ import { connect } from 'http2'
 import { getTransferDetail, mintReceipt, ITransferDetail, IDonationMemo} from './solanaService'
 import { get } from 'http'
 
+interface CreateDonationData {
+  amount: bigint; // Prisma expects BigInt for BigInt fields
+  currency: string;
+  type: DonationType; // Ensure this matches your GQL enum
+  status: DonationStatus; // Ensure this matches your GQL enum
+  charityId: string; // Changed to string for MongoDB ObjectId
+  userId?: string; // Changed to string for MongoDB ObjectId, optional
+  message?: string;
+  anonymous?: boolean;
+  payment_id?: string;
+  receipt_addr?: string;
+}
 const donationService = {
     createCryptoDonation: async (
         donorId: number,
@@ -84,4 +97,4 @@ const donationService = {
     }
 }
 
-export default donationService
+export default donationService;

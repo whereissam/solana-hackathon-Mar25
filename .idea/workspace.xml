@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="d88729db-70cb-4029-ba15-6152bd8adf3f" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/maps/DATA-MIGRATION-GUIDE.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/maps/GRAPHQL-DATA-INTEGRATION.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/maps/MAP-SEPARATION-GUIDE.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/maps/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/maps/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/maps/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/maps/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/maps/src/components/About/AboutMission.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/maps/src/components/About/AboutMission.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/maps/src/components/About/data/data.ts" beforeDir="false" afterPath="$PROJECT_DIR$/maps/src/components/About/data/data.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/maps/src/components/Contact/data/data.ts" beforeDir="false" afterPath="$PROJECT_DIR$/maps/src/components/Contact/data/data.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/maps/src/components/Contact/data/types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/maps/src/components/Contact/data/types.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/maps/src/components/Donate/CharityCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/maps/src/components/Donate/CharityCard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/maps/src/components/Donate/Donate.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/maps/src/components/Donate/DonateHero.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/maps/src/components/Donate/DonateHero.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/maps/src/components/Donate/DonateSample.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/maps/src/components/Donate/DonationForm.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/maps/src/components/Donate/DonationForm.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/maps/src/components/Donate/DonationHeader.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/maps/src/components/Donate/HeroSection.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/maps/src/components/Donate/data/charities.ts" beforeDir="false" afterPath="$PROJECT_DIR$/maps/src/components/Donate/data/charities.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/maps/src/components/Donate/data/data.ts" beforeDir="false" afterPath="$PROJECT_DIR$/maps/src/components/Donate/data/data.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/maps/src/components/Donate/data/types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/maps/src/components/Donate/data/types.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/maps/src/components/data/contact/data.ts" beforeDir="false" afterPath="$PROJECT_DIR$/maps/src/components/data/contact/data.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/maps/src/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/maps/src/globals.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/maps/src/pages/about/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/maps/src/pages/about/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/maps/src/pages/donate/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/maps/src/pages/donate/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/maps/src/styles/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/maps/src/styles/globals.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/maps/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/maps/yarn.lock" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Drehalas&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/unifygiving/ug-solana-sprint-1.git&quot;,
+    &quot;accountId&quot;: &quot;1596039c-e373-45e4-8f89-ca6fbbb8c8bc&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 4
+}</component>
+  <component name="ProjectId" id="2wCDvl32G7OjRmrdK7yOln1Yiv1" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;schema&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/yasin/Documents/Trae/ug-solana-sprint-1&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\yasin\\Documents\\Trae\\ug-solana-sprint-1\\maps\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-WS-242.23339.15" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="d88729db-70cb-4029-ba15-6152bd8adf3f" name="Changes" comment="" />
+      <created>1745536894731</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1745536894731</updated>
+      <workItem from="1745536895807" duration="18000" />
+      <workItem from="1745585056401" duration="16000" />
+      <workItem from="1746006959557" duration="9000" />
+      <workItem from="1746762385174" duration="1168000" />
+      <workItem from="1746784255554" duration="562000" />
+      <workItem from="1746786237293" duration="638000" />
+      <workItem from="1747024529865" duration="5264000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+    <option name="exactExcludedFiles">
+      <list>
+        <option value="$PROJECT_DIR$/frontend/src/components/icons/EmailIcon.js" />
+        <option value="$PROJECT_DIR$/frontend/src/components/icons/LinkedInIcon.js" />
+      </list>
+    </option>
+  </component>
+</project>

@@ -1,16 +1,5 @@
 import React from 'react';
-import Link from 'next/link';
-import { 
-  LayoutDashboard, 
-  Heart, 
-  Users, 
-  Settings, 
-  LogOut, 
-  ChevronLeft,
-  BarChart3,
-  Map
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 
 interface DashboardSidebarProps {
   isOpen: boolean;
@@ -19,69 +8,70 @@ interface DashboardSidebarProps {
   toggleSidebar: () => void;
 }
 
-const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ 
-  isOpen, 
-  activeTab, 
+const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
+  isOpen,
+  activeTab,
   setActiveTab,
   toggleSidebar
 }) => {
-  const navItems = [
-    { id: 'overview', label: 'Overview', icon: <LayoutDashboard className="h-5 w-5" /> },
-    { id: 'donations', label: 'Donations', icon: <Heart className="h-5 w-5" /> },
-    { id: 'charities', label: 'Charities', icon: <Users className="h-5 w-5" /> },
-    { id: 'analytics', label: 'Analytics', icon: <BarChart3 className="h-5 w-5" /> },
-    { id: 'map', label: 'Charity Map', icon: <Map className="h-5 w-5" /> },
-    { id: 'settings', label: 'Settings', icon: <Settings className="h-5 w-5" /> },
+  const menuItems = [
+    { id: 'overview', label: 'Overview', icon: 'fa-chart-pie' },
+    { id: 'donations', label: 'Donations', icon: 'fa-hand-holding-heart' },
+    { id: 'charities', label: 'Charities', icon: 'fa-building' },
+    { id: 'analytics', label: 'Analytics', icon: 'fa-chart-line' },
+    { id: 'map', label: 'Map View', icon: 'fa-map-marked-alt' },
+    { id: 'settings', label: 'Settings', icon: 'fa-cog' }
   ];
 
   return (
-    <aside 
-      className={cn(
-        "bg-white border-r border-gray-200 z-20 fixed inset-y-0 left-0 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-auto lg:flex w-64 flex-col",
-        isOpen ? "translate-x-0" : "-translate-x-full"
-      )}
+    <motion.div 
+      className={`bg-white shadow-md ${isOpen ? 'w-64' : 'w-20'} transition-all duration-300 ease-in-out`}
+      initial={{ x: -100, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ duration: 0.5 }}
     >
-      <div className="flex items-center justify-between p-4 border-b border-gray-200">
-        <Link href="/" className="flex items-center">
-          <span className="text-xl font-bold text-primary">UnifyGiving</span>
-        </Link>
-        <button 
-          onClick={toggleSidebar}
-          className="lg:hidden p-2 rounded-md hover:bg-gray-100"
-          aria-label="Close sidebar"
+      <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+        <motion.h2 
+          className={`font-bold ${isOpen ? 'block' : 'hidden'}`}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
         >
-          <ChevronLeft className="h-5 w-5" />
+          Dashboard
+        </motion.h2>
+        <button 
+          onClick={toggleSidebar} 
+          className="p-2 rounded-md hover:bg-gray-100"
+        >
+          <i className={`fas ${isOpen ? 'fa-chevron-left' : 'fa-chevron-right'}`}></i>
         </button>
       </div>
       
-      <nav className="flex-1 overflow-y-auto p-4">
-        <ul className="space-y-1">
-          {navItems.map((item) => (
-            <li key={item.id}>
+      <nav className="p-4">
+        <ul className="space-y-2">
+          {menuItems.map((item, index) => (
+            <motion.li 
+              key={item.id}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3, delay: 0.1 + index * 0.1 }}
+            >
               <button
                 onClick={() => setActiveTab(item.id)}
-                className={cn(
-                  "flex items-center w-full px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                  activeTab === item.id 
-                    ? "bg-primary text-white" 
-                    : "text-gray-700 hover:bg-gray-100"
-                )}
+                className={`w-full flex items-center p-3 rounded-lg transition-colors ${
+                  activeTab === item.id
+                    ? 'bg-primary text-white'
+                    : 'hover:bg-gray-100 text-gray-700'
+                }`}
               >
-                {item.icon}
-                <span className="ml-3">{item.label}</span>
+                <i className={`fas ${item.icon} ${isOpen ? 'mr-3' : 'mx-auto'}`}></i>
+                {isOpen && <span>{item.label}</span>}
               </button>
-            </li>
+            </motion.li>
           ))}
         </ul>
       </nav>
-      
-      <div className="p-4 border-t border-gray-200">
-        <button className="flex items-center w-full px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 transition-colors">
-          <LogOut className="h-5 w-5" />
-          <span className="ml-3">Logout</span>
-        </button>
-      </div>
-    </aside>
+    </motion.div>
   );
 };
 

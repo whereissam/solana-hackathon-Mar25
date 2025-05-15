@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, ReactNode } from 'react';
+import React, { useEffect, useRef, ReactNode, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { Charity } from '../../data/data';
 import { useMap } from '@/context/map-context';
@@ -17,11 +17,13 @@ interface MapPopUpProps {
   closeOnClick?: boolean;
   className?: string;
   focusAfterOpen?: boolean;
+  onDonateClick?: (charity: Charity) => void;
 }
 
 const MapPopUp: React.FC<MapPopUpProps> = ({ 
   charity, 
   onClose,
+  onDonateClick,
   children,
   latitude,
   longitude,
@@ -32,6 +34,7 @@ const MapPopUp: React.FC<MapPopUpProps> = ({
   focusAfterOpen = true
 }) => {
   const popupRef = useRef<mapboxgl.Popup | null>(null);
+  const beneficiaryPopupRef = useRef<mapboxgl.Popup | null>(null);
   const { map } = useMap();
   
   // Add console logs for debugging
@@ -127,8 +130,104 @@ const MapPopUp: React.FC<MapPopUpProps> = ({
       if (donateButton) {
         donateButton.addEventListener('click', (e) => {
           e.stopPropagation(); // Prevent event from bubbling up
-          console.log("Donate button clicked for:", charity.name);
-          alert(`Donating to ${charity.name}`); // Replace with actual donation logic
+          
+          // Remove existing beneficiary popup if it exists
+          if (beneficiaryPopupRef.current) {
+            beneficiaryPopupRef.current.remove();
+          }
+
+          // Create beneficiary popup
+          beneficiaryPopupRef.current = new mapboxgl.Popup({
+            closeButton: true,
+            closeOnClick: false,
+            maxWidth: '300px',
+            className: 'beneficiary-popup-container',
+            anchor: 'bottom',
+            offset: 15
+          });
+
+          // Create beneficiary popup content
+          const beneficiaryContent = document.createElement('div');
+          beneficiaryContent.className = 'beneficiary-popup';
+          
+          // Mock beneficiary data with random names
+          const mockBeneficiaries = [
+            { id: "1", first_name: "Luna", last_name: "Smith", email: "luna.smith@email.com" },
+            { id: "2", first_name: "Max", last_name: "Johnson", email: "max.johnson@email.com" },
+            { id: "3", first_name: "Bella", last_name: "Williams", email: "bella.williams@email.com" },
+            { id: "4", first_name: "Charlie", last_name: "Brown", email: "charlie.brown@email.com" },
+            { id: "5", first_name: "Oliver", last_name: "Davis", email: "oliver.davis@email.com" }
+          ];
+
+          beneficiaryContent.innerHTML = `
+            <div class="p-4 max-w-4xl">
+              <div class="font-bold text-xl mb-4">Select Beneficiary</div>
+              <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                ${mockBeneficiaries.map(beneficiary => `
+                  <div class="bg-white rounded-lg shadow-md overflow-hidden transform transition-transform duration-200 hover:scale-105">
+                    <div class="relative h-40 overflow-hidden">
+                      <img 
+                        src="/images/beneficiary/beneficiary-${beneficiary.id}.jpg" 
+                        alt="${beneficiary.first_name} ${beneficiary.last_name}"
+                        class="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div class="p-3">
+                      <div class="font-medium text-base mb-1">
+                        ${beneficiary.first_name} ${beneficiary.last_name}
+                      </div>
+                      <div class="text-xs text-gray-600 mb-2">
+                        ${beneficiary.email}
+                      </div>
+                      <button 
+                        class="bg-purple-600 text-white px-3 py-1.5 rounded-md text-sm font-medium hover:bg-purple-700 transition-colors w-full"
+                        data-beneficiary-id="${beneficiary.id}"
+                      >
+                        Donate to ${beneficiary.first_name}
+                      </button>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+
+          // Update popup options for better grid display
+          beneficiaryPopupRef.current = new mapboxgl.Popup({
+            closeButton: true,
+            closeOnClick: false,
+            maxWidth: '800px',
+            className: 'beneficiary-popup-container',
+            anchor: 'center',
+            offset: 15
+          });
+
+          // Set content and position for beneficiary popup
+          beneficiaryPopupRef.current
+            .setLngLat([lng, lat])
+            .setDOMContent(beneficiaryContent)
+            .addTo(map);
+
+          // Add click handlers for beneficiary buttons
+          const beneficiaryButtons = beneficiaryContent.querySelectorAll('button[data-beneficiary-id]');
+          beneficiaryButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+              e.stopPropagation();
+              const beneficiaryId = (button as HTMLElement).dataset.beneficiaryId;
+              if (onDonateClick && charity) {
+                const selectedBeneficiary = mockBeneficiaries.find(b => b.id === beneficiaryId);
+                if (selectedBeneficiary) {
+                  onDonateClick({
+                    ...charity,
+                    selectedBeneficiaryId: selectedBeneficiary.id
+                  });
+                }
+              }
+              // Close both popups
+              if (beneficiaryPopupRef.current) beneficiaryPopupRef.current.remove();
+              if (popupRef.current) popupRef.current.remove();
+            });
+          });
         });
       }
     }
@@ -176,18 +275,19 @@ const MapPopUp: React.FC<MapPopUpProps> = ({
     return () => {
       console.log("Cleaning up popup");
       if (popupRef.current) {
-        // Remove the event listener before removing the popup
         popupRef.current.off('close', closeHandler);
         popupRef.current.remove();
         popupRef.current = null;
       }
+      if (beneficiaryPopupRef.current) {
+        beneficiaryPopupRef.current.remove();
+        beneficiaryPopupRef.current = null;
+      }
       
-      // Remove map click handler
       map.off('click', mapClickHandler);
     };
-  }, [map, charity, children, latitude, longitude, offset, closeButton, closeOnClick, className, focusAfterOpen, onClose]);
+  }, [map, charity, children, latitude, longitude, offset, closeButton, closeOnClick, className, focusAfterOpen, onClose, onDonateClick]);
   
-  // This component doesn't render anything directly
   return null;
 };
 

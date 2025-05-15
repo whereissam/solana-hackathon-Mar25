@@ -1,4 +1,5 @@
 import { DonationOption, PaymentMethod } from './types';
+import { Charity } from '../CharityCard';
 
 export const donationOptions: DonationOption[] = [
   {
@@ -66,5 +67,48 @@ export const paymentMethods: PaymentMethod[] = [
     icon: 'university',
     description: 'Direct bank transfer to our account',
     isActive: false
+  }
+];
+
+
+export const charities: Charity[] = [
+  {
+    id: 1,
+    name: "Save the Children Berlin",
+    category: "Children",
+    rating: 4.8,
+    location: "Berlin, Germany",
+    longitude: 13.4050,
+    latitude: 52.52,
+    description: "Providing essential support and resources to children in need across Berlin.",
+    impact: "Helped over 10,000 children in the past year",
+    certifications: ["Child Safety Certified", "Transparency Award 2023"],
+    imagePath: "/images/charities/save-children-berlin.jpg"
+  },
+  {
+    id: 2,
+    name: "Green Berlin Initiative",
+    category: "Environment",
+    rating: 4.5,
+    location: "Berlin, Germany",
+    longitude: 13.4060,
+    latitude: 52.53,
+    description: "Working towards a sustainable and green future for Berlin.",
+    impact: "Planted 50,000 trees and reduced carbon emissions by 15%",
+    certifications: ["Environmental Excellence", "Green City Partner"],
+    imagePath: "/images/charities/green-berlin.jpg"
+  },
+  {
+    id: 3,
+    name: "Berlin Health Foundation",
+    category: "Healthcare",
+    rating: 4.7,
+    location: "Berlin, Germany",
+    longitude: 13.4070,
+    latitude: 52.51,
+    description: "Providing accessible healthcare services to underserved communities.",
+    impact: "Provided medical care to 25,000 patients",
+    certifications: ["Healthcare Quality Certified", "Community Impact Award"],
+    imagePath: "/images/charities/health-foundation.jpg"
   }
 ];

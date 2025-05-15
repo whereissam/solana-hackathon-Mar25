@@ -14,7 +14,7 @@ export const teamData: TeamMember[] = [
     id: 2,
     name: 'Michael Johnson',
     role: 'CTO',
-    bio: 'Michael brings 10+ years of tech leadership to Unify Giving, focusing on creating accessible digital platforms for charitable giving.',
+    bio: 'Michael brings 10+ years of tech leadership to Unify Compass, focusing on creating accessible digital platforms for charitable giving.',
     image: '/images/team/michael-johnson.jpg',
   },
   {
@@ -28,7 +28,7 @@ export const teamData: TeamMember[] = [
     id: 4,
     name: 'David Chen',
     role: 'Lead Developer',
-    bio: 'David is responsible for the technical infrastructure of Unify Giving, with expertise in mapping technologies and data visualization.',
+    bio: 'David is responsible for the technical infrastructure of Unify Compass, with expertise in mapping technologies and data visualization.',
     image: '/images/team/david-chen.jpg',
   },
 ];
@@ -62,7 +62,7 @@ export const valuesData: Value[] = [
 
 export const missionStatement = {
   heading: 'Our Mission',
-  content: 'Unify Giving aims to revolutionize charitable giving by connecting donors with causes through interactive mapping technology. We believe in making philanthropy more accessible, transparent, and impactful for everyone.',
+  content: 'Unify Compass aims to revolutionize charitable giving by connecting donors with causes through interactive mapping technology. We believe in making philanthropy more accessible, transparent, and impactful for everyone.',
   vision: 'A world where giving is simple, transparent, and connected, allowing everyone to contribute to causes they care about regardless of location or resources.',
 };
 

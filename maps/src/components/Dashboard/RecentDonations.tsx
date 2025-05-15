@@ -1,5 +1,6 @@
 import React from 'react';
 import { Badge } from '../Charities/ui/badge';
+import { motion } from 'framer-motion';
 
 interface Donation {
   id: string;
@@ -68,8 +69,22 @@ const RecentDonations: React.FC = () => {
     }
   };
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  };
+
   return (
-    <div className="bg-white rounded-lg shadow">
+    <motion.div 
+      className="bg-white rounded-lg shadow"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.2 }}
+    >
       <div className="p-6 border-b border-gray-200">
         <h2 className="text-xl font-bold">Recent Donations</h2>
       </div>
@@ -86,13 +101,19 @@ const RecentDonations: React.FC = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {donations.map((donation) => (
-              <tr key={donation.id} className="hover:bg-gray-50">
+            {donations.map((donation, index) => (
+              <motion.tr 
+                key={donation.id} 
+                className="hover:bg-gray-50"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.1 + index * 0.1 }}
+              >
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                   {donation.id}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {new Date(donation.date).toLocaleDateString()}
+                  {formatDate(donation.date)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                   {donation.amount}
@@ -106,17 +127,22 @@ const RecentDonations: React.FC = () => {
                 <td className="px-6 py-4 whitespace-nowrap">
                   {getStatusBadge(donation.status)}
                 </td>
-              </tr>
+              </motion.tr>
             ))}
           </tbody>
         </table>
       </div>
-      <div className="p-4 border-t border-gray-200 text-center">
+      <motion.div 
+        className="p-4 border-t border-gray-200 text-center"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.5 }}
+      >
         <button className="text-sm text-primary hover:underline">
           View all donations
         </button>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 

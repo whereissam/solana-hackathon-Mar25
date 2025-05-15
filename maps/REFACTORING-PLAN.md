@@ -1,4 +1,4 @@
-# Refactoring Plan for Unify Giving Project
+# Refactoring Plan for Unify Compass Project
 
 ## Data Folder Consolidation
 
