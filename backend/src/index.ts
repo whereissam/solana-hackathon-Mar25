@@ -57,7 +57,7 @@ async function startup() {
       if (!req.headers.token) return {token: null, user: null}
       return {
         token: req.headers.token, 
-        user: jwt.decode(req.headers.token)
+        user: jwt.decode(Array.isArray(req.headers.token) ? req.headers.token[0] : req.headers.token)
       }
   }}))
 
