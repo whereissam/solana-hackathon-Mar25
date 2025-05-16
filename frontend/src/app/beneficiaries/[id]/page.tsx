@@ -35,13 +35,13 @@ import {
 } from "@/types/beneficiary";
 import "@dialectlabs/blinks/index.css";
 
-import {
-  Blink,
-  useBlink,
-  useBlinksRegistryInterval,
-} from "@dialectlabs/blinks";
-import { useBlinkSolanaWalletAdapter } from "@dialectlabs/blinks/hooks/solana";
-import { useWallet } from "@solana/wallet-adapter-react";
+// import {
+//   Blink,
+//   useBlink,
+//   useBlinksRegistryInterval,
+// } from "@dialectlabs/blinks";
+// import { useBlinkSolanaWalletAdapter } from "@dialectlabs/blinks/hooks/solana";
+// import { useWallet } from "@solana/wallet-adapter-react";
 
 // Modal style
 const modalStyle = {
@@ -91,15 +91,16 @@ export default function BeneficiaryDetailsPage({
   // URL of your endpoint (blink provider)
   // const blinkApiUrl =
   //   "https://bonkblinks.com/api/actions/lock?_brf=a0898550-e7ec-408d-b721-fca000769498&_bin=ffafbecd-bb86-435a-8722-e45bf139eab5";
-  const blinkApiUrl =
-    "https://solana-hackathon-mar25.onrender.com/solana-actions/3";
-  // Initiates adapter
-  const { adapter } = useBlinkSolanaWalletAdapter(
-    "https://api.mainnet-beta.solana.com"
-  );
+  // const blinkApiUrl =
+  //   "https://solana-hackathon-mar25.onrender.com/solana-actions";
+  // // Initiates adapter
+  // const { adapter } = useBlinkSolanaWalletAdapter(
+  //   "https://api.mainnet-beta.solana.com"
+  // );
 
   // Fetches the blink from the provided URL
-  const { blink, isLoading } = useBlink({ url: blinkApiUrl });
+  // const { blink, isLoading } = useBlink({ url: blinkApiUrl });
+  // console.log("Blink:", blink);
 
   const { user, isAuthenticated } = useAuthStore();
   const { startDonation, completeDonation, resetDonation } = useDonationStore();
@@ -301,6 +302,7 @@ export default function BeneficiaryDetailsPage({
     }
   };
 
+  // if (isLoading) return null;
   if (loading) return <LoadingState handleGoBack={handleGoBack} />;
   if (error) return <ErrorState error={error} handleGoBack={handleGoBack} />;
   if (!data?.beneficiary) return <NotFoundState handleGoBack={handleGoBack} />;
@@ -394,6 +396,14 @@ export default function BeneficiaryDetailsPage({
                 />
               </Card>
               {/* <Blink blink={blink} adapter={adapter} /> */}
+              {/* {
+                <Blink
+                  action={
+                    "https://dial.to/?action=solana-action%3Ahttps%3A%2F%2Fsolana-hackathon-mar25.onrender.com%2Fsolana-actions%2F3"
+                  }
+                  adapter={adapter}
+                />
+              } */}
             </Grid>
 
             {/* Right Side: Beneficiary Info with Donate Button Below */}
