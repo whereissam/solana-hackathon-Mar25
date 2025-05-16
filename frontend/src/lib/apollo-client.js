@@ -9,7 +9,7 @@ import { useAuthStore } from '@/store/authStore';
 
 // Replace the HTTP link with an upload link
 const uploadLink = createUploadLink({
-  uri: 'https://solana-hackathon-mar25.onrender.com/graphql',
+  uri: 'http://localhost:3000/',
   headers: {
     // This header will tell the server this is a preflight-exempt request
     'apollo-require-preflight': 'true'

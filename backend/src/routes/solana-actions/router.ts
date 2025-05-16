@@ -12,6 +12,17 @@ import { create } from "domain";
 const router = Router();
 const headers = createActionHeaders();
 
+export const actionjsonHandler = async (req, res) => {
+    return res.header(headers).status(200).json({
+        rules: [
+            {
+                "pathPattern": "/solana-actions/*",
+                "apiPath": "/solana-actions/*",
+            }
+        ]
+    });
+}
+
 router.get('/:beneficiaryId', async (req, res) => {
     try {
         const beneficiaryId = parseInt(req.params.beneficiaryId);

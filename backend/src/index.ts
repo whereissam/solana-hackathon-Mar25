@@ -11,7 +11,7 @@ import { loadFilesSync } from '@graphql-tools/load-files'
 import path from 'path'
 import resolvers from './resolvers/resolvers'
 import jwt from 'jsonwebtoken'
-import solanaActionRouter from './routes/solana-actions/router'
+import solanaActionRouter, {actionjsonHandler} from './routes/solana-actions/router'
 import nftRouter from './routes/nft/router'
 import fugRouter from './routes/fug/router'
 
@@ -38,6 +38,7 @@ async function startup() {
   app.use(graphqlUploadExpress() as unknown as express.RequestHandler)
   app.use('/donation', nftRouter)
   app.use('/solana-actions', solanaActionRouter)
+  app.use('/actions.json', actionjsonHandler)
   app.use('/FUG', fugRouter)
   app.use('/', expressMiddleware(server,{
     context: async ({req}) => { 
