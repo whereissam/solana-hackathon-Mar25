@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { encodeURL, findReference } from "@solana/pay";
+import { encodeURL } from "@solana/pay";
 import {
   Connection,
   clusterApiUrl,
@@ -307,11 +307,11 @@ const SolanaPayButton: React.FC<SolanaPayButtonProps> = ({
       setShowQR(true);
 
       // You can use the reference to find the transaction later
-      const signatureInfo = await findReference(connection, reference, {
-        finality: "confirmed",
-      });
+      // const signatureInfo = await findReference(connection, reference, {
+      //   finality: "confirmed",
+      // });
 
-      console.log("Transaction signature:", signatureInfo);
+      // console.log("Transaction signature:", signatureInfo);
     } catch (err) {
       console.error("Error generating QR code:", err);
       setWalletError(handleError(err));
