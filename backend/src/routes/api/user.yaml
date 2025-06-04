@@ -1,0 +1,140 @@
+openapi: 3.0.3
+info:
+  title: User API
+  version: 1.0.0
+
+tags:
+  - name: user
+    description: User authentication and wallet endpoints
+
+paths:
+  /user/login:
+    post:
+      tags: [user]
+      summary: User login with email and password
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              required: [email, password]
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                  token:
+                    type: string
+        '401':
+          description: Login failed
+
+  /user/login/wallet:
+    post:
+      tags: [user]
+      summary: User login with wallet address
+      operationId: loginWithWallet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                walletAddress:
+                  type: string
+              required: [walletAddress]
+      responses:
+        '200':
+          description: Login with wallet successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                  token:
+                    type: string
+        '401':
+          description: Login with wallet failed
+
+  /user/wallet-user:
+    post:
+      tags: [user]
+      summary: Create a user with wallet address
+      operationId: createWalletUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                walletAddress:
+                  type: string
+              required: [walletAddress]
+      responses:
+        '201':
+          description: Wallet user created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Create wallet user failed
+
+  /user/wallet-user/{walletAddress}/id:
+    get:
+      tags: [user]
+      summary: Get or create user ID by wallet address
+      operationId: getWalletUserIdOrCreate
+      parameters:
+        - in: path
+          name: walletAddress
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User ID found or created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId:
+                    type: integer
+        '400':
+          description: Get or create wallet user failed
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+          nullable: true
+        wallet_address:
+          type: string
+          nullable: true
+        role:
+          type: string
+          nullable: true
+        status:
+          type: string
+          nullable: true

@@ -1,0 +1,261 @@
+openapi: 3.0.3
+info:
+  title: Charity API
+  version: 1.0.0
+
+tags:
+  - name: charity
+    description: Charity management endpoints
+
+paths:
+  /charities:
+    get:
+      tags: [charity]
+      summary: List charities
+      operationId: getCharities
+      parameters:
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 30
+      responses:
+        '200':
+          description: A list of charities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Charity'
+    post:
+      tags: [charity]
+      summary: Create a new charity
+      operationId: createCharity
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewCharity'
+      responses:
+        '201':
+          description: Charity created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Charity'
+        '401':
+          description: Unauthorized
+
+  /charities/{id}:
+    get:
+      tags: [charity]
+      summary: Get a charity by ID
+      operationId: getCharityById
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Charity details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Charity'
+        '404':
+          description: Charity not found
+
+  /beneficiaries/{charityId}:
+    get:
+      tags: [charity]
+      summary: List beneficiaries for a charity
+      operationId: getBeneficiaries
+      parameters:
+        - in: path
+          name: charityId
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: List of beneficiaries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CharityUser'
+    post:
+      tags: [charity]
+      summary: Add a beneficiary to a charity
+      operationId: createBeneficiary
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewCharityBeneficiary'
+      responses:
+        '201':
+          description: Beneficiary created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CharityUser'
+        '400':
+          description: Failed to create beneficiary
+
+  /beneficiary/{beneficiaryId}:
+    get:
+      tags: [charity]
+      summary: Get a beneficiary by ID
+      operationId: getBeneficiaryById
+      parameters:
+        - in: path
+          name: beneficiaryId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Beneficiary details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CharityUser'
+        '404':
+          description: Beneficiary not found
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: token
+
+  schemas:
+    Charity:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        website:
+          type: string
+          nullable: true
+        mission:
+          type: string
+          nullable: true
+        sector:
+          type: string
+        description:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+        beneficiaries:
+          type: array
+          items:
+            $ref: '#/components/schemas/CharityUser'
+    CharityUser:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        first_name:
+          type: string
+          nullable: true
+        last_name:
+          type: string
+          nullable: true
+    NewCharity:
+      type: object
+      properties:
+        charityAdmin:
+          $ref: '#/components/schemas/NewCharityAdmin'
+        name:
+          type: string
+        mission:
+          type: string
+          nullable: true
+        website:
+          type: string
+          nullable: true
+        sector:
+          type: string
+        description:
+          type: string
+        address:
+          $ref: '#/components/schemas/InputAddress'
+    NewCharityAdmin:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+    NewCharityBeneficiary:
+      type: object
+      properties:
+        email:
+          type: string
+          nullable: true
+        first_name:
+          type: string
+        last_name:
+          type: string
+        password:
+          type: string
+          nullable: true
+        story:
+          type: string
+          nullable: true
+    Address:
+      type: object
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zip:
+          type: string
+    InputAddress:
+      type: object
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zip:
+          type: string
