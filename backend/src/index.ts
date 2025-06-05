@@ -17,7 +17,6 @@ import solanaActionRouter, { actionjsonHandler } from './routes/solana-actions/r
 import nftRouter from './routes/nft/router'
 import fugRouter from './routes/fug/router'
 import apiRouter from './routes/api/apiRouter'
-import { injectUser } from './routes/api/authMiddleware'
 import { verifyJWT } from './service/auth'
 
 dotenv.config()
@@ -77,7 +76,7 @@ async function startup() {
   app.use('/solana-actions', solanaActionRouter)
   app.use('/actions.json', actionjsonHandler)
   app.use('/FUG', fugRouter)
-  app.use('/api', injectUser, apiRouter)
+  app.use('/api', apiRouter)
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs))
 
   app.use('/', expressMiddleware(server, {

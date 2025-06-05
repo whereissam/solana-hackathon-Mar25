@@ -1,0 +1,162 @@
+openapi: 3.0.3
+info:
+  title: Donation API
+  version: 1.0.0
+
+tags:
+  - name: donation
+    description: |
+      Only Crypto donation is created for now
+      Donation Workflow:
+      1. User creates a donation with beneficiaryId, amountInLamports, and tokenCode.
+      2. The donation is stored with a status of "pending", and the donationId is returned
+      3. User sends the specified amount of crypto to the "ug wallet"
+      3.1 In the transaction, use memo and include following data: >
+        {"DonationId":"9ea57f29-bffa-457a-8174-f617140e06be","Ver":"1.0","Amount":1,"Currency":"usd"} |
+      4. Call Complete crypto donation endpoint with the donationId and txHash
+      5. The donation is marked as completed, NFT is minted
+    
+    
+
+paths:
+  /donations/crypto:
+    post:
+      tags: [donation]
+      summary: Create a crypto donation
+      operationId: createCryptoDonation
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                beneficiaryId:
+                  type: integer
+                amountInLamports:
+                  type: integer
+                tokenCode:
+                  type: string
+              required: [beneficiaryId, amountInLamports, tokenCode]
+      responses:
+        '201':
+          description: Donation created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Donation'
+        '400':
+          description: Failed to create crypto donation
+
+  /donations/{donationId}:
+    get:
+      tags: [donation]
+      summary: Get a donation by ID
+      operationId: getDonationById
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: donationId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Donation details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Donation'
+        '404':
+          description: Donation not found
+
+  /donations:
+    get:
+      tags: [donation]
+      summary: Get donations for the authenticated user
+      operationId: getDonations
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: query
+          name: completed
+          schema:
+            type: boolean
+          description: Filter by completion status
+      responses:
+        '200':
+          description: List of donations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Donation'
+        '400':
+          description: Failed to get donations
+
+  /donations/{donationId}/crypto-completed:
+    post:
+      tags: [donation]
+      summary: Mark a crypto donation as completed
+      operationId: cryptoPaymentCompleted
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: donationId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                txHash:
+                  type: string
+              required: [txHash]
+      responses:
+        '200':
+          description: Payment marked as completed
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Failed to complete crypto payment
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: token
+
+  schemas:
+    Donation:
+      type: object
+      properties:
+        id:
+          type: integer
+        donorId:
+          type: integer
+        beneficiaryId:
+          type: integer
+        amountInLamports:
+          type: integer
+        tokenCode:
+          type: string
+        completed:
+          type: boolean
+        txHash:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
