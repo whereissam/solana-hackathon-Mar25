@@ -2,12 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  encodeURL,
-  fetchTransaction,
-  findReference,
-  FindReferenceError,
-} from "@solana/pay";
+import { encodeURL, findReference, FindReferenceError } from "@solana/pay";
 import {
   Connection,
   clusterApiUrl,
