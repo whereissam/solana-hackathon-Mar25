@@ -43,7 +43,7 @@ export const Bar: React.FC<AppBarProps> = () => {
     <>
       {/* Main Navigation Bar */}
       <div className="w-full flex justify-center mt-6 mb-6 px-4">
-        <nav className="w-full max-w-7xl bg-gradient-to-r from-indigo-900 via-purple-900 to-indigo-800 rounded-full px-6 py-3 shadow-lg">
+        <nav className="w-full max-w-7xl bg-[#140230] border border-[#a973d5] rounded-full px-6 py-3 shadow-lg">
           <div className="flex items-center justify-between">
             {/* Logo */}
             <NextLink href="/" className="flex items-center">
@@ -56,8 +56,8 @@ export const Bar: React.FC<AppBarProps> = () => {
                 <NextLink
                   key={item.name}
                   href={item.href}
-                  className={`text-sm font-medium transition-colors duration-200 hover:text-yellow-300 ${
-                    pathname === item.href ? "text-yellow-400" : "text-white"
+                  className={`text-sm font-medium transition-colors duration-200 ${
+                    pathname === item.href ? "text-[#A56FFF]" : "text-white"
                   }`}
                 >
                   {item.name}
@@ -70,7 +70,7 @@ export const Bar: React.FC<AppBarProps> = () => {
               {/* Explore Map Button */}
               <NextLink
                 href="/explore-map"
-                className="hidden md:inline-flex items-center px-6 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-sm font-medium rounded-full hover:from-purple-700 hover:to-blue-700 transition-all duration-200 shadow-lg"
+                className="hidden md:inline-flex items-center px-6 py-2 bg-[#802BF0] text-white text-sm font-medium rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-200 shadow-lg"
               >
                 Explore Map
               </NextLink>
