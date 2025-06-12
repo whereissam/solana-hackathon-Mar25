@@ -37,7 +37,7 @@ import {
   FormErrors,
 } from "@/types/beneficiary";
 import "@dialectlabs/blinks/index.css";
-
+// import AppBar from "@/components/AppBar";
 // Modal style
 const modalStyle = {
   position: "absolute",
@@ -295,85 +295,9 @@ export default function BeneficiaryDetailsPage({
       }}
     >
       {/* Header Section */}
-      <Box
-        sx={{
-          background: "rgba(26, 26, 46, 0.9)",
-          backdropFilter: "blur(10px)",
-          borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
-          py: 3,
-        }}
-      >
-        <Container maxWidth="lg">
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              mb: 2,
-            }}
-          >
-            <Button
-              startIcon={<ChevronLeftIcon />}
-              onClick={handleGoBack}
-              sx={{ color: "white" }}
-            >
-              Back to Charities
-            </Button>
-            {userCanEdit && !isEditMode && (
-              <Button
-                variant="contained"
-                color="primary"
-                startIcon={<EditIcon />}
-                onClick={() => setIsEditMode(true)}
-                sx={{ borderRadius: 3 }}
-              >
-                Edit
-              </Button>
-            )}
-          </Box>
-
-          <Typography
-            variant="h3"
-            component="h1"
-            sx={{
-              fontWeight: "bold",
-              color: "white",
-              mb: 2,
-              textAlign: "center",
-            }}
-          >
-            {`${beneficiary.first_name} ${beneficiary.last_name} Foundation`}
-          </Typography>
-
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              gap: 4,
-              color: "rgba(255, 255, 255, 0.7)",
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <LocationOnIcon fontSize="small" />
-              <Typography variant="body2">
-                {beneficiary.email?.includes("@")
-                  ? beneficiary.email
-                      .split("@")[1]
-                      .replace(/\.(com|org|net|de)$/, "")
-                      .toUpperCase() + " Location"
-                  : "Berlin, Germany"}
-              </Typography>
-            </Box>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <LanguageIcon fontSize="small" />
-              <Typography variant="body2">
-                https://{beneficiary.first_name.toLowerCase()}-
-                {beneficiary.last_name.toLowerCase()}.org/
-              </Typography>
-            </Box>
-          </Box>
-        </Container>
-      </Box>
+      <div className="w-full">
+        <AppBar />
+      </div>
 
       <Container maxWidth="lg" sx={{ py: 4, flex: 1 }}>
         {successMessage && (
