@@ -127,6 +127,7 @@ export type Mutation = {
   createBeneficiary?: Maybe<CharityUser>;
   createCharity?: Maybe<Charity>;
   createCryptoDonation: Donation;
+  createDonor: Donor;
   cryptoPaymentCompleted: PaymentCompletedResult;
   login?: Maybe<AuthPayload>;
   logout: Scalars['Boolean']['output'];
@@ -160,6 +161,15 @@ export type MutationCreateCryptoDonationArgs = {
   amountInLamports: Scalars['Int']['input'];
   beneficiaryId: Scalars['Int']['input'];
   tokenCode: Scalars['String']['input'];
+};
+
+
+/**
+ * For file upload, client MUST sent a header called Apollo-Require-Preflight: "true"
+ * Or the request will fail with CSRF prevention
+ */
+export type MutationCreateDonorArgs = {
+  input: NewDonorInput;
 };
 
 
@@ -206,6 +216,13 @@ export type NewCharityBeneficiary = {
   last_name: Scalars['String']['input'];
   password?: InputMaybe<Scalars['String']['input']>;
   story?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type NewDonorInput = {
+  email: Scalars['String']['input'];
+  first_name: Scalars['String']['input'];
+  last_name: Scalars['String']['input'];
+  password: Scalars['String']['input'];
 };
 
 export type PaymentCompletedResult = {
@@ -355,6 +372,7 @@ export type ResolversTypes = {
   NewCharity: NewCharity;
   NewCharityAdmin: NewCharityAdmin;
   NewCharityBeneficiary: NewCharityBeneficiary;
+  NewDonorInput: NewDonorInput;
   PaymentCompletedResult: ResolverTypeWrapper<PaymentCompletedResult>;
   Query: ResolverTypeWrapper<{}>;
   RoleType: RoleType;
@@ -383,6 +401,7 @@ export type ResolversParentTypes = {
   NewCharity: NewCharity;
   NewCharityAdmin: NewCharityAdmin;
   NewCharityBeneficiary: NewCharityBeneficiary;
+  NewDonorInput: NewDonorInput;
   PaymentCompletedResult: PaymentCompletedResult;
   Query: {};
   String: Scalars['String']['output'];
@@ -477,6 +496,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   createBeneficiary?: Resolver<Maybe<ResolversTypes['CharityUser']>, ParentType, ContextType, RequireFields<MutationCreateBeneficiaryArgs, 'charityId' | 'detail'>>;
   createCharity?: Resolver<Maybe<ResolversTypes['Charity']>, ParentType, ContextType, RequireFields<MutationCreateCharityArgs, 'detail'>>;
   createCryptoDonation?: Resolver<ResolversTypes['Donation'], ParentType, ContextType, RequireFields<MutationCreateCryptoDonationArgs, 'amountInLamports' | 'beneficiaryId' | 'tokenCode'>>;
+  createDonor?: Resolver<ResolversTypes['Donor'], ParentType, ContextType, RequireFields<MutationCreateDonorArgs, 'input'>>;
   cryptoPaymentCompleted?: Resolver<ResolversTypes['PaymentCompletedResult'], ParentType, ContextType, RequireFields<MutationCryptoPaymentCompletedArgs, 'donationId' | 'txHash'>>;
   login?: Resolver<Maybe<ResolversTypes['AuthPayload']>, ParentType, ContextType, RequireFields<MutationLoginArgs, 'email' | 'password'>>;
   logout?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;

@@ -8,7 +8,6 @@ export const createJWT = (user: User) => {
 
 export const verifyJWT = (token: string | null): User | null => {
     if (!token) return null;
-    console.log("Verifying JWT:", token);
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET) as User;
         return decoded;

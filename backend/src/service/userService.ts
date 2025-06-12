@@ -4,8 +4,8 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import bcrypt from 'bcrypt'
 import { createJWT } from './auth'
 
-export async function hashPassword(password) {
-    return await bcrypt.hash(password, bcrypt.genSaltSync())
+export async function hashPassword(password: string) {
+    return await bcrypt.hash(password, 10)
 }
 
 const userService = {
@@ -58,6 +58,28 @@ const userService = {
         }
         return userId
     },
+    createDonor: async (email: string, password: string, firstname: string, lastname: string) => {
+        const hashedPassword = await hashPassword(password)
+        try {
+            console.log("Creating donor with email:", email)
+            return await prisma.users.create({
+                data: {
+                    first_name: firstname,
+                    last_name: lastname,
+                    email: email,
+                    password: hashedPassword,
+                    agree_to_terms: true,
+                    role: 'donor',
+                    status: 'active'
+                }
+            })
+        } catch (error) {
+            if (error instanceof PrismaClientKnownRequestError && error.code === 'P2002') {
+                throw "EMAIL_ALREADY_EXISTS"
+            }
+            throw error
+        }
+    }
 }
 
 export default userService

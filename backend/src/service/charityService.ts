@@ -50,7 +50,7 @@ const charityService = {
         return prisma.users.create({
             data: {
                 email, 
-                password: await hashPassword(password), 
+                password: password ? await hashPassword(password): null, 
                 first_name, last_name,
                 agree_to_terms: true,
                 role: 'recipient',

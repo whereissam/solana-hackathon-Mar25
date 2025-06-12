@@ -7,6 +7,7 @@ import { resolverWrapper, ResolverFunctionType } from './resolverWrapper'
 import { GraphQLError } from 'graphql'
 import { PrismaClientKnownRequestError, PrismaClientValidationError } from '@prisma/client/runtime/library'
 import { BigIntResolver, DateTimeResolver } from 'graphql-scalars'
+import userResolver from './userResolver'
 
 const resolvers = mergeResolvers([
     { Upload: GraphQLUpload },
@@ -14,7 +15,8 @@ const resolvers = mergeResolvers([
     { DateTime: DateTimeResolver },
     authentication,
     resolverWrapper(charityResolver, errorHandler),
-    resolverWrapper(donationResolver, errorHandler)
+    resolverWrapper(donationResolver, errorHandler),
+    resolverWrapper(userResolver, errorHandler)
 ])
 
 function errorHandler(this: any, f: ResolverFunctionType) {
