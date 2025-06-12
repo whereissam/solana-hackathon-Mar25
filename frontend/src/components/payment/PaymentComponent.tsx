@@ -231,11 +231,13 @@ const PaymentComponent: React.FC<PaymentComponentProps> = ({
         >
           Pay with Credit Card
         </Button>
+
         <Divider>
           <Typography variant="body2" color="textSecondary">
             OR
           </Typography>
         </Divider>
+
         <Button
           variant="contained"
           onClick={() => setPaymentMethod("solana")}
@@ -249,32 +251,6 @@ const PaymentComponent: React.FC<PaymentComponentProps> = ({
         >
           Pay with Solana
         </Button>
-        {/* Add divider and new Solana Action button */}
-        <Divider>
-          <Typography variant="body2" color="textSecondary">
-            OR
-          </Typography>
-        </Divider>
-        <Button
-          variant="contained"
-          onClick={() =>
-            window.open(
-              "https://dial.to/?action=solana-action%3Ahttps%3A%2F%2Fsolana-hackathon-mar25.onrender.com%2Fsolana-actions%2F3",
-              "_blank"
-            )
-          }
-          startIcon={<RiCoinsFill />}
-          size="large"
-          fullWidth
-          sx={{
-            backgroundColor: "#14F195", // Solana green color
-            "&:hover": { backgroundColor: "#0DC982" },
-            color: "#000", // Black text for better contrast on green
-          }}
-        >
-          Pay with Blinks
-        </Button>
-        {/* https://dial.to/?action=solana-action%3Ahttps%3A%2F%2Fsolana-hackathon-mar25.onrender.com%2Fsolana-actions%2F3 */}
       </Box>
     );
   };

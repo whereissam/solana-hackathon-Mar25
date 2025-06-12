@@ -1,17 +1,6 @@
 "use client";
 
 import * as React from "react";
-import {
-  Card,
-  CardContent,
-  Typography,
-  Box,
-  Button,
-  Grid,
-  Container,
-  Skeleton,
-  Chip,
-} from "@mui/material";
 import Link from "next/link";
 import { useQuery } from "@apollo/client";
 import AppBar from "@/components/AppBar";
@@ -42,66 +31,83 @@ const formatAmount = (amount: number, currency: string) => {
   return `${currency} ${amount}`;
 };
 
+// Custom Loading Spinner Component
+const LoadingSpinner = ({
+  size = "medium",
+}: {
+  size?: "small" | "medium" | "large";
+}) => {
+  const sizeClasses = {
+    small: "w-6 h-6",
+    medium: "w-10 h-10",
+    large: "w-12 h-12",
+  };
+
+  return (
+    <div
+      className={`${sizeClasses[size]} animate-spin rounded-full border-2 border-gray-300 border-t-[#8A42F8]`}
+    ></div>
+  );
+};
+
+// Custom Skeleton Component
+const Skeleton = ({
+  width = "100%",
+  height = "1rem",
+  className = "",
+  variant = "rectangular",
+}: {
+  width?: string;
+  height?: string;
+  className?: string;
+  variant?: "rectangular" | "circular" | "rounded";
+}) => {
+  const variantClasses = {
+    rectangular: "rounded",
+    circular: "rounded-full",
+    rounded: "rounded-lg",
+  };
+
+  return (
+    <div
+      className={`bg-gray-600 animate-pulse ${variantClasses[variant]} ${className}`}
+      style={{ width, height }}
+    ></div>
+  );
+};
+
 // Skeleton card for loading state
 const ReceiptCardSkeleton = () => (
-  <Card
-    sx={{
-      height: "100%",
-      display: "flex",
-      flexDirection: "column",
-      borderRadius: "16px",
-      overflow: "hidden",
-      backgroundColor: "rgba(255, 255, 255, 0.9)",
-    }}
-  >
-    <CardContent
-      sx={{
-        display: "flex",
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 2,
-        pb: 1,
-      }}
-    >
+  <div className="h-full flex flex-col rounded-2xl overflow-hidden bg-white/10 border border-purple-500/30">
+    <div className="flex flex-row items-center gap-4 p-6 pb-2">
       <Skeleton
         variant="circular"
-        width={48}
-        height={48}
-        animation="wave"
-        sx={{ bgcolor: "rgba(103, 58, 183, 0.1)" }}
+        width="48px"
+        height="48px"
+        className="bg-purple-500/20"
       />
-      <Box sx={{ flexGrow: 1 }}>
-        <Skeleton animation="wave" height={24} width="60%" sx={{ mb: 1 }} />
-        <Skeleton animation="wave" height={20} width="40%" />
-      </Box>
+      <div className="flex-grow">
+        <Skeleton height="24px" width="60%" className="mb-2" />
+        <Skeleton height="20px" width="40%" />
+      </div>
+      <Skeleton height="24px" width="60px" className="bg-purple-500/20" />
+    </div>
+    <div className="px-6 pb-6 mt-auto">
       <Skeleton
-        animation="wave"
-        height={24}
-        width={60}
-        sx={{ bgcolor: "rgba(103, 58, 183, 0.1)" }}
-      />
-    </CardContent>
-    <Box sx={{ px: 2, pb: 2, mt: "auto" }}>
-      <Skeleton
-        animation="wave"
-        height={36}
+        height="36px"
         variant="rounded"
         width="100%"
-        sx={{
-          mx: "auto",
-          borderRadius: "30px",
-          bgcolor: "rgba(103, 58, 183, 0.1)",
-        }}
+        className="bg-purple-500/20"
       />
-    </Box>
-  </Card>
+    </div>
+  </div>
 );
 
 // Fixed version of OneTimeDonationIcon component
 const FixedOneTimeDonationIcon = () => (
   <svg
-    width="53"
-    height="54"
+    width="24"
+    height="24"
     viewBox="0 0 53 54"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
@@ -124,8 +130,8 @@ const FixedOneTimeDonationIcon = () => (
 // Recurring donation icon
 const RecurringDonationIcon = () => (
   <svg
-    width="53"
-    height="54"
+    width="24"
+    height="24"
     viewBox="0 0 53 54"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
@@ -203,302 +209,151 @@ export default function ReceiptsPage() {
   // Only render a minimal placeholder during server-side rendering
   if (!isMounted) {
     return (
-      <Box
-        sx={{
-          width: "100%",
-          minHeight: "100vh",
-          backgroundColor: "#000",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      />
+      <div className="w-full min-h-screen bg-black flex flex-col items-center" />
     );
   }
 
   const showLoginMessage = !isAuthenticated || !token;
 
   return (
-    <Box
-      sx={{
-        width: "100%",
-        minHeight: "100vh",
-        backgroundColor: "#000",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-      }}
-    >
+    <div className="min-h-screen bg-gradient-to-b from-[#2B1C5D] to-[#1A103C] text-white flex flex-col items-center">
       {/* Wrapper to center the AppBar */}
-      <Box
-        sx={{
-          width: "100%",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
+      <div className="w-full flex flex-col items-center">
         <AppBar />
-      </Box>
+      </div>
 
       {/* Main content container */}
-      <Container
-        maxWidth="lg"
-        sx={{
-          color: "white",
-          px: { xs: 2, sm: 3 },
-          pb: 8,
-        }}
-      >
-        <Box sx={{ my: 4 }}>
-          <Typography
-            variant="h2"
-            component="h1"
-            sx={{
-              mb: 2,
-              fontWeight: "bold",
-            }}
-          >
+      <div className="max-w-6xl mx-auto w-full text-white px-4 sm:px-6 pb-8">
+        <div className="my-8 text-center">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-[#A88BFF]">
             My Donations
-          </Typography>
-          <Typography
-            variant="body1"
-            sx={{
-              maxWidth: "800px",
-              mb: 4,
-              fontSize: "1.1rem",
-              lineHeight: 1.6,
-            }}
-          >
+          </h1>
+          <p className="max-w-4xl mx-auto mb-8 text-lg leading-relaxed text-gray-300">
             Track all your charitable contributions and view digital receipts.
             Each donation makes a meaningful impact on the causes you care
             about.
-          </Typography>
-        </Box>
+          </p>
+        </div>
 
         {showLoginMessage ? (
-          <Box sx={{ textAlign: "center", my: 6, py: 4 }}>
-            <Typography variant="h5" sx={{ mb: 2 }}>
+          <div className="text-center my-12 py-8">
+            <h2 className="text-2xl font-bold mb-4">
               Please log in to view your donations
-            </Typography>
-            <Typography sx={{ mb: 3, color: "rgba(255, 255, 255, 0.7)" }}>
+            </h2>
+            <p className="mb-6 text-gray-400">
               You need to be logged in to access your donation history
-            </Typography>
-            <Button
-              variant="contained"
-              sx={{
-                bgcolor: "rgb(103, 58, 183)",
-                borderRadius: "30px",
-                px: 4,
-                "&:hover": {
-                  bgcolor: "rgb(83, 38, 163)",
-                },
-              }}
+            </p>
+            <button
+              className="px-8 py-3 bg-[#8A42F8] text-white rounded-full font-semibold hover:bg-[#A88BFF] transition-colors"
               onClick={() => (window.location.href = "/login")}
             >
               Login
-            </Button>
-          </Box>
+            </button>
+          </div>
         ) : loading ? (
           // Show skeleton loader
-          <Box sx={{ mb: 4 }}>
-            <Skeleton
-              animation="wave"
-              height={32}
-              width="20%"
-              sx={{ mb: 2, bgcolor: "rgba(255, 255, 255, 0.2)" }}
-            />
-            <Grid container spacing={3}>
-              {Array.from(new Array(2)).map((_, index) => (
-                <Grid item xs={12} sm={6} md={6} key={`skeleton-${index}`}>
-                  <ReceiptCardSkeleton />
-                </Grid>
+          <div className="mb-8">
+            <Skeleton height="32px" width="20%" className="mb-4 bg-white/20" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {Array.from(new Array(4)).map((_, index) => (
+                <ReceiptCardSkeleton key={`skeleton-${index}`} />
               ))}
-            </Grid>
-          </Box>
+            </div>
+          </div>
         ) : error ? (
           // Show error state
-          <Box sx={{ textAlign: "center", my: 6, py: 4 }}>
-            <Typography variant="h5" sx={{ mb: 2, color: "error.main" }}>
+          <div className="text-center my-12 py-8">
+            <h2 className="text-2xl font-bold mb-4 text-red-400">
               Error loading donations
-            </Typography>
-            <Typography sx={{ mb: 3, color: "rgba(255, 255, 255, 0.7)" }}>
+            </h2>
+            <p className="mb-6 text-gray-400">
               {error.message ||
                 "An error occurred while fetching your donations. Please try again later."}
-            </Typography>
-            <Button
-              variant="contained"
-              sx={{
-                bgcolor: "rgb(103, 58, 183)",
-                borderRadius: "30px",
-                px: 4,
-                "&:hover": {
-                  bgcolor: "rgb(83, 38, 163)",
-                },
-              }}
+            </p>
+            <button
+              className="px-8 py-3 bg-[#8A42F8] text-white rounded-full font-semibold hover:bg-[#A88BFF] transition-colors"
               onClick={() => window.location.reload()}
             >
               Retry
-            </Button>
-          </Box>
+            </button>
+          </div>
         ) : groupedDonations.length > 0 ? (
           // Show actual donation receipts
           groupedDonations.map((group, groupIndex) => (
-            <Box key={groupIndex} sx={{ mb: 4 }}>
-              <Typography
-                variant="h6"
-                sx={{
-                  mb: 2,
-                  color: "rgba(255, 255, 255, 0.7)",
-                  borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
-                  pb: 1,
-                }}
-              >
+            <div key={groupIndex} className="mb-8">
+              <h3 className="text-xl font-semibold mb-6 text-gray-300 border-b border-gray-600 pb-2">
                 {group.date}
-              </Typography>
-              <Grid container spacing={3}>
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {group.items.map((donation) => (
-                  <Grid item xs={12} sm={6} md={6} key={donation.id}>
-                    <Card
-                      sx={{
-                        height: "100%",
-                        display: "flex",
-                        flexDirection: "column",
-                        borderRadius: "16px",
-                        overflow: "hidden",
-                        backgroundColor: "rgba(255, 255, 255, 0.9)",
-                        transition: "transform 0.3s ease",
-                        "&:hover": {
-                          transform: "translateY(-5px)",
-                        },
-                      }}
-                    >
-                      <CardContent
-                        sx={{
-                          display: "flex",
-                          flexDirection: "row",
-                          alignItems: "center",
-                          gap: 2,
-                          pb: 1,
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            bgcolor: "rgba(103, 58, 183, 0.1)",
-                            borderRadius: "50%",
-                            width: 48,
-                            height: 48,
-                          }}
-                        >
-                          {donation.type === "recurring" ? (
-                            <RecurringDonationIcon />
-                          ) : (
-                            <FixedOneTimeDonationIcon />
-                          )}
-                        </Box>
-                        <Box sx={{ flexGrow: 1 }}>
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 1,
-                              mb: 0.5,
-                            }}
+                  <div
+                    key={donation.id}
+                    className="h-full flex flex-col rounded-2xl overflow-hidden bg-gradient-to-br from-purple-900/30 to-purple-800/20 border border-purple-500/30 hover:border-purple-400/50 transition-all duration-300 hover:transform hover:-translate-y-1"
+                  >
+                    <div className="flex flex-row items-center gap-4 p-6 pb-4">
+                      <div className="flex items-center justify-center bg-purple-500/20 rounded-full w-12 h-12">
+                        {donation.type === "recurring" ? (
+                          <RecurringDonationIcon />
+                        ) : (
+                          <FixedOneTimeDonationIcon />
+                        )}
+                      </div>
+                      <div className="flex-grow">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="text-lg font-bold text-white">
+                            {donation.type === "crypto"
+                              ? "Crypto Donation"
+                              : "Charity Donation"}
+                          </h4>
+                          <span
+                            className={`px-2 py-1 text-xs font-medium rounded-full ${
+                              donation.status === "completed"
+                                ? "bg-green-500/20 text-green-400"
+                                : "bg-yellow-500/20 text-yellow-400"
+                            }`}
                           >
-                            <Typography
-                              sx={{
-                                fontSize: 18,
-                                fontWeight: 700,
-                                color: "#333",
-                              }}
-                            >
-                              {donation.type === "crypto"
-                                ? "Crypto Donation"
-                                : "Charity Donation"}
-                            </Typography>
-                            <Chip
-                              label={donation.status}
-                              size="small"
-                              color={
-                                donation.status === "completed"
-                                  ? "success"
-                                  : "warning"
-                              }
-                              sx={{ height: 20, fontSize: "0.7rem" }}
-                            />
-                          </Box>
-                          <Typography sx={{ color: "#666" }}>
-                            {getDonationTypeDisplay(donation.type)}
-                          </Typography>
-                        </Box>
-                        <Typography
-                          sx={{
-                            fontWeight: 700,
-                            fontSize: 18,
-                            color: "rgb(103, 58, 183)",
-                          }}
-                        >
+                            {donation.status}
+                          </span>
+                        </div>
+                        <p className="text-gray-400 text-sm">
+                          {getDonationTypeDisplay(donation.type)}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-lg text-[#A88BFF]">
                           {formatAmount(donation.amount, donation.currency)}
-                        </Typography>
-                      </CardContent>
-                      <Box sx={{ px: 2, pb: 2, mt: "auto" }}>
-                        <Link
-                          href={`https://explorer.solana.com/address/${donation.receipt_addr}?cluster=devnet`}
-                          target="_blank"
-                          passHref
-                          style={{ textDecoration: "none" }}
-                        >
-                          <Button
-                            fullWidth
-                            variant="outlined"
-                            sx={{
-                              borderRadius: "30px",
-                              borderColor: "rgb(103, 58, 183)",
-                              color: "rgb(103, 58, 183)",
-                              "&:hover": {
-                                borderColor: "rgb(83, 38, 163)",
-                                backgroundColor: "rgba(103, 58, 183, 0.04)",
-                              },
-                            }}
-                          >
-                            View NFT Receipt
-                          </Button>
-                        </Link>
-                      </Box>
-                    </Card>
-                  </Grid>
+                        </p>
+                      </div>
+                    </div>
+                    <div className="px-6 pb-6 mt-auto">
+                      <Link
+                        href={`https://explorer.solana.com/address/${donation.receipt_addr}?cluster=devnet`}
+                        target="_blank"
+                        className="block w-full"
+                      >
+                        <button className="w-full py-3 border border-[#A88BFF] text-[#A88BFF] rounded-full font-medium hover:bg-[#A88BFF] hover:text-white transition-colors">
+                          View NFT Receipt
+                        </button>
+                      </Link>
+                    </div>
+                  </div>
                 ))}
-              </Grid>
-            </Box>
+              </div>
+            </div>
           ))
         ) : (
           // Show empty state
-          <Box sx={{ textAlign: "center", my: 6, py: 4 }}>
-            <Typography variant="h5" sx={{ mb: 2 }}>
-              No donations yet
-            </Typography>
-            <Typography sx={{ mb: 3, color: "rgba(255, 255, 255, 0.7)" }}>
+          <div className="text-center my-12 py-8">
+            <h2 className="text-2xl font-bold mb-4">No donations yet</h2>
+            <p className="mb-6 text-gray-400">
               Make your first donation to see your contributions here
-            </Typography>
-            <Button
-              variant="contained"
-              sx={{
-                bgcolor: "rgb(103, 58, 183)",
-                borderRadius: "30px",
-                px: 4,
-                "&:hover": {
-                  bgcolor: "rgb(83, 38, 163)",
-                },
-              }}
-            >
+            </p>
+            <button className="px-8 py-3 bg-[#8A42F8] text-white rounded-full font-semibold hover:bg-[#A88BFF] transition-colors">
               Donate Now
-            </Button>
-          </Box>
+            </button>
+          </div>
         )}
-      </Container>
-    </Box>
+      </div>
+    </div>
   );
 }

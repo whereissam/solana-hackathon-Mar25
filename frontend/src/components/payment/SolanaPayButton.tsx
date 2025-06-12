@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { encodeURL } from "@solana/pay";
+import { encodeURL, findReference, FindReferenceError } from "@solana/pay";
 import {
   Connection,
   clusterApiUrl,
@@ -275,36 +275,79 @@ const SolanaPayButton: React.FC<SolanaPayButtonProps> = ({
   // Generate and show QR code for mobile users
   const handleShowQR = async (): Promise<void> => {
     try {
-      const merchantWalletAddress = process.env.NEXT_PUBLIC_MERCHANT_WALLET;
+      // Step 1: Create donation record first
+      const newDonationId = await createDonation();
+      if (!newDonationId) {
+        throw new Error("Failed to create donation record");
+      }
+      setDonationId(newDonationId);
 
+      const merchantWalletAddress = process.env.NEXT_PUBLIC_MERCHANT_WALLET;
       if (!merchantWalletAddress) {
-        console.warn(
-          "NEXT_PUBLIC_MERCHANT_WALLET not set, using system program address"
-        );
+        throw new Error("Merchant wallet address not configured");
       }
 
-      const merchantAddress = new PublicKey(
-        merchantWalletAddress || "11111111111111111111111111111111"
-      );
-
-      // Generate a new reference key for tracking this transaction
+      const merchantAddress = new PublicKey(merchantWalletAddress);
       const reference = new Keypair().publicKey;
 
+      // Create the Solana Pay URL
       const url = encodeURL({
         recipient: merchantAddress,
         amount: new BigNumber(amount.toString()),
         label: "UnifyGiving",
         message: "Donation",
-        reference, // Use the reference key here
-        memo: `donation-${Date.now()}`,
+        reference,
+        memo: JSON.stringify({
+          DonationId: newDonationId,
+          Ver: "1.0",
+          Amount: amount,
+          Currency: "usd",
+        }),
       });
 
+      // Generate QR code
       const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(
         url.toString()
       )}&size=300x300`;
 
       setQrCode(qrCodeUrl);
       setShowQR(true);
+
+      // Start polling for transaction
+      const pollInterval = setInterval(async () => {
+        try {
+          // This will throw if not found, so wrap in try/catch
+          const signatureInfo = await findReference(connection, reference, {
+            finality: "confirmed",
+          });
+          // Transaction found!
+          clearInterval(pollInterval);
+
+          // Optionally, validate the transaction
+          // await validateTransfer(connection, signatureInfo.signature, { recipient, amount });
+
+          // Complete your donation record, redirect, etc.
+          await completeDonationRecord(
+            signatureInfo.signature,
+            amount,
+            newDonationId
+          );
+          router.push(
+            `/solana-success?signature=${signatureInfo.signature}&amount=${amount}`
+          );
+        } catch (error) {
+          if (!(error instanceof FindReferenceError)) {
+            // Only log unexpected errors
+            console.error("Error polling transaction:", error);
+          }
+          // else: not found yet, keep polling
+        }
+      }, 1000);
+
+      // Cleanup interval after 5 minutes (300000ms)
+      setTimeout(() => {
+        clearInterval(pollInterval);
+      }, 300000);
     } catch (err) {
       console.error("Error generating QR code:", err);
       setWalletError(handleError(err));

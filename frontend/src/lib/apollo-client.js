@@ -9,7 +9,7 @@ import { useAuthStore } from '@/store/authStore';
 
 // Replace the HTTP link with an upload link
 const uploadLink = createUploadLink({
-  uri: 'http://localhost:3000/',
+  uri: process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:4000/',
   headers: {
     // This header will tell the server this is a preflight-exempt request
     'apollo-require-preflight': 'true'
