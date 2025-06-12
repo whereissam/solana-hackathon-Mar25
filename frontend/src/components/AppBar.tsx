@@ -30,7 +30,7 @@ export const Bar: React.FC<AppBarProps> = () => {
     { name: "Home", href: "/" },
     { name: "Hubs", href: "/hubs" },
     { name: "Map", href: "/map" },
-    { name: "My donations", href: "/donations" },
+    { name: "My donations", href: "/receipts" },
     { name: "UGs Marketplace", href: "/marketplace" },
   ];
 

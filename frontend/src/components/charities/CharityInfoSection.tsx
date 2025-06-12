@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, CardMedia, Typography } from "@mui/material";
-import { Charity } from "@/app/charities/[id]/page"; // Import the Charity interface
+import { Charity } from "@/app/hubs/[id]/page"; // Import the Charity interface
 
 interface CharityInfoSectionProps {
   charity: Charity;

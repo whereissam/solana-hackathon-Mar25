@@ -35,6 +35,7 @@ const PaymentComponent: React.FC<PaymentComponentProps> = ({
   onDonationComplete,
   onCancel,
 }) => {
+  console.log("PaymentComponent beneficiaryId:", beneficiaryId);
   const [amount, setAmount] = useState<number>(1); // Default to 1 SOL/USD
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
