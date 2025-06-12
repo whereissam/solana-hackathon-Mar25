@@ -286,7 +286,7 @@ export default function CharitiesPage() {
                     </p>
                     <button
                       className="mt-auto text-[#A88BFF] hover:text-white font-semibold transition"
-                      onClick={() => router.push(`/hubs/${charity.id}`)}
+                      onClick={() => router.push(`/beneficiaries/3`)}
                     >
                       See more
                     </button>

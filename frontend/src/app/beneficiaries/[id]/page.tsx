@@ -15,9 +15,12 @@ import {
   Modal,
   Card,
   CardMedia,
+  IconButton,
 } from "@mui/material";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import EditIcon from "@mui/icons-material/Edit";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
+import LanguageIcon from "@mui/icons-material/Language";
 import AppBar from "@/components/AppBar";
 import { useAuthStore } from "@/store/authStore";
 import { useDonationStore } from "@/store/donationStore";
@@ -35,14 +38,6 @@ import {
 } from "@/types/beneficiary";
 import "@dialectlabs/blinks/index.css";
 
-// import {
-//   Blink,
-//   useBlink,
-//   useBlinksRegistryInterval,
-// } from "@dialectlabs/blinks";
-// import { useBlinkSolanaWalletAdapter } from "@dialectlabs/blinks/hooks/solana";
-// import { useWallet } from "@solana/wallet-adapter-react";
-
 // Modal style
 const modalStyle = {
   position: "absolute",
@@ -58,6 +53,16 @@ const modalStyle = {
   borderRadius: 2,
 };
 
+// Sample thumbnail images from Unsplash
+const thumbnailImages = [
+  "https://images.unsplash.com/photo-1552053831-71594a27632d?w=150&h=150&fit=crop",
+  "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=150&h=150&fit=crop",
+  "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=150&h=150&fit=crop",
+  "https://images.unsplash.com/photo-1561037404-61cd46aa615b?w=150&h=150&fit=crop",
+  "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=150&h=150&fit=crop",
+  "https://images.unsplash.com/photo-1592194996308-7b43878e84a6?w=150&h=150&fit=crop",
+];
+
 export default function BeneficiaryDetailsPage({
   params,
 }: {
@@ -65,42 +70,23 @@ export default function BeneficiaryDetailsPage({
 }) {
   const { id } = use(params);
   const router = useRouter();
-  // const beneficiaryId = parseInt(id);
 
   const [beneficiaryId, setBeneficiaryId] = React.useState<number>(0);
 
   React.useEffect(() => {
-    // If id is "0", extract it from the URL
     if (id === "0") {
-      // Get the current URL path
       const path = window.location.pathname;
-      // Extract the ID from the URL
       const urlId = path.split("/").pop();
       if (urlId && !isNaN(parseInt(urlId))) {
         setBeneficiaryId(parseInt(urlId));
       } else {
-        // Handle case where URL doesn't contain a valid ID
         console.error("No valid ID found in URL");
         router.push("/charities");
       }
     } else {
-      // Use the ID passed from params
       setBeneficiaryId(parseInt(id));
     }
   }, [id, router]);
-  // URL of your endpoint (blink provider)
-  // const blinkApiUrl =
-  //   "https://bonkblinks.com/api/actions/lock?_brf=a0898550-e7ec-408d-b721-fca000769498&_bin=ffafbecd-bb86-435a-8722-e45bf139eab5";
-  // const blinkApiUrl =
-  //   "https://solana-hackathon-mar25.onrender.com/solana-actions";
-  // // Initiates adapter
-  // const { adapter } = useBlinkSolanaWalletAdapter(
-  //   "https://api.mainnet-beta.solana.com"
-  // );
-
-  // Fetches the blink from the provided URL
-  // const { blink, isLoading } = useBlink({ url: blinkApiUrl });
-  // console.log("Blink:", blink);
 
   const { user, isAuthenticated } = useAuthStore();
   const { startDonation, completeDonation, resetDonation } = useDonationStore();
@@ -121,15 +107,12 @@ export default function BeneficiaryDetailsPage({
   const [errorMessage, setErrorMessage] = React.useState("");
   const [donationId, setDonationId] = React.useState("");
   const [donationInProgress, setDonationInProgress] = React.useState(false);
-
-  // New state for modal
   const [openDonateModal, setOpenDonateModal] = React.useState(false);
+  const [selectedImage, setSelectedImage] = React.useState(0);
 
-  // Track if a donation was just completed to prevent re-triggering
   const justCompletedRef = React.useRef(false);
 
   const handleOpenModal = () => {
-    // Reset donation state when opening the modal
     resetDonation();
     justCompletedRef.current = false;
     setDonationInProgress(false);
@@ -137,7 +120,6 @@ export default function BeneficiaryDetailsPage({
   };
 
   const handleCloseModal = () => {
-    // Don't reset if we're in the middle of processing
     if (!donationInProgress) {
       resetDonation();
     }
@@ -205,7 +187,6 @@ export default function BeneficiaryDetailsPage({
   const handleSave = async () => {
     if (!validateForm()) return;
     try {
-      // await updateBeneficiary({ variables: { id: beneficiaryId, detail: formData } });
       setSuccessMessage("Beneficiary successfully updated!");
       setIsEditMode(false);
       refetch();
@@ -226,7 +207,6 @@ export default function BeneficiaryDetailsPage({
       return;
     setIsDeleting(true);
     try {
-      // await deleteBeneficiary({ variables: { id: beneficiaryId } });
       router.push("/charities");
     } catch (error: unknown) {
       setIsDeleting(false);
@@ -252,7 +232,7 @@ export default function BeneficiaryDetailsPage({
 
   const handleInitiateDonation = () => {
     setDonationInProgress(true);
-    startDonation(beneficiaryId, 0); // Amount will be set in PaymentComponent
+    startDonation(beneficiaryId, 0);
   };
 
   const handleDonationComplete = async (
@@ -260,7 +240,6 @@ export default function BeneficiaryDetailsPage({
     lamports: number
   ) => {
     try {
-      // Only process if we haven't just completed this donation
       if (justCompletedRef.current) {
         return;
       }
@@ -276,18 +255,14 @@ export default function BeneficiaryDetailsPage({
         },
       });
 
-      // Properly access the id from the typed result
       const donationId = (result.data as CryptoDonationResult)
         ?.createCryptoDonation?.id;
 
       if (donationId) {
         setDonationId(donationId);
         setSuccessMessage("Donation successfully processed!");
-
-        // Clean up and close modal
         setDonationInProgress(false);
         handleCloseModal();
-
         setTimeout(() => setSuccessMessage(""), 5000);
       } else {
         throw new Error("Failed to get donation ID from server response");
@@ -295,14 +270,12 @@ export default function BeneficiaryDetailsPage({
     } catch (error: unknown) {
       setDonationInProgress(false);
       justCompletedRef.current = false;
-
       const errorMessage =
         error instanceof Error ? error.message : "Error processing donation";
       setErrorMessage(errorMessage);
     }
   };
 
-  // if (isLoading) return null;
   if (loading) return <LoadingState handleGoBack={handleGoBack} />;
   if (error) return <ErrorState error={error} handleGoBack={handleGoBack} />;
   if (!data?.beneficiary) return <NotFoundState handleGoBack={handleGoBack} />;
@@ -315,151 +288,283 @@ export default function BeneficiaryDetailsPage({
       sx={{
         width: "100%",
         minHeight: "100vh",
-        backgroundColor: "#000",
+        background:
+          "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
         display: "flex",
         flexDirection: "column",
-        alignItems: "center",
       }}
     >
+      {/* Header Section */}
       <Box
         sx={{
-          width: "100%",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
+          background: "rgba(26, 26, 46, 0.9)",
+          backdropFilter: "blur(10px)",
+          borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+          py: 3,
         }}
       >
-        <AppBar />
-      </Box>
-
-      <Container
-        maxWidth="lg"
-        sx={{ color: "white", px: { xs: 2, sm: 3 }, pb: 8 }}
-      >
-        <Box sx={{ my: 4 }}>
-          <Button
-            startIcon={<ChevronLeftIcon />}
-            onClick={handleGoBack}
-            sx={{ color: "white", mb: 3 }}
-          >
-            Back to Charities
-          </Button>
-
+        <Container maxWidth="lg">
           <Box
             sx={{
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              mb: 4,
+              mb: 2,
             }}
           >
-            <Typography variant="h3" component="h1" sx={{ fontWeight: "bold" }}>
-              {`${beneficiary.first_name} ${beneficiary.last_name}`}
-            </Typography>
+            <Button
+              startIcon={<ChevronLeftIcon />}
+              onClick={handleGoBack}
+              sx={{ color: "white" }}
+            >
+              Back to Charities
+            </Button>
             {userCanEdit && !isEditMode && (
               <Button
                 variant="contained"
                 color="primary"
                 startIcon={<EditIcon />}
                 onClick={() => setIsEditMode(true)}
+                sx={{ borderRadius: 3 }}
               >
                 Edit
               </Button>
             )}
           </Box>
 
-          {successMessage && (
-            <Alert severity="success" sx={{ mb: 3 }}>
-              {successMessage}
-            </Alert>
-          )}
-          {errorMessage && (
-            <Alert severity="error" sx={{ mb: 3 }}>
-              {errorMessage}
-            </Alert>
-          )}
+          <Typography
+            variant="h3"
+            component="h1"
+            sx={{
+              fontWeight: "bold",
+              color: "white",
+              mb: 2,
+              textAlign: "center",
+            }}
+          >
+            {`${beneficiary.first_name} ${beneficiary.last_name} Foundation`}
+          </Typography>
 
-          <Grid container spacing={3}>
-            {/* Left Side: Image */}
-            <Grid item xs={12} md={6}>
-              <Card sx={{ bgcolor: "#111", borderRadius: 2, height: "100%" }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              gap: 4,
+              color: "rgba(255, 255, 255, 0.7)",
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <LocationOnIcon fontSize="small" />
+              <Typography variant="body2">
+                {beneficiary.email?.includes("@")
+                  ? beneficiary.email
+                      .split("@")[1]
+                      .replace(/\.(com|org|net|de)$/, "")
+                      .toUpperCase() + " Location"
+                  : "Berlin, Germany"}
+              </Typography>
+            </Box>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <LanguageIcon fontSize="small" />
+              <Typography variant="body2">
+                https://{beneficiary.first_name.toLowerCase()}-
+                {beneficiary.last_name.toLowerCase()}.org/
+              </Typography>
+            </Box>
+          </Box>
+        </Container>
+      </Box>
+
+      <Container maxWidth="lg" sx={{ py: 4, flex: 1 }}>
+        {successMessage && (
+          <Alert severity="success" sx={{ mb: 3 }}>
+            {successMessage}
+          </Alert>
+        )}
+        {errorMessage && (
+          <Alert severity="error" sx={{ mb: 3 }}>
+            {errorMessage}
+          </Alert>
+        )}
+
+        <Grid container spacing={4}>
+          {/* Left Side: Main Image and Thumbnails */}
+          <Grid item xs={12} md={8}>
+            {/* Main Image */}
+            <Box sx={{ mb: 3 }}>
+              <Card
+                sx={{
+                  bgcolor: "rgba(17, 17, 17, 0.8)",
+                  borderRadius: 3,
+                  overflow: "hidden",
+                  backdropFilter: "blur(10px)",
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                }}
+              >
                 <CardMedia
                   component="img"
-                  height="100" // <-- This fixed height is the issue
-                  image="https://images.unsplash.com/photo-1444212477490-ca407925329e?q=80&w=2560&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                  height="500"
+                  image="https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=800&h=500&fit=crop"
                   alt={`${beneficiary.first_name} ${beneficiary.last_name}`}
                   sx={{
                     objectFit: "cover",
-                    // Add height: '100%' to the sx prop of CardMedia
-                    height: "100%",
                   }}
                 />
-              </Card>
-              {/* <Blink blink={blink} adapter={adapter} /> */}
-              {/* {
-                <Blink
-                  action={
-                    "https://dial.to/?action=solana-action%3Ahttps%3A%2F%2Fsolana-hackathon-mar25.onrender.com%2Fsolana-actions%2F3"
-                  }
-                  adapter={adapter}
-                />
-              } */}
-            </Grid>
 
-            {/* Right Side: Beneficiary Info with Donate Button Below */}
-            <Grid item xs={12} md={6}>
-              <Box
+                {/* Overlay text on image */}
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background:
+                      "linear-gradient(to bottom, transparent 0%, transparent 70%, rgba(0,0,0,0.7) 100%)",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "flex-end",
+                    p: 3,
+                  }}
+                >
+                  <Box sx={{ color: "white", textAlign: "left" }}>
+                    <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
+                      HELP {beneficiary.first_name.toUpperCase()}
+                    </Typography>
+                    <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
+                      GET BETTER AND
+                    </Typography>
+                    <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
+                      FIND A LOVING
+                    </Typography>
+                    <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                      HOME ↗
+                    </Typography>
+                  </Box>
+                </Box>
+              </Card>
+            </Box>
+
+            {/* Thumbnail Gallery */}
+            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+              {thumbnailImages.map((image, index) => (
+                <Card
+                  key={index}
+                  sx={{
+                    width: 80,
+                    height: 80,
+                    cursor: "pointer",
+                    border:
+                      selectedImage === index
+                        ? "3px solid #8B5CF6"
+                        : "1px solid rgba(255,255,255,0.1)",
+                    borderRadius: 2,
+                    overflow: "hidden",
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                      transform: "scale(1.05)",
+                      border: "2px solid #8B5CF6",
+                    },
+                  }}
+                  onClick={() => setSelectedImage(index)}
+                >
+                  <CardMedia
+                    component="img"
+                    height="80"
+                    image={image}
+                    alt={`Thumbnail ${index + 1}`}
+                    sx={{ objectFit: "cover" }}
+                  />
+                </Card>
+              ))}
+            </Box>
+          </Grid>
+
+          {/* Right Side: Donation Stats and Details */}
+          <Grid item xs={12} md={4}>
+            {/* Donation Stats Card */}
+            <Card
+              sx={{
+                background: "linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)",
+                borderRadius: 1,
+                p: 3,
+                mb: 3,
+                color: "white",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+              }}
+            >
+              <Typography variant="h4" sx={{ fontWeight: "bold", mb: 1 }}>
+                SOL 0.{String(beneficiaryId).padStart(2, "0")}
+                <Typography
+                  component="span"
+                  sx={{ ml: 1, fontSize: "1rem", opacity: 0.8 }}
+                >
+                  Raised
+                </Typography>
+              </Typography>
+
+              <Typography variant="body2" sx={{ mb: 3, opacity: 0.9 }}>
+                {Math.floor(Math.random() * 10) + 1} people have just made a
+                donation
+              </Typography>
+
+              <Button
+                variant="contained"
+                fullWidth
+                size="large"
+                onClick={handleOpenModal}
                 sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  height: "100%",
+                  background: "rgba(255, 255, 255, 0.2)",
+                  border: "1px solid rgba(255, 255, 255, 0.3)",
+                  borderRadius: 1,
+                  py: 1.5,
+                  fontSize: "1.1rem",
+                  fontWeight: "bold",
+                  "&:hover": {
+                    background: "rgba(255, 255, 255, 0.3)",
+                  },
                 }}
               >
-                <Paper
-                  elevation={3}
-                  sx={{
-                    p: 4,
-                    borderRadius: 2,
-                    backgroundColor: "#111",
-                    color: "white",
-                    mb: 3,
-                    flexGrow: 1,
-                  }}
-                >
-                  <BeneficiaryInfo
-                    beneficiary={beneficiary}
-                    isEditMode={isEditMode}
-                    formData={formData}
-                    formErrors={formErrors}
-                    handleInputChange={handleInputChange}
-                    handleSave={handleSave}
-                    handleCancel={handleCancel}
-                    handleDelete={handleDelete}
-                    isAdmin={isAdmin}
-                    isDeleting={isDeleting}
-                    donationId={donationId}
-                  />
-                </Paper>
+                Donate now
+              </Button>
+            </Card>
 
-                {/* Donate Button */}
-                <Button
-                  variant="contained"
-                  color="primary"
-                  size="large"
-                  fullWidth
-                  sx={{
-                    py: 1.5,
-                    fontSize: "1.1rem",
-                    fontWeight: "bold",
-                    borderRadius: 2,
-                  }}
-                  onClick={handleOpenModal}
-                >
-                  Donate Now
-                </Button>
-              </Box>
-            </Grid>
+            {/* Beneficiary Details Card */}
           </Grid>
+        </Grid>
+
+        {/* Description Section */}
+        <Box sx={{ mt: 6 }}>
+          <Paper
+            elevation={0}
+            sx={{
+              p: 4,
+              borderRadius: 3,
+              background: "rgba(17, 17, 17, 0.6)",
+              backdropFilter: "blur(10px)",
+              color: "white",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+            }}
+          >
+            <Typography variant="body1" sx={{ lineHeight: 1.8, mb: 3 }}>
+              The {beneficiary.first_name} {beneficiary.last_name} Foundation is
+              a non-profit organisation that supports individuals and families
+              in need. Our international team consists of volunteers who are
+              passionate about helping those who require assistance. Our
+              association is recognised as worthy of support and we are licensed
+              to provide aid in accordance with local regulations.
+            </Typography>
+
+            <Typography variant="body1" sx={{ lineHeight: 1.8 }}>
+              <strong>Sustainable commitment on the ground.</strong> Our main
+              commitment is in the local community. Reducing suffering and
+              providing hope is an important focus of our work. This is why our
+              support projects are particularly close to our hearts. We also
+              support local welfare activists in ensuring the care of those in
+              need, improving the situation in community-run shelters and
+              educating the population about responsible care and support.
+            </Typography>
+          </Paper>
         </Box>
       </Container>
 
