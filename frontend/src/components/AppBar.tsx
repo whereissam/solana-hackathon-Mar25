@@ -47,7 +47,7 @@ export const Bar: React.FC<AppBarProps> = () => {
           <div className="flex items-center justify-between">
             {/* Logo */}
             <NextLink href="/" className="flex items-center">
-              <Image src="/img/logo.png" alt="Logo" width={100} height={100} />
+              <Image src="/img/Logo.png" alt="Logo" width={100} height={100} />
             </NextLink>
 
             {/* Desktop Navigation Links */}
