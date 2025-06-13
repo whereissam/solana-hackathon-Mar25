@@ -21,7 +21,7 @@ export default function MapPage() {
             <img
               src="/img/solana-logo.svg"
               alt="Solana"
-              className="inline w-10 h-10 ml-1"
+              className="inline w-15 h-15 ml-1"
             />
           </span>
         </h1>

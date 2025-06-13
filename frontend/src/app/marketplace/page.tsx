@@ -75,7 +75,7 @@ const categoryData = {
         title: "Jazz in the Courtyard",
         desc: "Premium seating for smooth jazz and cocktails evening.",
         image:
-          "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99?auto=format&fit=crop&w=400&q=80",
+          "https://images.unsplash.com/photo-1575425050048-cc8fa7c193b2?q=80&w=2940&auto=format&fit=crop&w=400&q=80",
         price: "€65",
       },
       {
